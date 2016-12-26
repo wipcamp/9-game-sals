@@ -54,10 +54,7 @@ function create() {
 
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
 		/////////////////////////////////////
-<<<<<<< HEAD
 	//bot = this.add.sprite(380, 100, 'bot');
-=======
->>>>>>> 43a5a38c8f3e7dd4ff4fee92cadb29030d1d1d22
     /*game.physics.arcade.enable(bot);
     bot.body.maxVelocity.set(200);
     weapon2 = game.add.weapon(30, 'bullet');
@@ -82,11 +79,7 @@ function create() {
 
     //sprite.body.collideWorldBounds = true;
     enemy = [];
-<<<<<<< HEAD
     enemy.push(new EnemyShip(1, game, enemyBullets));
-=======
-    
->>>>>>> 43a5a38c8f3e7dd4ff4fee92cadb29030d1d1d22
 }
 
 function update() {
@@ -110,13 +103,8 @@ function update() {
         weapon.fire();
     }
 
-<<<<<<< HEAD
     //game.world.wrap(sprite, 16);
     //game.world.wrap(bot, 16);
-=======
-    
->>>>>>> 43a5a38c8f3e7dd4ff4fee92cadb29030d1d1d22
-
 }
 
 function render() {
@@ -126,7 +114,6 @@ function render() {
 }
 
 
-<<<<<<< HEAD
 EnemyShip = function (index, game, bullets) {
 
     var x = game.world.randomX;
@@ -134,9 +121,6 @@ EnemyShip = function (index, game, bullets) {
 
     this.game = game;
     this.health = 50;
-=======
-
->>>>>>> 43a5a38c8f3e7dd4ff4fee92cadb29030d1d1d22
     this.bullets = bullets;
     this.fireRate = 1000;
     this.nextFire = 0;
@@ -161,12 +145,8 @@ EnemyShip.prototype.damage = function() {
     if (this.health <= 0)
     {
         this.alive = false;
-<<<<<<< HEAD
         this.ship.kill();
 	    return true;
-=======
-
->>>>>>> 43a5a38c8f3e7dd4ff4fee92cadb29030d1d1d22
     }
 
     return false;
