@@ -4,7 +4,7 @@ function preload() {
 
     game.load.image('bullet', 'images/brids.png');
     game.load.image('ship', 'images/brids.png');
-	game.load.image('bot','images/brids.png');
+	  game.load.image('bot','images/brids.png');
 }
 
 var enemy;
@@ -14,7 +14,10 @@ var weapon;
 var weapon2;
 var cursors;
 var fireButton;
-var bot;
+//var bot;
+var timer,total=0;
+var randPositionX;
+var randPositionY;
 
 function create() {
 
@@ -32,7 +35,7 @@ function create() {
 
     //  Speed-up the rate of fire, allowing them to shoot 1 bullet every 60ms
     weapon.fireRate = 100;
-	weapon.bulletAngleVariance = 0;
+    weapon.bulletAngleVariance = 0;
     //  Wrap bullets around the world bounds to the opposite side
     //weapon.bulletWorldWrap = false;
 
@@ -77,9 +80,16 @@ function create() {
     enemyBullets.setAll('outOfBoundsKill', true);
     enemyBullets.setAll('checkWorldBounds', true);
 
-    //sprite.body.collideWorldBounds = true;
+    sprite.body.collideWorldBounds = true;
     enemy = [];
     enemy.push(new EnemyShip(1, game, enemyBullets));
+
+    timer = game.time.create(false);
+    //  Set a TimerEvent to occur after 2 seconds
+    timer.loop(3000, reposition, this);
+    //  Start the timer running - this is important!
+    //  It won't start automatically, allowing you to hook it to button events and the like.
+    timer.start();
 }
 
 function update() {
@@ -98,10 +108,11 @@ function update() {
 		sprite.body.velocity.x = 300;
 	}
 
-    if (fireButton.isDown)
-    {
-        weapon.fire();
-    }
+  if (fireButton.isDown)
+  {
+      weapon.fire();
+  }
+  enemy[0].update();
 
     //game.world.wrap(sprite, 16);
     //game.world.wrap(bot, 16);
@@ -109,8 +120,9 @@ function update() {
 
 function render() {
 
-    weapon.debug();
-
+    //weapon.debug();
+    game.debug.text('Time until event: ' + timer.duration.toFixed(0), 32, 32);
+    game.debug.text('Loop Count: ' + total, 32, 64);
 }
 
 
@@ -130,12 +142,14 @@ EnemyShip = function (index, game, bullets) {
     this.ship.anchor.set(0.5);
 
     this.ship.name = index.toString();
-    game.physics.enable(this.ship, Phaser.Physics.ARCADE);
+    //game.physics.enable(this.ship, Phaser.Physics.ARCADE);
+    game.physics.enable(this.ship);
     this.ship.body.immovable = false;
     this.ship.body.collideWorldBounds = true;
     this.ship.body.bounce.setTo(1, 1);
 
-    
+    this.ship.body.maxVelocity.set(200);
+
 };
 
 EnemyShip.prototype.damage = function() {
@@ -152,8 +166,26 @@ EnemyShip.prototype.damage = function() {
     return false;
 
 }
-
+function reposition() {
+    randPositionX = game.rnd.integerInRange(1, 799);
+    randPositionY = game.rnd.integerInRange(1, 300);
+    total++;
+}
 EnemyShip.prototype.update = function() {
+    this.ship.body.velocity.y=0;
+    this.ship.body.velocity.x=0;
+    if(this.ship.x - randPositionX <= 10){
+        this.ship.body.velocity.x = 150;
+    }else
+    if(this.ship.x - randPositionX >= 20){
+        this.ship.body.velocity.x = -150;
+    }
+    if(this.ship.y - randPositionY <= 10){
+        this.ship.body.velocity.y = 150;
+    }else
+    if(this.ship.y - randPositionY >= 20){
+        this.ship.body.velocity.y = -150;
+    }
 
-    
+
 };
