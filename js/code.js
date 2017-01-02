@@ -29,18 +29,6 @@ var nextFire = 0;
 var bulletTime = 0;
 function create() {
 
-    bullets = game.add.group();
-    bullets.enableBody = true;
-    bullets.physicsBodyType = Phaser.Physics.ARCADE;
-    for (var i = 0; i < 20; i++){
-        var b = bullets.create(0, 0, 'bullet');
-        b.name = 'bullet' + i;
-        b.exists = false;
-        b.visible = false;
-        b.checkWorldBounds = true;
-        b.events.onOutOfBounds.add(resetBullet, this);
-    }
-
     //  Creates 30 bullets, using the 'bullet' graphic
     /*weapon = game.add.weapon(30, 'bullet');
     //  The bullets will be automatically killed when they are 2000ms old
@@ -82,7 +70,17 @@ function create() {
     //weapon2.bulletWorldWrap = false;
     weapon2.trackSprite(bot, 0, 0, false);
     weapon2.fireAngle=90;*/
-
+    bullets = game.add.group();
+    bullets.enableBody = true;
+    bullets.physicsBodyType = Phaser.Physics.ARCADE;
+    for (var i = 0; i < 20; i++){
+        var b = bullets.create(0, 0, 'bullet');
+        b.name = 'bullet' + i;
+        b.exists = false;
+        b.visible = false;
+        b.checkWorldBounds = true;
+        b.events.onOutOfBounds.add(resetBullet, this);
+    }
     /*enemyBullets = game.add.group();
     enemyBullets.enableBody = true;
     enemyBullets.physicsBodyType = Phaser.Physics.ARCADE;
@@ -285,7 +283,6 @@ function fireBot (ship) {
         {
             bullet.reset(ship.x-30, ship.y-20);
             bullet.body.velocity.y = 100;
-            bulletTime = game.time.now + 600;
         }
     }
     ship.count++;
