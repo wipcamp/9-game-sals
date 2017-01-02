@@ -4,7 +4,7 @@ function preload() {
 
     game.load.image('bullet', 'images/brids.png');
     game.load.image('ship', 'images/brids.png');
-	  game.load.image('bot','images/brids.png');
+	game.load.image('bot','images/brids.png');
 }
 
 var enemy;
@@ -63,7 +63,7 @@ function create() {
     cursors = this.input.keyboard.createCursorKeys();
 
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
-		/////////////////////////////////////
+	/////////////////////////////////////
 	//bot = this.add.sprite(380, 100, 'bot');
     /*game.physics.arcade.enable(bot);
     bot.body.maxVelocity.set(200);
@@ -89,7 +89,7 @@ function create() {
 
     sprite.body.collideWorldBounds = true;
     enemy = [];
-    enemy.push(new EnemyShip(1, game, enemyBullets));
+    enemy.push(new EnemyShip(0, game, enemyBullets));
 
     timer = game.time.create(false);
     //  Set a TimerEvent to occur after 2 seconds
@@ -100,7 +100,7 @@ function create() {
 }
 
 function update() {
-	game.physics.arcade.overlap(enemy[0],bullets, bulletHitEnemy, null , this);
+	game.physics.arcade.overlap(enemy[0].ship,bullets, bulletHitEnemy, null , this);
     sprite.body.velocity.y=0;
 	sprite.body.velocity.x=0;
 	if(cursors.up.isDown){
@@ -140,7 +140,7 @@ EnemyShip = function (index, game, bullets) {
     var y = (game.world.randomY/2);
 
     this.game = game;
-    this.health = 50;
+    this.health = 3;
     this.bullets = bullets;
     this.fireRate = 1000;
     this.nextFire = 0;
@@ -170,7 +170,6 @@ EnemyShip.prototype.damage = function() {
         this.ship.kill();
 	    return true;
     }
-
     return false;
 
 }
@@ -199,17 +198,16 @@ EnemyShip.prototype.update = function() {
 function bulletHitPlayer (ship, bullet) {
     bullet.kill();
     ///
-
 }
 
 
 
 function bulletHitEnemy (ship, bullet) {
-
     bullet.kill();
+    //console.log(ship.name);
     var destroyed = enemy[ship.name].damage();
-    if (destroyed){
-        
+    if(destroyed){
+        ////play anime
     }
 
 }
@@ -222,7 +220,7 @@ function fire () {
 
         if (bullet)
         {
-            bullet.reset(sprite.x + 6, sprite.y - 8);
+            bullet.reset(sprite.x-30, sprite.y-20);
             bullet.body.velocity.y = -300;
             bulletTime = game.time.now + 150;
         }
@@ -230,7 +228,5 @@ function fire () {
 }
 
 function resetBullet (bullet) {
-
     bullet.kill();
-
 }
