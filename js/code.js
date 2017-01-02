@@ -1,4 +1,9 @@
-var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
+
+//var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
+var game = new Phaser.Game(800, 600, Phaser.AUTO, "game");
+var main = { preload : preload , create: create , update : update , render: render};
+game.state.add('main', main);
+game.state.start('main');
 
 function preload() {
 
@@ -101,6 +106,7 @@ function create() {
 
 function update() {
 	game.physics.arcade.overlap(enemy[0].ship,bullets, bulletHitEnemy, null , this);
+    game.physics.arcade.overlap(sprite,enemyBullets, bulletHitPlayer, null , this);
     sprite.body.velocity.y=0;
 	sprite.body.velocity.x=0;
 	if(cursors.up.isDown){
@@ -193,11 +199,14 @@ EnemyShip.prototype.update = function() {
     if(this.ship.y - randPositionY >= 20){
         this.ship.body.velocity.y = -150;
     }
+    if(this.alive)
+        fireBot(this.ship);
 }
 
 function bulletHitPlayer (ship, bullet) {
     bullet.kill();
     ///
+    game.state.start('main');
 }
 
 
@@ -221,8 +230,22 @@ function fire () {
         if (bullet)
         {
             bullet.reset(sprite.x-30, sprite.y-20);
-            bullet.body.velocity.y = -300;
-            bulletTime = game.time.now + 150;
+            bullet.body.velocity.y = -200;
+            bulletTime = game.time.now + 200;
+        }
+    }
+}
+
+function fireBot (ship) {
+    if (game.time.now > bulletTime)
+    {
+        bullet = enemyBullets.getFirstExists(false);
+
+        if (bullet)
+        {
+            bullet.reset(ship.x-30, ship.y-20);
+            bullet.body.velocity.y = 200;
+            bulletTime = game.time.now + 500;
         }
     }
 }
