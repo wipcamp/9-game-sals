@@ -18,31 +18,38 @@ var fireButton;
 var timer,total=0;
 var randPositionX;
 var randPositionY;
-
+var bullets;
+var fireRate = 100;
+var nextFire = 0;
+var bulletTime = 0;
 function create() {
 
+    bullets = game.add.group();
+    bullets.enableBody = true;
+    bullets.physicsBodyType = Phaser.Physics.ARCADE;
+    for (var i = 0; i < 20; i++){
+        var b = bullets.create(0, 0, 'bullet');
+        b.name = 'bullet' + i;
+        b.exists = false;
+        b.visible = false;
+        b.checkWorldBounds = true;
+        b.events.onOutOfBounds.add(resetBullet, this);
+    }
+
     //  Creates 30 bullets, using the 'bullet' graphic
-    weapon = game.add.weapon(30, 'bullet');
-
-
-
+    /*weapon = game.add.weapon(30, 'bullet');
     //  The bullets will be automatically killed when they are 2000ms old
     weapon.bulletKillType = Phaser.Weapon.KILL_LIFESPAN;
     weapon.bulletLifespan = 2000;
-
     //  The speed at which the bullet is fired
     weapon.bulletSpeed = 600;
-
     //  Speed-up the rate of fire, allowing them to shoot 1 bullet every 60ms
     weapon.fireRate = 100;
-    weapon.bulletAngleVariance = 0;
+    weapon.bulletAngleVariance = 0;*/
     //  Wrap bullets around the world bounds to the opposite side
     //weapon.bulletWorldWrap = false;
-
     sprite = this.add.sprite(390, 500, 'ship');
-
     sprite.anchor.set(0.5);
-
     game.physics.arcade.enable(sprite);
 
     sprite.body.drag.set(70);
@@ -51,7 +58,7 @@ function create() {
     //  Tell the Weapon to track the 'player' Sprite
     //  With no offsets from the position
     //  But the 'true' argument tells the weapon to track sprite rotation
-    weapon.trackSprite(sprite, 0, -20, false);
+    //weapon.trackSprite(sprite, 0, -20, false);
 
     cursors = this.input.keyboard.createCursorKeys();
 
@@ -93,7 +100,8 @@ function create() {
 }
 
 function update() {
-	sprite.body.velocity.y=0;
+	game.physics.arcade.overlap(enemy[0],bullets, bulletHitEnemy, null , this);
+    sprite.body.velocity.y=0;
 	sprite.body.velocity.x=0;
 	if(cursors.up.isDown){
 		sprite.body.velocity.y = -300;
@@ -108,11 +116,11 @@ function update() {
 		sprite.body.velocity.x = 300;
 	}
 
-  if (fireButton.isDown)
-  {
-      weapon.fire();
-  }
-  enemy[0].update();
+    if (fireButton.isDown)
+    {
+        fire();
+    }
+    enemy[0].update();
 
     //game.world.wrap(sprite, 16);
     //game.world.wrap(bot, 16);
@@ -121,8 +129,8 @@ function update() {
 function render() {
 
     //weapon.debug();
-    game.debug.text('Time until event: ' + timer.duration.toFixed(0), 32, 32);
-    game.debug.text('Loop Count: ' + total, 32, 64);
+    //game.debug.text('Time until event: ' + timer.duration.toFixed(0), 32, 32);
+    //game.debug.text('Loop Count: ' + total, 32, 64);
 }
 
 
@@ -186,6 +194,43 @@ EnemyShip.prototype.update = function() {
     if(this.ship.y - randPositionY >= 20){
         this.ship.body.velocity.y = -150;
     }
+}
+
+function bulletHitPlayer (ship, bullet) {
+    bullet.kill();
+    ///
+
+}
 
 
-};
+
+function bulletHitEnemy (ship, bullet) {
+
+    bullet.kill();
+    var destroyed = enemy[ship.name].damage();
+    if (destroyed){
+        
+    }
+
+}
+
+
+function fire () {
+    if (game.time.now > bulletTime)
+    {
+        bullet = bullets.getFirstExists(false);
+
+        if (bullet)
+        {
+            bullet.reset(sprite.x + 6, sprite.y - 8);
+            bullet.body.velocity.y = -300;
+            bulletTime = game.time.now + 150;
+        }
+    }
+}
+
+function resetBullet (bullet) {
+
+    bullet.kill();
+
+}
