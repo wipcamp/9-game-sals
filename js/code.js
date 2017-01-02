@@ -95,6 +95,7 @@ function create() {
     sprite.body.collideWorldBounds = true;
     enemy = [];
     enemy.push(new EnemyShip(0, game, enemyBullets));
+    //enemy.push(new EnemyShip(1, game, enemyBullets));
 
     timer = game.time.create(false);
     //  Set a TimerEvent to occur after 2 seconds
@@ -106,6 +107,7 @@ function create() {
 
 function update() {
 	game.physics.arcade.overlap(enemy[0].ship,bullets, bulletHitEnemy, null , this);
+    //game.physics.arcade.overlap(enemy[1].ship,bullets, bulletHitEnemy, null , this);
     game.physics.arcade.overlap(sprite,enemyBullets, bulletHitPlayer, null , this);
     sprite.body.velocity.y=0;
 	sprite.body.velocity.x=0;
@@ -127,6 +129,7 @@ function update() {
         fire();
     }
     enemy[0].update();
+    //enemy[1].update();
 
     //game.world.wrap(sprite, 16);
     //game.world.wrap(bot, 16);
@@ -237,16 +240,33 @@ function fire () {
 }
 
 function fireBot (ship) {
-    if (game.time.now > bulletTime)
+    /*if (game.time.now > bulletTime)
     {
         bullet = enemyBullets.getFirstExists(false);
 
         if (bullet)
         {
             bullet.reset(ship.x-30, ship.y-20);
-            bullet.body.velocity.y = 200;
-            bulletTime = game.time.now + 500;
+            bullet.body.velocity.y = 100;
+            bulletTime = game.time.now + 600;
         }
+    }*/
+    ///โคตรปืน
+    /*bullet = enemyBullets.getFirstExists(false);
+
+    if (bullet)
+    {
+        bullet.reset(ship.x-30, ship.y-20);
+        bullet.body.velocity.y = 100;
+        bulletTime = game.time.now + 600;
+    }*/
+    bullet = enemyBullets.getFirstExists(false);
+
+    if (bullet)
+    {
+        bullet.reset(ship.x-30, ship.y-20);
+        bullet.body.velocity.y = 100;
+        bulletTime = game.time.now + 600;
     }
 }
 
