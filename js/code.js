@@ -105,7 +105,7 @@ function create() {
 
     sprite.body.collideWorldBounds = true;
     enemy = [];
-    for (var i = 0; i < 3; i++){
+    for (var i = 0; i < 10; i++){
         enemy.push(new EnemyShip(i, game, enemyBullets));
     }
     timer = game.time.create(false);
@@ -122,7 +122,7 @@ function update() {
         fire();
     }
     game.physics.arcade.overlap(sprite,enemyBullets, bulletHitPlayer, null , this);
-    for (var i = 0; i < 3; i++){
+    for (var i = 0; i < enemy.length; i++){
         game.physics.arcade.overlap(enemy[i].ship,bullets, bulletHitEnemy, null , this);
         if(enemy[i].alive){
           enemy[i].update(i);
@@ -194,7 +194,7 @@ EnemyShip.prototype.damage = function() {
 
 }
 function reposition() {
-    for (var i = 0; i < 3; i++){
+    for (var i = 0; i < enemy.length; i++){
       randPositionX[i] = game.rnd.integerInRange(1, 799);
       randPositionY[i] = game.rnd.integerInRange(1, 300);
     }
@@ -278,7 +278,7 @@ function fireBot (ship) {
             bulletTime = game.time.now + 500;
             bullet.rotation = this.game.physics.arcade.moveToObject(bullet, sprite, 350);
     }*/
-    console.log(ship.name + "  "+ ship.count);
+    //console.log(ship.name + "  "+ ship.count);
     if(ship.count%30==0){
         bullet = enemyBullets.getFirstExists(false);
         if (bullet)
