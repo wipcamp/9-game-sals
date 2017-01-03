@@ -13,6 +13,9 @@ var destroyedCount=0;
 var wave=-1;
 var enemy;
 var enemyBullets;
+var bossBullets1;
+var bossBullets2;
+var bossBullets3;
 var sprite;
 var weapon;
 var weapon2;
@@ -25,6 +28,7 @@ var bullets;
 var fireRate = 100;
 var nextFire = 0;
 var bulletTime = 0;
+var Boss;
 function create() {
     sprite = this.add.sprite(390, 500, 'ship');
     sprite.anchor.set(0.5);
@@ -34,7 +38,7 @@ function create() {
     cursors = this.input.keyboard.createCursorKeys();
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     destroyedCount=0;
-	wave=-1;
+	wave=5;
     bullets = game.add.group();
     bullets.enableBody = true;
     bullets.physicsBodyType = Phaser.Physics.ARCADE;
@@ -57,6 +61,40 @@ function create() {
         b.checkWorldBounds = true;
         b.events.onOutOfBounds.add(resetBullet, this);
     }
+    bossBullets1 = game.add.group();
+    bossBullets1.enableBody = true;
+    bossBullets1.physicsBodyType = Phaser.Physics.ARCADE;
+    for (var i = 0; i < 50; i++){
+        var b = bossBullets1.create(0, 0, 'bullet');
+        b.name = 'bullet' + i;
+        b.exists = false;
+        b.visible = false;
+        b.checkWorldBounds = true;
+        b.events.onOutOfBounds.add(resetBullet, this);
+    }
+    bossBullets2 = game.add.group();
+    bossBullets2.enableBody = true;
+    bossBullets2.physicsBodyType = Phaser.Physics.ARCADE;
+    for (var i = 0; i < 50; i++){
+        var b = bossBullets2.create(0, 0, 'bullet');
+        b.name = 'bullet' + i;
+        b.exists = false;
+        b.visible = false;
+        b.checkWorldBounds = true;
+        b.events.onOutOfBounds.add(resetBullet, this);
+    }
+    bossBullets3 = game.add.group();
+    bossBullets3.enableBody = true;
+    bossBullets3.physicsBodyType = Phaser.Physics.ARCADE;
+    for (var i = 0; i < 50; i++){
+        var b = bossBullets3.create(0, 0, 'bullet');
+        b.name = 'bullet' + i;
+        b.exists = false;
+        b.visible = false;
+        b.checkWorldBounds = true;
+        b.events.onOutOfBounds.add(resetBullet, this);
+    }
+
     sprite.body.collideWorldBounds = true;
     enemy = [];
     timer = game.time.create(false);
@@ -81,8 +119,10 @@ function update() {
         	summonWave(8);
         else if(wave%7==5)
         	summonWave(9);
-    	else	///boss
-    		summonWave(1);
+    	else{	///boss
+    		destroyedCount = 1;
+            Boss = new EnemyBoss(game,bossBullets1,bossBullets2,bossBullets3);
+        }
 	}
 
     if (fireButton.isDown)
@@ -263,7 +303,7 @@ function summonWave(numberWave){
 
 
 EnemyBoss = function (game, bullets1,bullets2,bullets3) {
-    var x = game.world.center;
+    var x = 400;
     var y = 0;
     this.game = game;
     this.health = 1000000;
@@ -297,5 +337,5 @@ EnemyBoss.prototype.damage = function() {
 }
 
 EnemyBoss.prototype.update = function(){
-    
+
 }
