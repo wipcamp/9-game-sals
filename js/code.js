@@ -129,8 +129,6 @@ function update() {
 			summonWave(8);
 		else	///boss
 			summonWave(1);
-
-
 	}
 
     if (fireButton.isDown)
@@ -246,13 +244,16 @@ function bulletHitPlayer (ship, bullet) {
 
 
 function bulletHitEnemy (ship, bullet) {
-    bullet.kill();
-    //console.log(ship.name);
-    var destroyed = enemy[ship.name].damage();
-    if(destroyed){
-        ////play anime
-        destroyedCount--;
-    }
+	if(ship.alive){    
+	    bullet.kill();
+	    //console.log(ship.name);
+	    var destroyed = enemy[ship.name].damage();
+	    if(destroyed){
+	        ////play anime
+	        destroyedCount--;
+	        console.log(">>"+destroyedCount+">>"+ship.name	);
+	    }
+	}
 
 }
 
