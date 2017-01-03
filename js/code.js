@@ -7,11 +7,12 @@ game.state.start('main');
 
 function preload() {
 
-    game.load.image('bullet', 'images/bullet.jpg');
+    game.load.image('bullet', 'images/bullet.png');
     game.load.spritesheet('ship', 'images/brids.png',32,36);
 	  game.load.image('bot','images/brids.png');
 }
-
+var destroyedCount=0;
+var wave=-1;
 var enemy;
 var enemyBullets;
 var sprite;
@@ -105,9 +106,10 @@ function create() {
 
     sprite.body.collideWorldBounds = true;
     enemy = [];
-    for (var i = 0; i < 4; i++){
+
+    /*for (var i = 0; i < 10; i++){
         enemy.push(new EnemyShip(i, game, enemyBullets));
-    }
+    }*/
     timer = game.time.create(false);
     //  Set a TimerEvent to occur after 2 seconds
     timer.loop(3000, reposition, this);
@@ -117,6 +119,21 @@ function create() {
 }
 
 function update() {
+
+	if(destroyedCount==0){
+		wave++;
+		if(wave%4==0)
+			summonWave(4);
+		else if(wave%4==1)
+			summonWave(6);
+		else if(wave%4==2)
+			summonWave(8);
+		else	///boss
+			summonWave(1);
+
+
+	}
+
     if (fireButton.isDown)
     {
         fire();
@@ -222,17 +239,22 @@ EnemyShip.prototype.update = function(i) {
 function bulletHitPlayer (ship, bullet) {
     bullet.kill();
     ///
+    destroyedCount=0;
+	wave=-1;
     game.state.start('main');
 }
 
 
 
 function bulletHitEnemy (ship, bullet) {
-    bullet.kill();
-    //console.log(ship.name);
-    var destroyed = enemy[ship.name].damage();
-    if(destroyed){
-        ////play anime
+    if(ship.alive){
+      bullet.kill();
+      //console.log(ship.name);
+      var destroyed = enemy[ship.name].damage();
+      if(destroyed){
+          ////play anime
+          destroyedCount--;
+      }
     }
 
 }
@@ -246,7 +268,7 @@ function fire () {
         if (bullet)
         {
             bullet.reset(sprite.x-30, sprite.y-20);
-            bullet.body.velocity.y = -200;
+            bullet.body.velocity.y = -400;
             bulletTime = game.time.now + 200;
         }
     }
@@ -294,4 +316,13 @@ function fireBot (ship) {
 
 function resetBullet (bullet) {
     bullet.kill();
+}
+
+function summonWave(numberWave){
+	for(var i=0;i<enemy.length;i++)
+		enemy.pop();
+	destroyedCount=numberWave;
+	for (var i = 0; i < numberWave; i++){
+        enemy.push(new EnemyShip(i, game, enemyBullets));
+    }
 }
