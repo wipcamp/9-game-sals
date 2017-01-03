@@ -7,7 +7,7 @@ game.state.start('main');
 
 function preload() {
 
-    game.load.spritesheet('bullet', 'images/brids.png',32,36);
+    game.load.image('bullet', 'images/bullet.png');
     game.load.spritesheet('ship', 'images/brids.png',32,36);
 	  game.load.image('bot','images/brids.png');
 }
@@ -45,7 +45,7 @@ function create() {
     sprite = this.add.sprite(390, 500, 'ship');
     sprite.anchor.set(0.5);
     game.physics.arcade.enable(sprite);
-    
+
 
 
     sprite.body.drag.set(70);
@@ -106,6 +106,7 @@ function create() {
 
     sprite.body.collideWorldBounds = true;
     enemy = [];
+
     /*for (var i = 0; i < 10; i++){
         enemy.push(new EnemyShip(i, game, enemyBullets));
     }*/
@@ -244,6 +245,7 @@ function bulletHitPlayer (ship, bullet) {
 
 
 function bulletHitEnemy (ship, bullet) {
+<<<<<<< HEAD
 	if(ship.alive){    
 	    bullet.kill();
 	    //console.log(ship.name);
@@ -254,6 +256,17 @@ function bulletHitEnemy (ship, bullet) {
 	        console.log(">>"+destroyedCount+">>"+ship.name	);
 	    }
 	}
+=======
+    if(ship.alive){
+      bullet.kill();
+      //console.log(ship.name);
+      var destroyed = enemy[ship.name].damage();
+      if(destroyed){
+          ////play anime
+          destroyedCount--;
+      }
+    }
+>>>>>>> b9a7428c1252682a40b10b82f0a43fbda8de171c
 
 }
 
@@ -266,7 +279,7 @@ function fire () {
         if (bullet)
         {
             bullet.reset(sprite.x-30, sprite.y-20);
-            bullet.body.velocity.y = -200;
+            bullet.body.velocity.y = -400;
             bulletTime = game.time.now + 200;
         }
     }
@@ -308,6 +321,8 @@ function fireBot (ship) {
         }
     }
     ship.count++;
+
+
 }
 
 function resetBullet (bullet) {
@@ -317,7 +332,7 @@ function resetBullet (bullet) {
 function summonWave(numberWave){
 	for(var i=0;i<enemy.length;i++)
 		enemy.pop();
-	destroyedCount=numberWave;	
+	destroyedCount=numberWave;
 	for (var i = 0; i < numberWave; i++){
         enemy.push(new EnemyShip(i, game, enemyBullets));
     }
