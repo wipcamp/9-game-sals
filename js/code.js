@@ -7,9 +7,9 @@ game.state.start('main');
 
 function preload() {
 
-    game.load.image('bullet', 'images/brids.png');
-    game.load.image('ship', 'images/brids.png');
-	game.load.image('bot','images/brids.png');
+    game.load.spritesheet('bullet', 'images/brids.png',32,36);
+    game.load.spritesheet('ship', 'images/brids.png',32,36);
+	  game.load.image('bot','images/brids.png');
 }
 
 var enemy;
@@ -44,6 +44,8 @@ function create() {
     sprite = this.add.sprite(390, 500, 'ship');
     sprite.anchor.set(0.5);
     game.physics.arcade.enable(sprite);
+    
+
 
     sprite.body.drag.set(70);
     sprite.body.maxVelocity.set(300);
