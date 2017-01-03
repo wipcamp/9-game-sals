@@ -268,7 +268,7 @@ function fire () {
         if (bullet)
         {
             bullet.reset(sprite.x-30, sprite.y-20);
-            bullet.body.velocity.y = -400;
+            bullet.body.velocity.y = -1000;
             bulletTime = game.time.now + 200;
         }
     }
@@ -301,12 +301,12 @@ function fireBot (ship) {
             bullet.rotation = this.game.physics.arcade.moveToObject(bullet, sprite, 350);
     }*/
     //console.log(ship.name + "  "+ ship.count);
-    if(ship.count%30==0){
+    if(ship.count%200==0){
         bullet = enemyBullets.getFirstExists(false);
         if (bullet)
         {
             bullet.reset(ship.x-30, ship.y-20);
-            bullet.body.velocity.y = 100;
+            bullet.body.velocity.y = 20;
         }
     }
     ship.count++;
@@ -319,7 +319,8 @@ function resetBullet (bullet) {
 }
 
 function summonWave(numberWave){
-	for(var i=0;i<enemy.length;i++)
+  var l = enemy.length;
+  for(var i=0;i<l;i++)
 		enemy.pop();
 	destroyedCount=numberWave;
 	for (var i = 0; i < numberWave; i++){
