@@ -59,6 +59,8 @@ function create() {
     cursors = this.input.keyboard.createCursorKeys();
 
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+    destroyedCount=0;
+	  wave=-1;
 	/////////////////////////////////////
 	//bot = this.add.sprite(380, 100, 'bot');
     /*game.physics.arcade.enable(bot);
@@ -76,7 +78,7 @@ function create() {
     bullets = game.add.group();
     bullets.enableBody = true;
     bullets.physicsBodyType = Phaser.Physics.ARCADE;
-    for (var i = 0; i < 20; i++){
+    for (var i = 0; i < 100; i++){
         var b = bullets.create(0, 0, 'bullet');
         b.name = 'bullet' + i;
         b.exists = false;
@@ -178,8 +180,7 @@ EnemyShip = function (index, game, bullets) {
     this.game = game;
     this.health = 3;
     this.bullets = bullets;
-    this.fireRate = 1000;
-    this.nextFire = 0;
+
     this.alive = true;
 
     this.ship = game.add.sprite(x, y, 'ship');
@@ -239,8 +240,6 @@ EnemyShip.prototype.update = function(i) {
 function bulletHitPlayer (ship, bullet) {
     bullet.kill();
     ///
-    destroyedCount=0;
-	wave=-1;
     game.state.start('main');
 }
 
@@ -267,9 +266,9 @@ function fire () {
 
         if (bullet)
         {
-            bullet.reset(sprite.x-30, sprite.y-20);
+            bullet.reset(sprite.x-15, sprite.y-20);
             bullet.body.velocity.y = -1000;
-            bulletTime = game.time.now + 200;
+            bulletTime = game.time.now + 0;
         }
     }
 }
@@ -301,12 +300,16 @@ function fireBot (ship) {
             bullet.rotation = this.game.physics.arcade.moveToObject(bullet, sprite, 350);
     }*/
     //console.log(ship.name + "  "+ ship.count);
-    if(ship.count%200==0){
+    if(ship.count%220==0){
         bullet = enemyBullets.getFirstExists(false);
         if (bullet)
         {
             bullet.reset(ship.x-30, ship.y-20);
-            bullet.body.velocity.y = 20;
+            bullet.body.velocity.y = 100;
+        }
+        if(wave%6==0)
+        {
+
         }
     }
     ship.count++;
