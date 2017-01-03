@@ -260,3 +260,42 @@ function summonWave(numberWave){
         enemy.push(new EnemyShip(i, game, enemyBullets));
     }
 }
+
+
+EnemyBoss = function (game, bullets1,bullets2,bullets3) {
+    var x = game.world.center;
+    var y = 0;
+    this.game = game;
+    this.health = 1000000;
+    this.bullets1 = bullets1;
+    this.bullets2 = bullets2;
+    this.bullets3 = bullets3;
+    this.alive = true;
+    this.boss = game.add.sprite(x, y, 'enemy_ship');
+    this.boss.anchor.set(0.5);
+    this.boss.count=0;
+    this.boss.countBullet=0;
+    game.physics.enable(this.boss);
+    this.boss.body.immovable = false;
+    this.boss.body.collideWorldBounds = true;
+    this.boss.body.bounce.setTo(1, 1);
+    this.boss.body.maxVelocity.set(200);
+};
+
+EnemyBoss.prototype.damage = function() {
+
+    this.health -= 1;
+
+    if (this.health <= 0)
+    {
+        this.alive = false;
+        this.boss.kill();
+        return true;
+    }
+    return false;
+
+}
+
+EnemyBoss.prototype.update = function(){
+    
+}
