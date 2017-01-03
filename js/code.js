@@ -7,7 +7,7 @@ game.state.start('main');
 
 function preload() {
 
-    game.load.spritesheet('bullet', 'images/brids.png',32,36);
+    game.load.image('bullet', 'images/bullet.jpg');
     game.load.spritesheet('ship', 'images/brids.png',32,36);
 	  game.load.image('bot','images/brids.png');
 }
@@ -44,7 +44,7 @@ function create() {
     sprite = this.add.sprite(390, 500, 'ship');
     sprite.anchor.set(0.5);
     game.physics.arcade.enable(sprite);
-    
+
 
 
     sprite.body.drag.set(70);
@@ -105,7 +105,7 @@ function create() {
 
     sprite.body.collideWorldBounds = true;
     enemy = [];
-    for (var i = 0; i < 10; i++){
+    for (var i = 0; i < 4; i++){
         enemy.push(new EnemyShip(i, game, enemyBullets));
     }
     timer = game.time.create(false);
@@ -288,6 +288,8 @@ function fireBot (ship) {
         }
     }
     ship.count++;
+
+
 }
 
 function resetBullet (bullet) {
