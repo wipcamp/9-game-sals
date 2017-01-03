@@ -8,9 +8,12 @@ game.state.start('main');
 function preload() {
 
     game.load.image('bullet', 'images/bullet.png');
-    game.load.spritesheet('ship', 'images/brids.png',32,36);
+    game.load.image('ship', 'images/ship.png');
 	  game.load.image('bot','images/brids.png');
+    game.load.image('enemy_ship','images/enemyship.png');
+
 }
+var plan;
 var destroyedCount=0;
 var wave=-1;
 var enemy;
@@ -29,6 +32,8 @@ var fireRate = 100;
 var nextFire = 0;
 var bulletTime = 0;
 function create() {
+
+
 
     //  Creates 30 bullets, using the 'bullet' graphic
     /*weapon = game.add.weapon(30, 'bullet');
@@ -59,6 +64,8 @@ function create() {
     cursors = this.input.keyboard.createCursorKeys();
 
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+    destroyedCount=0;
+	  wave=-1;
 	/////////////////////////////////////
 	//bot = this.add.sprite(380, 100, 'bot');
     /*game.physics.arcade.enable(bot);
@@ -76,7 +83,7 @@ function create() {
     bullets = game.add.group();
     bullets.enableBody = true;
     bullets.physicsBodyType = Phaser.Physics.ARCADE;
-    for (var i = 0; i < 20; i++){
+    for (var i = 0; i < 100; i++){
         var b = bullets.create(0, 0, 'bullet');
         b.name = 'bullet' + i;
         b.exists = false;
@@ -122,14 +129,22 @@ function update() {
 
 	if(destroyedCount==0){
 		wave++;
-		if(wave%4==0)
+        plan = game.rnd.integerInRange(1, 10);
+		console.log(plan);
+        if(wave%7==0)
 			summonWave(4);
-		else if(wave%4==1)
+		else if(wave%7==1)
+			summonWave(5);
+		else if(wave%7==2)
 			summonWave(6);
-		else if(wave%4==2)
-			summonWave(8);
-		else	///boss
-			summonWave(1);
+        else if(wave%7==3)
+      		summonWave(7);
+        else if(wave%7==4)
+        	summonWave(8);
+        else if(wave%7==5)
+        	summonWave(9);
+    	else	///boss
+    		summonWave(1);
 	}
 
     if (fireButton.isDown)
@@ -138,7 +153,7 @@ function update() {
     }
     game.physics.arcade.overlap(sprite,enemyBullets, bulletHitPlayer, null , this);
     for (var i = 0; i < enemy.length; i++){
-        game.physics.arcade.overlap(enemy[i].ship,bullets, bulletHitEnemy, null , this);
+        game.physics.arcade.overlap(enemy[i].enemy_ship,bullets, bulletHitEnemy, null , this);
         if(enemy[i].alive){
           enemy[i].update(i);
         }
@@ -172,26 +187,26 @@ function render() {
 EnemyShip = function (index, game, bullets) {
 
     var x = game.world.randomX;
-    var y = (game.world.randomY/2);
+    var y = 0;
     this.game = game;
     this.health = 3;
     this.bullets = bullets;
-    this.fireRate = 1000;
-    this.nextFire = 0;
+
     this.alive = true;
 
-    this.ship = game.add.sprite(x, y, 'ship');
-    this.ship.anchor.set(0.5);
+    this.enemy_ship = game.add.sprite(x, y, 'enemy_ship');
+    this.enemy_ship.anchor.set(0.5);
 
-    this.ship.name = index.toString();
-    this.ship.count=0;
+    this.enemy_ship.name = index.toString();
+    this.enemy_ship.count=0;
+    this.enemy_ship.countBullet=0;
     //game.physics.enable(this.ship, Phaser.Physics.ARCADE);
-    game.physics.enable(this.ship);
-    this.ship.body.immovable = false;
-    this.ship.body.collideWorldBounds = true;
-    this.ship.body.bounce.setTo(1, 1);
+    game.physics.enable(this.enemy_ship);
+    this.enemy_ship.body.immovable = false;
+    this.enemy_ship.body.collideWorldBounds = true;
+    this.enemy_ship.body.bounce.setTo(1, 1);
 
-    this.ship.body.maxVelocity.set(200);
+    this.enemy_ship.body.maxVelocity.set(200);
 
 };
 
@@ -202,7 +217,7 @@ EnemyShip.prototype.damage = function() {
     if (this.health <= 0)
     {
         this.alive = false;
-        this.ship.kill();
+        this.enemy_ship.kill();
 	    return true;
     }
     return false;
@@ -216,58 +231,43 @@ function reposition() {
     //total++;
 }
 EnemyShip.prototype.update = function(i) {
-    this.ship.body.velocity.y=0;
-    this.ship.body.velocity.x=0;
-    if(this.ship.x - randPositionX[i] <= 10){
-        this.ship.body.velocity.x = 150;
+    this.enemy_ship.body.velocity.y=0;
+    this.enemy_ship.body.velocity.x=0;
+    if(this.enemy_ship.x - randPositionX[i] <= 10){
+        this.enemy_ship.body.velocity.x = 150;
     }else
-    if(this.ship.x - randPositionX[i] >= 20){
-        this.ship.body.velocity.x = -150;
+    if(this.enemy_ship.x - randPositionX[i] >= 20){
+        this.enemy_ship.body.velocity.x = -150;
     }
-    if(this.ship.y - randPositionY[i] <= 10){
-        this.ship.body.velocity.y = 150;
+    if(this.enemy_ship.y - randPositionY[i] <= 10){
+        this.enemy_ship.body.velocity.y = 150;
     }else
-    if(this.ship.y - randPositionY[i] >= 20){
-        this.ship.body.velocity.y = -150;
+    if(this.enemy_ship.y - randPositionY[i] >= 20){
+        this.enemy_ship.body.velocity.y = -150;
     }
-    if(this.alive)
-        fireBot(this.ship);
+    if(this.alive){
+        fireBot(this.enemy_ship);
+    }
 }
 
 function bulletHitPlayer (ship, bullet) {
     bullet.kill();
     ///
-    destroyedCount=0;
-	wave=-1;
     game.state.start('main');
 }
 
 
 
-function bulletHitEnemy (ship, bullet) {
-<<<<<<< HEAD
-	if(ship.alive){    
-	    bullet.kill();
-	    //console.log(ship.name);
-	    var destroyed = enemy[ship.name].damage();
-	    if(destroyed){
-	        ////play anime
-	        destroyedCount--;
-	        console.log(">>"+destroyedCount+">>"+ship.name	);
-	    }
-	}
-=======
-    if(ship.alive){
+function bulletHitEnemy (enemy_ship, bullet) {
+    if(enemy_ship.alive){
       bullet.kill();
       //console.log(ship.name);
-      var destroyed = enemy[ship.name].damage();
+      var destroyed = enemy[enemy_ship.name].damage();
       if(destroyed){
           ////play anime
           destroyedCount--;
       }
     }
->>>>>>> b9a7428c1252682a40b10b82f0a43fbda8de171c
-
 }
 
 
@@ -278,49 +278,57 @@ function fire () {
 
         if (bullet)
         {
-            bullet.reset(sprite.x-30, sprite.y-20);
-            bullet.body.velocity.y = -400;
-            bulletTime = game.time.now + 200;
+            bullet.reset(sprite.x-15, sprite.y-20);
+            bullet.body.velocity.y = -1000;
+            bulletTime = game.time.now + 100;
         }
     }
 }
 
-function fireBot (ship) {
-    /*if (game.time.now > bulletTime)
-    {
-        bullet = enemyBullets.getFirstExists(false);
-
-        if (bullet)
-        {
-            bullet.reset(ship.x-30, ship.y-20);
-            bullet.body.velocity.y = 100;
-            bulletTime = game.time.now + 600;
-        }
-    }*/
-    ///โคตรปืน
-    /*bullet = enemyBullets.getFirstExists(false);
-
-    if (bullet)
-    {
-        bullet.reset(ship.x-30, ship.y-20);
-        bullet.body.velocity.y = 100;
-        bulletTime = game.time.now + 600;
-
-        ////////auto
-        bullet.body.velocity.y = 200;
-            bulletTime = game.time.now + 500;
+function fireBot (enemy_ship) {
+    if(plan==1||plan==2){
+        if(enemy_ship.count%60==0){
+            bullet = enemyBullets.getFirstExists(false);
+            bullet.reset(enemy_ship.x-30, enemy_ship.y-20);
+            bullet.body.velocity.y = 200;
             bullet.rotation = this.game.physics.arcade.moveToObject(bullet, sprite, 350);
-    }*/
-    //console.log(ship.name + "  "+ ship.count);
-    if(ship.count%30==0){
-        bullet = enemyBullets.getFirstExists(false);
-        if (bullet)
-        {
-            bullet.reset(ship.x-30, ship.y-20);
+        }
+    }
+    else if(plan==3||plan==4){
+        console.log(">>");
+        if(enemy_ship.count%30==0){
+            bullet = enemyBullets.getFirstExists(false);
+            bullet.reset(enemy_ship.x-30, enemy_ship.y-20);
+            if(enemy_ship.countBullet%5==0){
+                bullet.body.velocity.y = 100;
+                bullet.body.velocity.x = 200;
+            }
+            else if(enemy_ship.countBullet%5==1){
+                bullet.body.velocity.y = 100;
+                bullet.body.velocity.x = 100;
+            }
+            else if(enemy_ship.countBullet%5==2){
+                bullet.body.velocity.y = 100;
+            }
+            else if(enemy_ship.countBullet%5==3){
+                bullet.body.velocity.y = 100;
+                bullet.body.velocity.x = -100;
+            }
+            else if(enemy_ship.countBullet%5==4){
+                bullet.body.velocity.y = 100;
+                bullet.body.velocity.x = -200;
+            }
+            enemy_ship.countBullet++;
+        }
+    }
+    else{
+        if(enemy_ship.count%50==0){
+            bullet = enemyBullets.getFirstExists(false);
+            bullet.reset(enemy_ship.x-30, enemy_ship.y-20);
             bullet.body.velocity.y = 100;
         }
     }
-    ship.count++;
+    enemy_ship.count++;
 
 
 }
@@ -330,7 +338,8 @@ function resetBullet (bullet) {
 }
 
 function summonWave(numberWave){
-	for(var i=0;i<enemy.length;i++)
+  var l = enemy.length;
+  for(var i=0;i<l;i++)
 		enemy.pop();
 	destroyedCount=numberWave;
 	for (var i = 0; i < numberWave; i++){
