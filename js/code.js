@@ -32,6 +32,8 @@ var nextFire = 0;
 var bulletTime = 0;
 function create() {
 
+
+
     //  Creates 30 bullets, using the 'bullet' graphic
     /*weapon = game.add.weapon(30, 'bullet');
     //  The bullets will be automatically killed when they are 2000ms old
@@ -316,11 +318,12 @@ function fireBot (enemy_ship) {
         {
             bullet.reset(enemy_ship.x-30, enemy_ship.y-20);
             bullet.body.velocity.y = 100;
-        }
-        if(wave%6==0)
-        {
 
         }
+        //if(wave%6==0)
+        //{
+
+        //}
     }
     enemy_ship.count++;
 
