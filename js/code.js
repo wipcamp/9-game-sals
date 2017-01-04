@@ -41,7 +41,7 @@ function create() {
     cursors = this.input.keyboard.createCursorKeys();
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     destroyedCount=0;
-	wave=5;
+	wave=-1;
     bullets = game.add.group();
     bullets.enableBody = true;
     bullets.physicsBodyType = Phaser.Physics.ARCADE;
@@ -56,7 +56,7 @@ function create() {
     enemyBullets = game.add.group();
     enemyBullets.enableBody = true;
     enemyBullets.physicsBodyType = Phaser.Physics.ARCADE;
-    for (var i = 0; i < 50; i++){
+    for (var i = 0; i < 100; i++){
         var b = enemyBullets.create(0, 0, 'bullet');
         b.name = 'bullet' + i;
         b.exists = false;
@@ -267,7 +267,7 @@ function fireBot (enemy_ship) {
         }
     }
     else if(plan==3||plan==4){
-        cansole.log(">>");
+        console.log(">>");
         if(enemy_ship.count%30==0){
             bullet = enemyBullets.getFirstExists(false);
             bullet.reset(enemy_ship.x-30, enemy_ship.y-20);
