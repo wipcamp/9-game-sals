@@ -16,6 +16,7 @@ var enemyBullets;
 var bossBullets1;
 var bossBullets2;
 var bossBullets3;
+var bossBullets4;
 var sprite;
 var weapon;
 var weapon2;
@@ -64,7 +65,7 @@ function create() {
     bossBullets1 = game.add.group();
     bossBullets1.enableBody = true;
     bossBullets1.physicsBodyType = Phaser.Physics.ARCADE;
-    for (var i = 0; i < 50; i++){
+    for (var i = 0; i < 100; i++){
         var b = bossBullets1.create(0, 0, 'bullet');
         b.name = 'bullet' + i;
         b.exists = false;
@@ -75,7 +76,7 @@ function create() {
     bossBullets2 = game.add.group();
     bossBullets2.enableBody = true;
     bossBullets2.physicsBodyType = Phaser.Physics.ARCADE;
-    for (var i = 0; i < 50; i++){
+    for (var i = 0; i < 100; i++){
         var b = bossBullets2.create(0, 0, 'bullet');
         b.name = 'bullet' + i;
         b.exists = false;
@@ -86,13 +87,24 @@ function create() {
     bossBullets3 = game.add.group();
     bossBullets3.enableBody = true;
     bossBullets3.physicsBodyType = Phaser.Physics.ARCADE;
-    for (var i = 0; i < 50; i++){
+    for (var i = 0; i < 100; i++){
         var b = bossBullets3.create(0, 0, 'bullet');
         b.name = 'bullet' + i;
         b.exists = false;
         b.visible = false;
         b.checkWorldBounds = true;
         b.events.onOutOfBounds.add(resetBullet, this);
+    }
+    bossBullets4 = game.add.group();
+    bossBullets4.enableBody = true;
+    bossBullets4.physicsBodyType = Phaser.Physics.ARCADE;
+    for (var i = 0; i < 100; i++){
+        var b = bossBullets4.create(0, 0, 'bullet');
+        b.name = 'bullet' + i;
+        b.exists = false;
+        b.visible = false;
+        b.checkWorldBounds = true;
+        b.events.onOutOfBounds.add(BounceAndSplit, this);
     }
 
     sprite.body.collideWorldBounds = true;
@@ -120,8 +132,7 @@ function update() {
         else if(wave%7==5)
         	summonWave(9);
     	else{	///boss
-    		destroyedCount = 1;
-            Boss = new EnemyBoss(game,bossBullets1,bossBullets2,bossBullets3);
+    		summonBoss();
         }
 	}
 
@@ -130,6 +141,9 @@ function update() {
         fire();
     }
     game.physics.arcade.overlap(sprite,enemyBullets, bulletHitPlayer, null , this);
+    game.physics.arcade.overlap(sprite,bossBullets1, bulletHitPlayer, null , this);
+    game.physics.arcade.overlap(sprite,bossBullets2, bulletHitPlayer, null , this);
+    game.physics.arcade.overlap(sprite,bossBullets3, bulletHitPlayer, null , this);
     for (var i = 0; i < enemy.length; i++){
         game.physics.arcade.overlap(enemy[i].enemy_ship,bullets, bulletHitEnemy, null , this);
         if(enemy[i].alive){
@@ -251,7 +265,7 @@ function fireBot (enemy_ship) {
         }
     }
     else if(plan==3||plan==4){
-        console.log(">>");
+        cansole.log(">>");
         if(enemy_ship.count%30==0){
             bullet = enemyBullets.getFirstExists(false);
             bullet.reset(enemy_ship.x-30, enemy_ship.y-20);
@@ -302,24 +316,33 @@ function summonWave(numberWave){
 }
 
 
-EnemyBoss = function (game, bullets1,bullets2,bullets3) {
+EnemyBoss = function (game, bullets1,bullets2,bullets3,bullets4) {
     var x = 400;
-    var y = 0;
+    var y = 10;
     this.game = game;
     this.health = 1000000;
     this.bullets1 = bullets1;
     this.bullets2 = bullets2;
     this.bullets3 = bullets3;
+    this.bullets4 = bullets4;
     this.alive = true;
-    this.boss = game.add.sprite(x, y, 'enemy_ship');
-    this.boss.anchor.set(0.5);
-    this.boss.count=0;
-    this.boss.countBullet=0;
-    game.physics.enable(this.boss);
+    this.cannon1 = game.add.sprite((x*(1/4)), y, 'enemy_ship');
+    this.cannon2 = game.add.sprite(x, y, 'enemy_ship');
+    this.cannon3 = game.add.sprite((x*(7/4)), y, 'enemy_ship');
+    this.cannon1.anchor.set(0.5);
+    this.cannon2.anchor.set(0.5);
+    this.cannon3.anchor.set(0.5);
+    this.cannon1.count=0;
+    this.cannon2.count=0;
+    this.cannon3.count=0;
+    this.cannon1.countBullet=0;
+    this.cannon2.countBullet=0;
+    this.cannon3.countBullet=0;
+    /*game.physics.enable(this.boss);
     this.boss.body.immovable = false;
     this.boss.body.collideWorldBounds = true;
     this.boss.body.bounce.setTo(1, 1);
-    this.boss.body.maxVelocity.set(200);
+    this.boss.body.maxVelocity.set(200);*/
 };
 
 EnemyBoss.prototype.damage = function() {
@@ -337,5 +360,106 @@ EnemyBoss.prototype.damage = function() {
 }
 
 EnemyBoss.prototype.update = function(){
+    if(this.alive){
+        fireBoss(this.cannon1,this.cannon2,this.cannon3);   
+    }   
+}
 
+function fireBoss(cannon1,cannon2,cannon3){
+    if(cannon1.count%10==0){
+        superSplash(cannon1,bossBullets1);
+    }
+    if(cannon2.count%10==0){
+        superSplash(cannon2,bossBullets2);   
+    }
+    if(cannon3.count%10==0){
+        superSplash(cannon3,bossBullets3);
+    }
+    cannon1.count++;
+    cannon2.count++;
+    cannon3.count++;
+}
+
+function lockOn (cannon,bullets) {//30
+    bullet = bullets.getFirstExists(false);
+    bullet.reset(cannon.x+15, cannon.y+20);
+    bullet.rotation = this.game.physics.arcade.moveToObject(bullet, sprite, 400);
+}
+
+function laserOnTheMove (cannon,bullets) { //40<7
+    bullet = bullets.getFirstExists(false);
+    bullet.reset(cannon.x+15, cannon.y+20);
+    bullet.rotation = this.game.physics.arcade.moveToObject(bullet, sprite, 200);
+}
+
+function superSplash (cannon,bullets) { //10
+    bullet = bullets.getFirstExists(false);
+    bullet.reset(cannon.x+15, cannon.y+20);
+    if(cannon.countBullet%9==0){
+        bullet.body.velocity.y = 100;
+        bullet.body.velocity.x = 200;
+    }
+    else if(cannon.countBullet%9==1){
+        bullet.body.velocity.y = 100;
+        bullet.body.velocity.x = 150;
+    }
+    else if(cannon.countBullet%9==2){
+        bullet.body.velocity.y = 100;
+        bullet.body.velocity.x = 100;
+    }
+    else if(cannon.countBullet%9==3){
+        bullet.body.velocity.y = 100;
+        bullet.body.velocity.x = 50;
+    }
+    else if(cannon.countBullet%9==4){
+        bullet.body.velocity.y = 100;
+    }
+    else if(cannon.countBullet%9==5){
+        bullet.body.velocity.y = 100;
+        bullet.body.velocity.x = -50;
+    }
+    else if(cannon.countBullet%9==6){
+        bullet.body.velocity.y = 100;
+        bullet.body.velocity.x = -100;
+    }
+    else if(cannon.countBullet%9==7){
+        bullet.body.velocity.y = 100;
+        bullet.body.velocity.x = -150;
+    }
+    else if(cannon.countBullet%9==8){
+        bullet.body.velocity.y = 100;
+        bullet.body.velocity.x = -200;
+    }
+    cannon.countBullet++;
+}
+function fireBounceAndSplit(cannon,bullets){
+    bullet = bullets.getFirstExists(false);
+    bullet.reset(cannon.x+15, cannon.y+20);
+    bullet.body.velocity.y = 200;
+}
+function BounceAndSplit (bullet) {
+    var x = bullet.x;
+    var y = bullet.y;
+    bullet.kill();
+    var b1 = bossBullets1.getFirstExists(false);
+    var b2 = bossBullets2.getFirstExists(false);
+    var b3 = bossBullets3.getFirstExists(false);
+    b1.reset(x,y-10);
+    b2.reset(x,y-10);
+    b3.reset(x,y-10);
+    b1.body.velocity.x = -200;
+    b1.body.velocity.y = -100;
+    b2.body.velocity.y = -200;
+    b3.body.velocity.x = 200;
+    b3.body.velocity.y = -100;
+
+
+}
+
+function summonBoss(){
+    var l = enemy.length;
+    for(var i=0;i<l;i++)
+        enemy.pop();
+    destroyedCount=1;
+    enemy.push(new EnemyBoss(game,bossBullets1,bossBullets2,bossBullets3,bossBullets4));
 }
