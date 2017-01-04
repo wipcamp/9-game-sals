@@ -306,11 +306,11 @@ function resetBullet (bullet) {
 }
 
 function summonWave(numberWave){
-  var l = enemy.length;
-  for(var i=0;i<l;i++)
-		enemy.pop();
-	destroyedCount=numberWave;
-	for (var i = 0; i < numberWave; i++){
+    var l = enemy.length;
+    for(var i=0;i<l;i++)
+    	enemy.pop();
+    destroyedCount=numberWave;
+    for (var i = 0; i < numberWave; i++){
         enemy.push(new EnemyShip(i, game, enemyBullets));
     }
 }
@@ -325,6 +325,7 @@ EnemyBoss = function (game, bullets1,bullets2,bullets3,bullets4) {
     this.bullets2 = bullets2;
     this.bullets3 = bullets3;
     this.bullets4 = bullets4;
+    this.countPlan=0;
     this.alive = true;
     this.cannon1 = game.add.sprite((x*(1/4)), y, 'enemy_ship');
     this.cannon2 = game.add.sprite(x, y, 'enemy_ship');
@@ -352,7 +353,7 @@ EnemyBoss.prototype.damage = function() {
     if (this.health <= 0)
     {
         this.alive = false;
-        this.boss.kill();
+        //this.boss.kill();
         return true;
     }
     return false;
@@ -360,24 +361,43 @@ EnemyBoss.prototype.damage = function() {
 }
 
 EnemyBoss.prototype.update = function(){
+    
     if(this.alive){
-        fireBoss(this.cannon1,this.cannon2,this.cannon3);   
+        fireBoss(this.cannon1,this.cannon2,this.cannon3,this.countPlan);   
     }   
+    this.countPlan++;
 }
 
-function fireBoss(cannon1,cannon2,cannon3){
-    if(cannon1.count%10==0){
-        superSplash(cannon1,bossBullets1);
+function fireBoss(cannon1,cannon2,cannon3,countPlan){
+    if(countPlan%3000<=300){
+        if(countPlan%45==0){
+            lockOn(cannon1,bossBullets1);
+            lockOn(cannon2,bossBullets2);
+            lockOn(cannon3,bossBullets3);
+        }
     }
-    if(cannon2.count%10==0){
-        superSplash(cannon2,bossBullets2);   
+    else if(countPlan%3000>360&&countPlan%3000<=720){
+        if(countPlan%10==0){
+            superSplash(cannon1,bossBullets1);
+            superSplash(cannon2,bossBullets2);
+            superSplash(cannon3,bossBullets3);
+        }
     }
-    if(cannon3.count%10==0){
-        superSplash(cannon3,bossBullets3);
+    else if(countPlan%3000>780&&countPlan%3000<=950){
+        if(countPlan%40<=7){
+            laserOnTheMove(cannon1,bossBullets1);
+            laserOnTheMove(cannon2,bossBullets2);
+            laserOnTheMove(cannon3,bossBullets3);
+        }
     }
-    cannon1.count++;
-    cannon2.count++;
-    cannon3.count++;
+    else if(countPlan%3000>1010&&countPlan%3000<=1190){
+        if(countPlan%30==0){
+            fireBounceAndSplit(cannon1,bossBullets4);
+            fireBounceAndSplit(cannon2,bossBullets4);
+            fireBounceAndSplit(cannon3,bossBullets4);
+        }
+    }
+    countPlan++;
 }
 
 function lockOn (cannon,bullets) {//30
@@ -444,16 +464,22 @@ function BounceAndSplit (bullet) {
     var b1 = bossBullets1.getFirstExists(false);
     var b2 = bossBullets2.getFirstExists(false);
     var b3 = bossBullets3.getFirstExists(false);
+    var b4 = enemyBullets.getFirstExists(false);
     b1.reset(x,y-10);
     b2.reset(x,y-10);
     b3.reset(x,y-10);
+    b4.reset(x,y-10);
     b1.body.velocity.x = -200;
     b1.body.velocity.y = -100;
-    b2.body.velocity.y = -200;
-    b3.body.velocity.x = 200;
+
+    b2.body.velocity.x = -100;
+    b2.body.velocity.y = -100;
+    
+    b3.body.velocity.x = 100;
     b3.body.velocity.y = -100;
-
-
+    
+    b4.body.velocity.x = 200;
+    b4.body.velocity.y = -100;
 }
 
 function summonBoss(){
