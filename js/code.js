@@ -7,6 +7,7 @@ function preload() {
     game.load.image('ship', 'images/ship.png');
 	game.load.image('bot','images/brids.png');
     game.load.image('enemy_ship','images/enemyship.png');
+    game.load.image('background','images/sea.png');
 }
 var plan;
 var destroyedCount=0;
@@ -31,6 +32,7 @@ var nextFire = 0;
 var bulletTime = 0;
 var Boss;
 function create() {
+    game.add.sprite(0,0,'background');
     sprite = this.add.sprite(390, 500, 'ship');
     sprite.anchor.set(0.5);
     game.physics.arcade.enable(sprite);
