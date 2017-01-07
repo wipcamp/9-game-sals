@@ -28,12 +28,14 @@ var timer,total=0;
 var randPositionX=[];
 var randPositionY=[];
 var bullets;
+var countRound = 0;
 var fireRate = 100;
 var nextFire = 0;
 var bulletTime = 0;
 var Boss;
 var score = 0,textScore;
 function create() {
+    countRound = 0;
     game.add.sprite(0,0,'background');
     sprite = this.add.sprite(game.world.width/2,game.world.height*(3/5), 'ship');
     sprite.anchor.set(0.5);
@@ -161,8 +163,11 @@ function update() {
     game.physics.arcade.overlap(sprite,bossBullets1, bulletHitPlayer, null , this);
     game.physics.arcade.overlap(sprite,bossBullets2, bulletHitPlayer, null , this);
     game.physics.arcade.overlap(sprite,bossBullets3, bulletHitPlayer, null , this);
+    game.physics.arcade.overlap(sprite,bossBullets4, bulletHitPlayer, null , this);
+    game.physics.arcade.overlap(sprite,bossBullets5, bulletHitPlayer, null , this);
     for (var i = 0; i < enemy.length; i++){
         game.physics.arcade.overlap(enemy[i].enemy_ship,bullets, bulletHitEnemy, null , this);
+        game.physics.arcade.overlap(enemy[i].enemy_ship,sprite, bulletHitPlayer, null , this);
         if(enemy[i].alive){
           enemy[i].update(i);
         }
@@ -390,9 +395,9 @@ EnemyBoss.prototype.update = function(){
 function fireBoss(cannon1,cannon2,cannon3,countPlan){
     if(countPlan%3000<=300){
         if(countPlan%45==0){
-            lockOn(cannon1,bossBullets1);
-            lockOn(cannon2,bossBullets2);
-            lockOn(cannon3,bossBullets3);
+            lockOn(cannon1,bossBullets1,400);
+            lockOn(cannon2,bossBullets2,400);
+            lockOn(cannon3,bossBullets3,400);
         }
     }
     else if(countPlan%3000>360&&countPlan%3000<=720){
@@ -423,13 +428,28 @@ function fireBoss(cannon1,cannon2,cannon3,countPlan){
             fireWorks(cannon3,bossBullets4);
         }
     }
+    else if(countPlan%3000>1480&&countPlan%3000<=1600){
+        if(countPlan%30==0){
+            lockOn(cannon1,bossBullets1,200);
+        }
+    }
+    else if(countPlan%3000>1610&&countPlan%3000<=1730){
+        if(countPlan%30==0){
+            lockOn(cannon2,bossBullets2,200);
+        }
+    }
+    else if(countPlan%3000>1740&&countPlan%3000<=1860){
+        if(countPlan%30==0){
+            lockOn(cannon2,bossBullets2,200);
+        }
+    }
     countPlan++;
 }
 
-function lockOn (cannon,bullets) {//30
+function lockOn (cannon,bullets,speed) {//30 400
     bullet = bullets.getFirstExists(false);
     bullet.reset(cannon.x+15, cannon.y+20);
-    bullet.rotation = this.game.physics.arcade.moveToObject(bullet, sprite, 400);
+    bullet.rotation = this.game.physics.arcade.moveToObject(bullet, sprite, speed);
 }
 
 function laserOnTheMove (cannon,bullets) { //40<7
