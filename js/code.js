@@ -10,7 +10,7 @@ function preload() {
     game.load.image('background','images/sea.png');
     game.load.image('laser','images/biglaser.png');
 }
-var plan;
+var plan,p1,p2;
 var destroyedCount=0;
 var wave=-1;
 var enemy;
@@ -462,7 +462,7 @@ function fireBoss(cannon1,cannon2,cannon3,countPlan){
         }
     }
     else if(countPlan%3600>800&&countPlan%3600<=1060){//180
-        if(countPlan%5==0){
+        if(countPlan%6==0){
             laserOnTheMove(cannon1,laserBeam1);
             laserOnTheMove(cannon2,laserBeam2);
             laserOnTheMove(cannon3,laserBeam3);
@@ -492,26 +492,45 @@ function fireBoss(cannon1,cannon2,cannon3,countPlan){
             lockOn(cannon2,bossBullets2,200);
         }
     }
-    else if(countPlan%3600>2060+60&&countPlan%3600<=2280+60){//120
+    else if(countPlan%3600>2060+60&&countPlan%3600<=2340){//120
         if(countPlan%30==0){
             lockOn(cannon2,bossBullets2,200);
         }
     }
-    else if(countPlan%3600>2460+60&&countPlan%3600<=2640+60){//180
-        if(countPlan%20==0){
+    else if(countPlan%3600>2520&&countPlan%3600<=2640+60){//180
+        if(countPlan==2521){
+            p1=game.rnd.integerInRange(1,2);
+        }
+        if(countPlan%6==0){
             laserOnTheMove(cannon1,laserBeam1);
-            laserOnTheMove(cannon3,laserBeam3);
+            if(p1==1)
+                laserOnTheMove(cannon2,laserBeam2);
+            else
+                laserOnTheMove(cannon3,laserBeam3);
         }
     }
     else if(countPlan%3600>2750&&countPlan%3600<=3000+60){//180
-        if(countPlan%20==0){
+        if(countPlan==2751){
+            p1=game.rnd.integerInRange(1,2);
+        }
+        if(countPlan%6==0){
             laserOnTheMove(cannon2,laserBeam2);
+            if(p1==1)
+                laserOnTheMove(cannon1,laserBeam1);
+            else
+                laserOnTheMove(cannon3,laserBeam3);
         }
     }
     else if(countPlan%3600>3110&&countPlan%3600<=3360+30){//180
-        if(countPlan%20==0){
-            laserOnTheMove(cannon1,laserBeam1);
+        if(countPlan==3111){
+            p1=game.rnd.integerInRange(1,2);
+        }
+        if(countPlan%6==0){
             laserOnTheMove(cannon3,laserBeam3);
+            if(p1==1)
+                laserOnTheMove(cannon2,laserBeam2);
+            else
+                laserOnTheMove(cannon1,laserBeam1);
         }
     }
 
