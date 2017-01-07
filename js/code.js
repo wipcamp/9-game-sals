@@ -8,6 +8,7 @@ function preload() {
 	game.load.image('bot','images/brids.png');
     game.load.image('enemy_ship','images/enemyship.png');
     game.load.image('background','images/sea.png');
+    game.load.image('laser','images/biglaser.png');
 }
 var plan;
 var destroyedCount=0;
@@ -24,6 +25,7 @@ var weapon;
 var weapon2;
 var cursors;
 var fireButton;
+var laserBeam1,laserBeam2,laserBeam3;
 var timer,total=0;
 var randPositionX=[];
 var randPositionY=[];
@@ -47,12 +49,52 @@ function create() {
     cursors = this.input.keyboard.createCursorKeys();
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     destroyedCount=0;
-	wave=-1;
+	wave=5;
+    laserBeam1 = game.add.group();
+    laserBeam1.enableBody = true;
+    laserBeam1.physicsBodyType = Phaser.Physics.ARCADE;
+    for (var i = 0; i < 100; i++){
+        var b = laserBeam1.create(0, 0, 'laser');
+        b.anchor.set(0.5);
+        b.scale.setTo(8,1);
+        b.name = 'laser' + i;
+        b.exists = false;
+        b.visible = false;
+        b.checkWorldBounds = true;
+        b.events.onOutOfBounds.add(resetBullet, this);
+    }
+    laserBeam2 = game.add.group();
+    laserBeam2.enableBody = true;
+    laserBeam2.physicsBodyType = Phaser.Physics.ARCADE;
+    for (var i = 0; i < 100; i++){
+        var b = laserBeam2.create(0, 0, 'laser');
+        b.anchor.set(0.5);
+        b.scale.setTo(8,1);
+        b.name = 'laser' + i;
+        b.exists = false;
+        b.visible = false;
+        b.checkWorldBounds = true;
+        b.events.onOutOfBounds.add(resetBullet, this);
+    }
+    laserBeam3 = game.add.group();
+    laserBeam3.enableBody = true;
+    laserBeam3.physicsBodyType = Phaser.Physics.ARCADE;
+    for (var i = 0; i < 100; i++){
+        var b = laserBeam3.create(0, 0, 'laser');
+        b.anchor.set(0.5);
+        b.scale.setTo(8,1);
+        b.name = 'laser' + i;
+        b.exists = false;
+        b.visible = false;
+        b.checkWorldBounds = true;
+        b.events.onOutOfBounds.add(resetBullet, this);
+    }
     bullets = game.add.group();
     bullets.enableBody = true;
     bullets.physicsBodyType = Phaser.Physics.ARCADE;
     for (var i = 0; i < 100; i++){
         var b = bullets.create(0, 0, 'bullet');
+        b.anchor.set(0.5);
         b.name = 'bullet' + i;
         b.exists = false;
         b.visible = false;
@@ -64,6 +106,7 @@ function create() {
     enemyBullets.physicsBodyType = Phaser.Physics.ARCADE;
     for (var i = 0; i < 100; i++){
         var b = enemyBullets.create(0, 0, 'bullet');
+        b.anchor.set(0.5);
         b.name = 'bullet' + i;
         b.exists = false;
         b.visible = false;
@@ -75,6 +118,7 @@ function create() {
     bossBullets1.physicsBodyType = Phaser.Physics.ARCADE;
     for (var i = 0; i < 100; i++){
         var b = bossBullets1.create(0, 0, 'bullet');
+        b.anchor.set(0.5);
         b.name = 'bullet' + i;
         b.exists = false;
         b.visible = false;
@@ -86,6 +130,7 @@ function create() {
     bossBullets2.physicsBodyType = Phaser.Physics.ARCADE;
     for (var i = 0; i < 100; i++){
         var b = bossBullets2.create(0, 0, 'bullet');
+        b.anchor.set(0.5);
         b.name = 'bullet' + i;
         b.exists = false;
         b.visible = false;
@@ -97,6 +142,7 @@ function create() {
     bossBullets3.physicsBodyType = Phaser.Physics.ARCADE;
     for (var i = 0; i < 100; i++){
         var b = bossBullets3.create(0, 0, 'bullet');
+        b.anchor.set(0.5);
         b.name = 'bullet' + i;
         b.exists = false;
         b.visible = false;
@@ -109,6 +155,7 @@ function create() {
     for (var i = 0; i < 100; i++){
         var b = bossBullets4.create(0, 0, 'bullet');
         b.name = 'bullet' + i;
+        b.anchor.set(0.5);
         b.exists = false;
         b.visible = false;
         b.checkWorldBounds = true;
@@ -119,6 +166,7 @@ function create() {
     bossBullets5.physicsBodyType = Phaser.Physics.ARCADE;
     for (var i = 0; i < 100; i++){
         var b = bossBullets5.create(0, 0, 'bullet');
+        b.anchor.set(0.5);
         b.name = 'bullet' + i;
         b.exists = false;
         b.visible = false;
@@ -129,7 +177,7 @@ function create() {
     sprite.body.collideWorldBounds = true;
     enemy = [];
     timer = game.time.create(false);
-    timer.loop(3000, reposition, this);
+    timer.loop(3001, reposition, this);
     timer.start();
 }
 
@@ -159,6 +207,9 @@ function update() {
     {
         fire();
     }
+    game.physics.arcade.overlap(sprite,laserBeam1, bulletHitPlayer, null , this);
+    game.physics.arcade.overlap(sprite,laserBeam2, bulletHitPlayer, null , this);
+    game.physics.arcade.overlap(sprite,laserBeam3, bulletHitPlayer, null , this);
     game.physics.arcade.overlap(sprite,enemyBullets, bulletHitPlayer, null , this);
     game.physics.arcade.overlap(sprite,bossBullets1, bulletHitPlayer, null , this);
     game.physics.arcade.overlap(sprite,bossBullets2, bulletHitPlayer, null , this);
@@ -354,6 +405,9 @@ EnemyBoss = function (game, bullets1,bullets2,bullets3,bullets4) {
     this.cannon1 = game.add.sprite((x*(1/4)), y, 'enemy_ship');
     this.cannon2 = game.add.sprite(x, y, 'enemy_ship');
     this.cannon3 = game.add.sprite((x*(7/4)), y, 'enemy_ship');
+    this.cannon1.name = 1;
+    this.cannon2.name = 2;
+    this.cannon3.name = 3;
     this.cannon1.anchor.set(0.5);
     this.cannon2.anchor.set(0.5);
     this.cannon3.anchor.set(0.5);
@@ -391,58 +445,76 @@ EnemyBoss.prototype.update = function(){
     }   
     this.countPlan++;
 }
-
+//+60
 function fireBoss(cannon1,cannon2,cannon3,countPlan){
-    if(countPlan%3000<=300){
+    if(countPlan%3600<=300){//300
         if(countPlan%45==0){
             lockOn(cannon1,bossBullets1,400);
             lockOn(cannon2,bossBullets2,400);
             lockOn(cannon3,bossBullets3,400);
         }
     }
-    else if(countPlan%3000>360&&countPlan%3000<=720){
+    else if(countPlan%3600>360&&countPlan%3600<=720){//360
         if(countPlan%10==0){
             superSplash(cannon1,bossBullets1);
             superSplash(cannon2,bossBullets2);
             superSplash(cannon3,bossBullets3);
         }
     }
-    else if(countPlan%3000>780&&countPlan%3000<=950){
-        if(countPlan%40<=7){
-            laserOnTheMove(cannon1,bossBullets1);
-            laserOnTheMove(cannon2,bossBullets2);
-            laserOnTheMove(cannon3,bossBullets3);
+    else if(countPlan%3600>800&&countPlan%3600<=1060){//180
+        if(countPlan%5==0){
+            laserOnTheMove(cannon1,laserBeam1);
+            laserOnTheMove(cannon2,laserBeam2);
+            laserOnTheMove(cannon3,laserBeam3);
         }
     }
-    else if(countPlan%3000>1010&&countPlan%3000<=1190){
+    else if(countPlan%3600>1070+60&&countPlan%3600<=1250+60){//180
         if(countPlan%30==0){
             fireBounceAndSplit(cannon1,bossBullets4);
             fireBounceAndSplit(cannon2,bossBullets4);
             fireBounceAndSplit(cannon3,bossBullets4);
         }
     }
-    else if(countPlan%3000>1260&&countPlan%3000<=1400){
+    else if(countPlan%3600>1340+60&&countPlan%3600<=1520+60){//180
         if(countPlan%30==0){
             fireWorks(cannon1,bossBullets4);
             fireWorks(cannon2,bossBullets4);
             fireWorks(cannon3,bossBullets4);
         }
     }
-    else if(countPlan%3000>1480&&countPlan%3000<=1600){
+    else if(countPlan%3600>1660+60&&countPlan%3600<=1780+60){//120
         if(countPlan%30==0){
             lockOn(cannon1,bossBullets1,200);
         }
     }
-    else if(countPlan%3000>1610&&countPlan%3000<=1730){
+    else if(countPlan%3600>1840+60&&countPlan%3600<=1960+60){//120
         if(countPlan%30==0){
             lockOn(cannon2,bossBullets2,200);
         }
     }
-    else if(countPlan%3000>1740&&countPlan%3000<=1860){
+    else if(countPlan%3600>2060+60&&countPlan%3600<=2280+60){//120
         if(countPlan%30==0){
             lockOn(cannon2,bossBullets2,200);
         }
     }
+    else if(countPlan%3600>2460+60&&countPlan%3600<=2640+60){//180
+        if(countPlan%20==0){
+            laserOnTheMove(cannon1,laserBeam1);
+            laserOnTheMove(cannon3,laserBeam3);
+        }
+    }
+    else if(countPlan%3600>2750&&countPlan%3600<=3000+60){//180
+        if(countPlan%20==0){
+            laserOnTheMove(cannon2,laserBeam2);
+        }
+    }
+    else if(countPlan%3600>3110&&countPlan%3600<=3360+30){//180
+        if(countPlan%20==0){
+            laserOnTheMove(cannon1,laserBeam1);
+            laserOnTheMove(cannon3,laserBeam3);
+        }
+    }
+
     countPlan++;
 }
 
@@ -453,9 +525,11 @@ function lockOn (cannon,bullets,speed) {//30 400
 }
 
 function laserOnTheMove (cannon,bullets) { //40<7
+    console.log(bullets.name);
     bullet = bullets.getFirstExists(false);
     bullet.reset(cannon.x+15, cannon.y+20);
-    bullet.rotation = this.game.physics.arcade.moveToObject(bullet, sprite, 200);
+    bullet.body.velocity.y = 400;
+    //bullet.rotation = this.game.physics.arcade.moveToObject(bullet, sprite, 200);
 }
 
 function superSplash (cannon,bullets) { //10
