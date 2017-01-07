@@ -18,6 +18,7 @@ var bossBullets1;
 var bossBullets2;
 var bossBullets3;
 var bossBullets4;
+var bossBullets5;
 var sprite;
 var weapon;
 var weapon2;
@@ -31,13 +32,16 @@ var fireRate = 100;
 var nextFire = 0;
 var bulletTime = 0;
 var Boss;
+var score = 0,textScore;
 function create() {
     game.add.sprite(0,0,'background');
-    sprite = this.add.sprite(390, 500, 'ship');
+    sprite = this.add.sprite(game.world.width/2,game.world.height*(3/5), 'ship');
     sprite.anchor.set(0.5);
     game.physics.arcade.enable(sprite);
     sprite.body.drag.set(70);
     sprite.body.maxVelocity.set(300);
+    score=0;
+    textScore = game.add.text(20,20,"Score : "+score,{fontSize : "20px",fill : "#ed3465"});
     cursors = this.input.keyboard.createCursorKeys();
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     destroyedCount=0;
@@ -107,6 +111,17 @@ function create() {
         b.visible = false;
         b.checkWorldBounds = true;
         b.events.onOutOfBounds.add(BounceAndSplit, this);
+    }
+    bossBullets5 = game.add.group();
+    bossBullets5.enableBody = true;
+    bossBullets5.physicsBodyType = Phaser.Physics.ARCADE;
+    for (var i = 0; i < 100; i++){
+        var b = bossBullets5.create(0, 0, 'bullet');
+        b.name = 'bullet' + i;
+        b.exists = false;
+        b.visible = false;
+        b.checkWorldBounds = true;
+        b.events.onOutOfBounds.add(BounceAndSplit2, this);
     }
 
     sprite.body.collideWorldBounds = true;
@@ -193,6 +208,8 @@ EnemyShip.prototype.damage = function() {
 
     if (this.health <= 0)
     {
+        score += 10;
+        textScore.text = "Score : "+score;
         this.alive = false;
         this.enemy_ship.kill();
 	    return true;
@@ -202,8 +219,8 @@ EnemyShip.prototype.damage = function() {
 }
 function reposition() {
     for (var i = 0; i < enemy.length; i++){
-      randPositionX[i] = game.rnd.integerInRange(1, 799);
-      randPositionY[i] = game.rnd.integerInRange(1, 300);
+      randPositionX[i] = game.rnd.integerInRange(0, game.world.width);
+      randPositionY[i] = game.rnd.integerInRange(0, (game.world.height*(3/5)));
     }
 }
 EnemyShip.prototype.update = function(i) {
@@ -238,7 +255,7 @@ function bulletHitEnemy (enemy_ship, bullet) {
       var destroyed = enemy[enemy_ship.name].damage();
       if(destroyed){
           ////play anime
-          destroyedCount--;
+          destroyedCount--; 
       }
     }
 }
@@ -319,7 +336,7 @@ function summonWave(numberWave){
 
 
 EnemyBoss = function (game, bullets1,bullets2,bullets3,bullets4) {
-    var x = 400;
+    var x = game.world.centerX;
     var y = 10;
     this.game = game;
     this.health = 1000000;
@@ -397,6 +414,13 @@ function fireBoss(cannon1,cannon2,cannon3,countPlan){
             fireBounceAndSplit(cannon1,bossBullets4);
             fireBounceAndSplit(cannon2,bossBullets4);
             fireBounceAndSplit(cannon3,bossBullets4);
+        }
+    }
+    else if(countPlan%3000>1260&&countPlan%3000<=1400){
+        if(countPlan%30==0){
+            fireWorks(cannon1,bossBullets4);
+            fireWorks(cannon2,bossBullets4);
+            fireWorks(cannon3,bossBullets4);
         }
     }
     countPlan++;
@@ -483,7 +507,62 @@ function BounceAndSplit (bullet) {
     b4.body.velocity.x = 200;
     b4.body.velocity.y = -100;
 }
+function BounceAndSplit2 (bullet) {
+    var x = bullet.x;
+    var y = bullet.y;
+    bullet.kill();
+    var b1 = bossBullets1.getFirstExists(false);
+    var b2 = bossBullets2.getFirstExists(false);
+    var b3 = bossBullets3.getFirstExists(false);
+    var b4 = enemyBullets.getFirstExists(false);
+    b1.reset(x,y+10);
+    b2.reset(x,y+10);
+    b3.reset(x,y+10);
+    b4.reset(x,y+10);
+    b1.body.velocity.x = -200;
+    b1.body.velocity.y = 100;
 
+    b2.body.velocity.x = -100;
+    b2.body.velocity.y = 100;
+    
+    b3.body.velocity.x = 100;
+    b3.body.velocity.y = 100;
+    
+    b4.body.velocity.x = 200;
+    b4.body.velocity.y = 100;
+}
+
+function fireWorks (cannon,bullets) { 
+    bullet = bullets.getFirstExists(false);
+    bullet.reset(cannon.x, cannon.y);
+    bullet.body.velocity.y = 100;
+    game.time.events.add(Phaser.Timer.SECOND * 3.3, boom,this,cannon);
+}
+function boom(cannon){
+    console.log(".");
+    var x = cannon.x;
+    var y = game.world.height*(3/5);
+    bullet.kill();
+    var b1 = bossBullets1.getFirstExists(false);
+    var b4 = bossBullets2.getFirstExists(false);
+    var b3 = bossBullets3.getFirstExists(false);
+    var b2 = enemyBullets.getFirstExists(false);
+    var b5 = bossBullets5.getFirstExists(false);
+    b1.reset(x,y);
+    b2.reset(x,y);
+    b3.reset(x,y);
+    b4.reset(x,y);
+    b5.reset(x,y);
+    b1.body.velocity.x = -100;
+    b1.body.velocity.y = -100;
+    b2.body.velocity.x = 100;
+    b2.body.velocity.y = -100;
+    b3.body.velocity.x = 100;
+    b3.body.velocity.y = 100;
+    b4.body.velocity.x = -100;
+    b4.body.velocity.y = 100;
+    b5.body.velocity.y = -100;
+}
 function summonBoss(){
     var l = enemy.length;
     for(var i=0;i<l;i++)
