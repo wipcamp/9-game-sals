@@ -1,7 +1,13 @@
 var game = new Phaser.Game(337.5, 600, Phaser.AUTO, "game");
 var main = { preload : preload , create: create , update : update};
+var manu = { preload : preload , create : create1 , update : update1};
+var htp = { preload : preload , create : create2 , update : update1};
+var postScore = {preload : preload , create : create3 , update : update1}
 game.state.add('main', main);
-game.state.start('main');
+game.state.add('manu', manu);
+game.state.add('htp', htp);
+game.state.add('postScore',postScore);
+game.state.start('manu');
 function preload() {
     game.load.image('bullet', 'images/bullet.png');
     game.load.image('ship', 'images/ship.png');
@@ -9,6 +15,8 @@ function preload() {
     game.load.image('enemy_ship','images/enemyship.png');
     game.load.image('background','images/sea.png');
     game.load.image('laser','images/biglaser.png');
+    game.load.image('start','images/start.png');
+    game.load.image('howtoplay','images/howtoplay.png');
 }
 var plan,p1,p2;
 var destroyedCount=0;
@@ -319,7 +327,7 @@ EnemyShip.prototype.update = function(i) {
 function bulletHitPlayer (ship, bullet) {
     bullet.kill();
     ///
-    game.state.start('main');
+    game.state.start('postScore');
 }
 
 function bulletHitEnemy (enemy_ship, bullet) {
@@ -715,4 +723,35 @@ function summonBoss(){
         enemy.pop();
     destroyedCount=1;
     enemy.push(new EnemyBoss(game));
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+var buttonStart,buttonHowToPlay;
+var text;
+function create1(){
+    buttonStart = game.add.button(game.world.centerX, game.world.centerY, 'start', toGame, this);
+    buttonHowToPlay = game.add.button(game.world.centerX, game.world.centerY+100, 'howtoplay', toHowToPlay, this);
+    fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+}
+function create2(){
+    text = game.add.text(game.world.centerX,game.world.centerY*(1/5),"How To Play",{fontSize : "20px",fill : "#ed3465"});
+    text.anchor.set(0.5);
+    buttonStart = game.add.button(game.world.centerX, game.world.centerY, 'start', toGame, this);
+    fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+}
+function create3(){
+    text = game.add.text(game.world.centerX,game.world.centerY,"Score : "+score,{fontSize : "20px",fill : "#ed3465"});
+    text.anchor.set(0.5);
+    fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+}
+function update1(){
+    if(fireButton.isDown)
+        game.state.start('main');    
+}
+function toGame(){
+    game.state.start('main');   
+}
+function toHowToPlay(){
+    game.state.start('htp');
 }
