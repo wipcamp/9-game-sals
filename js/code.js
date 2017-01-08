@@ -1,11 +1,11 @@
-var game = new Phaser.Game(800, 600, Phaser.AUTO, "game");
+var game = new Phaser.Game(337.5, 600, Phaser.AUTO, "game");
 var main = { preload : preload , create: create , update : update};
 game.state.add('main', main);
 game.state.start('main');
 function preload() {
     game.load.image('bullet', 'images/bullet.png');
     game.load.image('ship', 'images/ship.png');
-	game.load.image('bot','images/brids.png');
+	game.load.image('boss','images/boss.png');
     game.load.image('enemy_ship','images/enemyship.png');
     game.load.image('background','images/sea.png');
     game.load.image('laser','images/biglaser.png');
@@ -41,6 +41,7 @@ function create() {
     game.add.sprite(0,0,'background');
     sprite = this.add.sprite(game.world.width/2,game.world.height*(3/5), 'ship');
     sprite.anchor.set(0.5);
+    sprite.scale.setTo(0.75,0.75);
     game.physics.arcade.enable(sprite);
     sprite.body.drag.set(70);
     sprite.body.maxVelocity.set(300);
@@ -49,14 +50,14 @@ function create() {
     cursors = this.input.keyboard.createCursorKeys();
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     destroyedCount=0;
-	wave=5;
+	wave=-1;
     laserBeam1 = game.add.group();
     laserBeam1.enableBody = true;
     laserBeam1.physicsBodyType = Phaser.Physics.ARCADE;
     for (var i = 0; i < 100; i++){
         var b = laserBeam1.create(0, 0, 'laser');
         b.anchor.set(0.5);
-        b.scale.setTo(8,1);
+        b.scale.setTo(3,1);
         b.name = 'laser' + i;
         b.exists = false;
         b.visible = false;
@@ -69,7 +70,7 @@ function create() {
     for (var i = 0; i < 100; i++){
         var b = laserBeam2.create(0, 0, 'laser');
         b.anchor.set(0.5);
-        b.scale.setTo(8,1);
+        b.scale.setTo(3,1);
         b.name = 'laser' + i;
         b.exists = false;
         b.visible = false;
@@ -82,7 +83,7 @@ function create() {
     for (var i = 0; i < 100; i++){
         var b = laserBeam3.create(0, 0, 'laser');
         b.anchor.set(0.5);
-        b.scale.setTo(8,1);
+        b.scale.setTo(3,1);
         b.name = 'laser' + i;
         b.exists = false;
         b.visible = false;
@@ -95,6 +96,7 @@ function create() {
     for (var i = 0; i < 100; i++){
         var b = bullets.create(0, 0, 'bullet');
         b.anchor.set(0.5);
+        b.scale.setTo(0.75,0.75);
         b.name = 'bullet' + i;
         b.exists = false;
         b.visible = false;
@@ -107,6 +109,7 @@ function create() {
     for (var i = 0; i < 100; i++){
         var b = enemyBullets.create(0, 0, 'bullet');
         b.anchor.set(0.5);
+        b.scale.setTo(0.75,0.75);
         b.name = 'bullet' + i;
         b.exists = false;
         b.visible = false;
@@ -119,6 +122,7 @@ function create() {
     for (var i = 0; i < 100; i++){
         var b = bossBullets1.create(0, 0, 'bullet');
         b.anchor.set(0.5);
+        b.scale.setTo(0.75,0.75);
         b.name = 'bullet' + i;
         b.exists = false;
         b.visible = false;
@@ -131,6 +135,7 @@ function create() {
     for (var i = 0; i < 100; i++){
         var b = bossBullets2.create(0, 0, 'bullet');
         b.anchor.set(0.5);
+        b.scale.setTo(0.75,0.75);
         b.name = 'bullet' + i;
         b.exists = false;
         b.visible = false;
@@ -143,6 +148,7 @@ function create() {
     for (var i = 0; i < 100; i++){
         var b = bossBullets3.create(0, 0, 'bullet');
         b.anchor.set(0.5);
+        b.scale.setTo(0.75,0.75);
         b.name = 'bullet' + i;
         b.exists = false;
         b.visible = false;
@@ -156,6 +162,7 @@ function create() {
         var b = bossBullets4.create(0, 0, 'bullet');
         b.name = 'bullet' + i;
         b.anchor.set(0.5);
+        b.scale.setTo(0.75,0.75);
         b.exists = false;
         b.visible = false;
         b.checkWorldBounds = true;
@@ -167,6 +174,7 @@ function create() {
     for (var i = 0; i < 100; i++){
         var b = bossBullets5.create(0, 0, 'bullet');
         b.anchor.set(0.5);
+        b.scale.setTo(0.75,0.75);
         b.name = 'bullet' + i;
         b.exists = false;
         b.visible = false;
@@ -217,8 +225,16 @@ function update() {
     game.physics.arcade.overlap(sprite,bossBullets4, bulletHitPlayer, null , this);
     game.physics.arcade.overlap(sprite,bossBullets5, bulletHitPlayer, null , this);
     for (var i = 0; i < enemy.length; i++){
-        game.physics.arcade.overlap(enemy[i].enemy_ship,bullets, bulletHitEnemy, null , this);
-        game.physics.arcade.overlap(enemy[i].enemy_ship,sprite, bulletHitPlayer, null , this);
+        if(wave%7!=6){
+            game.physics.arcade.overlap(enemy[i].enemy_ship,bullets, bulletHitEnemy, null , this);
+            game.physics.arcade.overlap(enemy[i].enemy_ship,sprite, bulletHitPlayer, null , this);
+        }
+        else{
+            console.log("PPP");
+            game.physics.arcade.overlap(enemy[i].boss,bullets,bulletHitBoss,null,this);
+            game.physics.arcade.overlap(enemy[i].boss,sprite, bulletHitPlayer, null , this);
+
+        }
         if(enemy[i].alive){
           enemy[i].update(i);
         }
@@ -248,6 +264,7 @@ EnemyShip = function (index, game, bullets) {
     this.alive = true;
     this.enemy_ship = game.add.sprite(x, y, 'enemy_ship');
     this.enemy_ship.anchor.set(0.5);
+    this.enemy_ship.scale.setTo(0.75,0.75);
     this.enemy_ship.name = index.toString();
     this.enemy_ship.count=0;
     this.enemy_ship.countBullet=0;
@@ -264,7 +281,7 @@ EnemyShip.prototype.damage = function() {
 
     if (this.health <= 0)
     {
-        score += 10;
+        score += 100;
         textScore.text = "Score : "+score;
         this.alive = false;
         this.enemy_ship.kill();
@@ -323,7 +340,7 @@ function fire () {
 
         if (bullet)
         {
-            bullet.reset(sprite.x-15, sprite.y-20);
+            bullet.reset(sprite.x, sprite.y-10);
             bullet.body.velocity.y = -1000;
             bulletTime = game.time.now + 100;
         }
@@ -334,7 +351,7 @@ function fireBot (enemy_ship) {
     if(plan==1||plan==2){
         if(enemy_ship.count%60==0){
             bullet = enemyBullets.getFirstExists(false);
-            bullet.reset(enemy_ship.x-30, enemy_ship.y-20);
+            bullet.reset(enemy_ship.x, enemy_ship.y);
             bullet.body.velocity.y = 200;
             bullet.rotation = this.game.physics.arcade.moveToObject(bullet, sprite, 350);
         }
@@ -343,7 +360,7 @@ function fireBot (enemy_ship) {
         console.log(">>");
         if(enemy_ship.count%30==0){
             bullet = enemyBullets.getFirstExists(false);
-            bullet.reset(enemy_ship.x-30, enemy_ship.y-20);
+            bullet.reset(enemy_ship.x, enemy_ship.y);
             if(enemy_ship.countBullet%5==0){
                 bullet.body.velocity.y = 100;
                 bullet.body.velocity.x = 200;
@@ -369,7 +386,7 @@ function fireBot (enemy_ship) {
     else{
         if(enemy_ship.count%50==0){
             bullet = enemyBullets.getFirstExists(false);
-            bullet.reset(enemy_ship.x-30, enemy_ship.y-20);
+            bullet.reset(enemy_ship.x, enemy_ship.y);
             bullet.body.velocity.y = 100;
         }
     }
@@ -391,23 +408,22 @@ function summonWave(numberWave){
 }
 
 
-EnemyBoss = function (game, bullets1,bullets2,bullets3,bullets4) {
+EnemyBoss = function (game) {
     var x = game.world.centerX;
     var y = 10;
     this.game = game;
-    this.health = 1000000;
-    this.bullets1 = bullets1;
-    this.bullets2 = bullets2;
-    this.bullets3 = bullets3;
-    this.bullets4 = bullets4;
+    this.health = 100;
     this.countPlan=0;
     this.alive = true;
+    this.boss = game.add.sprite(0,0,'boss');
     this.cannon1 = game.add.sprite((x*(1/4)), y, 'enemy_ship');
     this.cannon2 = game.add.sprite(x, y, 'enemy_ship');
     this.cannon3 = game.add.sprite((x*(7/4)), y, 'enemy_ship');
     this.cannon1.name = 1;
     this.cannon2.name = 2;
     this.cannon3.name = 3;
+    //this.boss.anchor.set(0.5);
+    this.boss.scale.setTo(0.5,0.15);
     this.cannon1.anchor.set(0.5);
     this.cannon2.anchor.set(0.5);
     this.cannon3.anchor.set(0.5);
@@ -417,21 +433,25 @@ EnemyBoss = function (game, bullets1,bullets2,bullets3,bullets4) {
     this.cannon1.countBullet=0;
     this.cannon2.countBullet=0;
     this.cannon3.countBullet=0;
-    /*game.physics.enable(this.boss);
+    game.physics.enable(this.boss);
     this.boss.body.immovable = false;
     this.boss.body.collideWorldBounds = true;
     this.boss.body.bounce.setTo(1, 1);
-    this.boss.body.maxVelocity.set(200);*/
+    this.boss.body.maxVelocity.set(200);
 };
 
 EnemyBoss.prototype.damage = function() {
 
     this.health -= 1;
-
+    score += 100;
+    textScore.text = "Score : "+score;
     if (this.health <= 0)
     {
         this.alive = false;
-        //this.boss.kill();
+        this.boss.kill();
+        this.cannon1.kill();
+        this.cannon2.kill();
+        this.cannon3.kill();
         return true;
     }
     return false;
@@ -445,6 +465,19 @@ EnemyBoss.prototype.update = function(){
     }   
     this.countPlan++;
 }
+
+function bulletHitBoss (boss, bullet) {
+    console.log("???");
+    if(boss.alive){
+      bullet.kill();
+      var destroyed = enemy[0].damage();
+      if(destroyed){
+          ////play anime
+          destroyedCount--; 
+      }
+    }
+}
+
 //+60
 function fireBoss(cannon1,cannon2,cannon3,countPlan){
     if(countPlan%3600<=300){//300
@@ -681,5 +714,5 @@ function summonBoss(){
     for(var i=0;i<l;i++)
         enemy.pop();
     destroyedCount=1;
-    enemy.push(new EnemyBoss(game,bossBullets1,bossBullets2,bossBullets3,bossBullets4));
+    enemy.push(new EnemyBoss(game));
 }
