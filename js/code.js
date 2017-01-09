@@ -49,7 +49,7 @@ function create() {
     game.add.sprite(0,0,'background');
     sprite = this.add.sprite(game.world.width/2,game.world.height*(3/5), 'ship');
     sprite.anchor.set(0.5);
-    sprite.scale.setTo(0.75,0.75);
+    sprite.scale.setTo(0.75, 0.75);
     game.physics.arcade.enable(sprite);
     sprite.body.drag.set(70);
     sprite.body.maxVelocity.set(300);
@@ -104,7 +104,7 @@ function create() {
     for (var i = 0; i < 100; i++){
         var b = bullets.create(0, 0, 'bullet');
         b.anchor.set(0.5);
-        b.scale.setTo(0.75,0.75);
+        b.scale.setTo(0.70,0.70);
         b.name = 'bullet' + i;
         b.exists = false;
         b.visible = false;
@@ -117,7 +117,7 @@ function create() {
     for (var i = 0; i < 100; i++){
         var b = enemyBullets.create(0, 0, 'bullet');
         b.anchor.set(0.5);
-        b.scale.setTo(0.75,0.75);
+        b.scale.setTo(0.70,0.70);
         b.name = 'bullet' + i;
         b.exists = false;
         b.visible = false;
@@ -130,7 +130,7 @@ function create() {
     for (var i = 0; i < 100; i++){
         var b = bossBullets1.create(0, 0, 'bullet');
         b.anchor.set(0.5);
-        b.scale.setTo(0.75,0.75);
+        b.scale.setTo(0.70,0.70);
         b.name = 'bullet' + i;
         b.exists = false;
         b.visible = false;
@@ -143,7 +143,7 @@ function create() {
     for (var i = 0; i < 100; i++){
         var b = bossBullets2.create(0, 0, 'bullet');
         b.anchor.set(0.5);
-        b.scale.setTo(0.75,0.75);
+        b.scale.setTo(0.70,0.70);
         b.name = 'bullet' + i;
         b.exists = false;
         b.visible = false;
@@ -156,7 +156,7 @@ function create() {
     for (var i = 0; i < 100; i++){
         var b = bossBullets3.create(0, 0, 'bullet');
         b.anchor.set(0.5);
-        b.scale.setTo(0.75,0.75);
+        b.scale.setTo(0.70,0.70);
         b.name = 'bullet' + i;
         b.exists = false;
         b.visible = false;
@@ -170,7 +170,7 @@ function create() {
         var b = bossBullets4.create(0, 0, 'bullet');
         b.name = 'bullet' + i;
         b.anchor.set(0.5);
-        b.scale.setTo(0.75,0.75);
+        b.scale.setTo(0.70,0.70);
         b.exists = false;
         b.visible = false;
         b.checkWorldBounds = true;
@@ -182,7 +182,7 @@ function create() {
     for (var i = 0; i < 100; i++){
         var b = bossBullets5.create(0, 0, 'bullet');
         b.anchor.set(0.5);
-        b.scale.setTo(0.75,0.75);
+        b.scale.setTo(0.70,0.70);
         b.name = 'bullet' + i;
         b.exists = false;
         b.visible = false;
@@ -272,7 +272,7 @@ EnemyShip = function (index, game, bullets) {
     this.alive = true;
     this.enemy_ship = game.add.sprite(x, y, 'enemy_ship');
     this.enemy_ship.anchor.set(0.5);
-    this.enemy_ship.scale.setTo(0.75,0.75);
+    this.enemy_ship.scale.setTo(0.75, 0.75);
     this.enemy_ship.name = index.toString();
     this.enemy_ship.count=0;
     this.enemy_ship.countBullet=0;
@@ -342,6 +342,7 @@ function bulletHitEnemy (enemy_ship, bullet) {
 }
 
 function fire () {
+	var vv = game.rnd.integerInRange(-75, 75);
     if (game.time.now > bulletTime)
     {
         bullet = bullets.getFirstExists(false);
@@ -349,7 +350,8 @@ function fire () {
         if (bullet)
         {
             bullet.reset(sprite.x, sprite.y-10);
-            bullet.body.velocity.y = -1000;
+            bullet.body.velocity.x = vv;
+            bullet.body.velocity.y = -900;
             bulletTime = game.time.now + 100;
         }
     }
@@ -420,7 +422,7 @@ EnemyBoss = function (game) {
     var x = game.world.centerX;
     var y = 10;
     this.game = game;
-    this.health = 20000;
+    this.health = 500;
     this.countPlan=0;
     this.alive = true;
     this.boss = game.add.sprite(0,0,'boss');
