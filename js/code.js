@@ -42,7 +42,7 @@ var countRound = 0;
 var fireRate = 100;
 var nextFire = 0;
 var bulletTime = 0;
-var Boss;
+var Boss,pause_label;
 var score = 0,textScore;
 function create() {
     countRound = 0;
@@ -189,14 +189,23 @@ function create() {
         b.checkWorldBounds = true;
         b.events.onOutOfBounds.add(BounceAndSplit2, this);
     }
-
+    //pause_label = this.input.keyboard.addKey(Phaser.KeyCode.ENTER);
+    //pause_label.events.onInputUp.add(function () {game.paused = true;});
     sprite.body.collideWorldBounds = true;
     enemy = [];
+    //game.pause_label.isDown.add(unpause, self);
     timer = game.time.create(false);
     timer.loop(3001, reposition, this);
     timer.start();
 }
-
+/*
+function unpause(event){
+	if(game.paused){
+		if(fireButton.isDown){
+			game.paused = false;
+		}
+	}
+}*/
 function update() {
 	if(destroyedCount==0){
 		wave++;
@@ -261,8 +270,18 @@ function update() {
   	if(cursors.right.isDown){
   		sprite.body.velocity.x = 300;
   	}
-}
 
+  	if(this.input.keyboard.addKey(Phaser.KeyCode.ENTER).isDown){
+  		game.paused = true;
+  	}
+  	window.onkeydown = function(event) {
+    console.log("OK")
+    if (game.input.keyboard.event.keyCode == 13){
+		console.log("P");
+        game.paused = false;
+    }
+}
+}
 EnemyShip = function (index, game, bullets) {
     var x = game.world.randomX;
     var y = 0;
