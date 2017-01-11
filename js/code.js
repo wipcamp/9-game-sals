@@ -20,6 +20,11 @@ function preload() {
     game.load.audio('Play','sound/WhilePlay.wav');
     game.load.audio('Died','sound/You Died.wav');
     game.load.audio('intro','sound/Interface.wav');
+    //game.load.audio('ENshot','sound/EnemyShot(Normal).wav');
+    game.load.audio('laser','sound/LaserBoss.wav');
+    game.load.audio('Death','sound/Aftergethit.wav');
+    game.load.audio('BossDeath','sound/BossDeath.wav');
+    game.load.audio('ENdestroy','sound/EnemyShot(Normal).wav');
 }
 var plan,p1,p2;
 var destroyedCount=0;
@@ -56,7 +61,7 @@ function create() {
     game.add.sprite(0,0,'background');
     sprite = this.add.sprite(game.world.width/2,game.world.height*(3/5), 'ship');
     sprite.anchor.set(0.5);
-    sprite.scale.setTo(0.75, 0.75);
+    sprite.scale.setTo(0.50, 0.50);
     game.physics.arcade.enable(sprite);
     sprite.body.drag.set(70);
     sprite.body.maxVelocity.set(300);
@@ -351,6 +356,8 @@ EnemyShip.prototype.update = function(i) {
 }
 
 function bulletHitPlayer (ship, bullet) {
+    shot = game.add.audio('Death');
+    shot.play();
     bullet.kill();
     ///
     game.state.start('postScore');
@@ -362,7 +369,9 @@ function bulletHitEnemy (enemy_ship, bullet) {
       var destroyed = enemy[enemy_ship.name].damage();
       if(destroyed){
           ////play anime
-          destroyedCount--; 
+          shot = game.add.audio('ENdestroy');
+          shot.play();
+          destroyedCount--;
       }
     }
 }
@@ -382,17 +391,20 @@ function fire () {
         }
     }
 }
-
+var shot;
 function fireBot (enemy_ship) {
     if(plan==1||plan==2){
         if(enemy_ship.count%60==0){
+
             bullet = enemyBullets.getFirstExists(false);
             bullet.reset(enemy_ship.x, enemy_ship.y);
             bullet.body.velocity.y = 200;
             bullet.rotation = this.game.physics.arcade.moveToObject(bullet, sprite, 350);
+
         }
     }
     else if(plan==3||plan==4){
+
         console.log(">>");
         if(enemy_ship.count%30==0){
             bullet = enemyBullets.getFirstExists(false);
@@ -420,6 +432,7 @@ function fireBot (enemy_ship) {
         }
     }
     else{
+
         if(enemy_ship.count%50==0){
             bullet = enemyBullets.getFirstExists(false);
             bullet.reset(enemy_ship.x, enemy_ship.y);
@@ -495,10 +508,10 @@ EnemyBoss.prototype.damage = function() {
 }
 
 EnemyBoss.prototype.update = function(){
-    
+
     if(this.alive){
-        fireBoss(this.cannon1,this.cannon2,this.cannon3,this.countPlan);   
-    }   
+        fireBoss(this.cannon1,this.cannon2,this.cannon3,this.countPlan);
+    }
     this.countPlan++;
 }
 
@@ -509,7 +522,9 @@ function bulletHitBoss (boss, bullet) {
       var destroyed = enemy[0].damage();
       if(destroyed){
           ////play anime
-          destroyedCount--; 
+          shot = game.add.audio('BossDeath');
+          shot.play();
+          destroyedCount--;
       }
     }
 }
@@ -614,6 +629,8 @@ function lockOn (cannon,bullets,speed) {//30 400
 
 function laserOnTheMove (cannon,bullets) { //40<7
     console.log(bullets.name);
+    shot = game.add.audio('laser');
+    shot.play();
     bullet = bullets.getFirstExists(false);
     bullet.reset(cannon.x+15, cannon.y+20);
     bullet.body.velocity.y = 400;
@@ -682,10 +699,10 @@ function BounceAndSplit (bullet) {
 
     b2.body.velocity.x = -100;
     b2.body.velocity.y = -100;
-    
+
     b3.body.velocity.x = 100;
     b3.body.velocity.y = -100;
-    
+
     b4.body.velocity.x = 200;
     b4.body.velocity.y = -100;
 }
@@ -706,15 +723,15 @@ function BounceAndSplit2 (bullet) {
 
     b2.body.velocity.x = -100;
     b2.body.velocity.y = 100;
-    
+
     b3.body.velocity.x = 100;
     b3.body.velocity.y = 100;
-    
+
     b4.body.velocity.x = 200;
     b4.body.velocity.y = 100;
 }
 
-function fireWorks (cannon,bullets) { 
+function fireWorks (cannon,bullets) {
     bullet = bullets.getFirstExists(false);
     bullet.reset(cannon.x, cannon.y);
     bullet.body.velocity.y = 100;
@@ -783,10 +800,10 @@ function create3(){
 }
 function update1(){
     if(fireButton.isDown)
-        game.state.start('main');    
+        game.state.start('main');
 }
 function toGame(){
-    game.state.start('main');   
+    game.state.start('main');
 }
 function toHowToPlay(){
     game.state.start('htp');
