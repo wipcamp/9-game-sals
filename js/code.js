@@ -17,14 +17,13 @@ function preload() {
     game.load.image('laser','images/biglaser.png');
     game.load.image('start','images/start.png');
     game.load.image('howtoplay','images/howtoplay.png');
-    game.load.audio('Play','sound/WhilePlay.wav');
-    game.load.audio('Died','sound/You Died.wav');
-    game.load.audio('intro','sound/Interface.wav');
+    game.load.audio('Play','sound/WhilePlay.ogg');
+    game.load.audio('Died','sound/You Died.ogg');
+    game.load.audio('intro','sound/Interface.ogg');
     //game.load.audio('ENshot','sound/EnemyShot(Normal).wav');
-    game.load.audio('laser','sound/LaserBoss.wav');
-    game.load.audio('Death','sound/Aftergethit.wav');
-    game.load.audio('BossDeath','sound/BossDeath.wav');
-    game.load.audio('ENdestroy','sound/EnemyShot(Normal).wav');
+    game.load.audio('Death','sound/Aftergethit.ogg');
+    game.load.audio('BossDeath','sound/BossDeath.ogg');
+    game.load.audio('ENdestroy','sound/EnemyShot(Normal).ogg');
 }
 var plan,p1,p2;
 var destroyedCount=0;
