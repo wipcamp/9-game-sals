@@ -9,6 +9,7 @@ game.state.add('htp', htp);
 game.state.add('postScore',postScore);
 game.state.start('manu');
 function preload() {
+	game.load.image('collider','images/collider.png');
     game.load.image('bullet', 'images/bullet.png');
     game.load.image('ship', 'images/ship.png');
 	game.load.image('boss','images/boss.png');
@@ -35,7 +36,7 @@ var bossBullets2;
 var bossBullets3;
 var bossBullets4;
 var bossBullets5;
-var sprite;
+var sprite,sprite2;
 var weapon;
 var weapon2;
 var cursors;
@@ -58,6 +59,12 @@ function create() {
     interMu.loopFull();
     countRound = 0;
     game.add.sprite(0,0,'background');
+    sprite2 = this.add.sprite(game.world.width/2,game.world.height*(3/5), 'collider');
+    sprite2.anchor.set(0.5);
+    sprite2.scale.setTo(0.20, 0.20);
+    game.physics.arcade.enable(sprite2);
+    sprite2.body.drag.set(70);
+    sprite2.body.maxVelocity.set(300);
     sprite = this.add.sprite(game.world.width/2,game.world.height*(3/5), 'ship');
     sprite.anchor.set(0.5);
     sprite.scale.setTo(0.50, 0.50);
@@ -203,6 +210,7 @@ function create() {
     //pause_label = this.input.keyboard.addKey(Phaser.KeyCode.ENTER);
     //pause_label.events.onInputUp.add(function () {game.paused = true;});
     sprite.body.collideWorldBounds = true;
+    sprite2.body.collideWorldBounds = true;
     enemy = [];
     //game.pause_label.isDown.add(unpause, self);
     timer = game.time.create(false);
@@ -218,6 +226,8 @@ function unpause(event){
 	}
 }*/
 function update() {
+	sprite2.x=sprite.x;
+	sprite2.y=sprite.y;
 	if(destroyedCount==0){
 		wave++;
         plan = game.rnd.integerInRange(1, 10);
@@ -243,24 +253,24 @@ function update() {
     {
         fire();
     }
-    game.physics.arcade.overlap(sprite,laserBeam1, bulletHitPlayer, null , this);
-    game.physics.arcade.overlap(sprite,laserBeam2, bulletHitPlayer, null , this);
-    game.physics.arcade.overlap(sprite,laserBeam3, bulletHitPlayer, null , this);
-    game.physics.arcade.overlap(sprite,enemyBullets, bulletHitPlayer, null , this);
-    game.physics.arcade.overlap(sprite,bossBullets1, bulletHitPlayer, null , this);
-    game.physics.arcade.overlap(sprite,bossBullets2, bulletHitPlayer, null , this);
-    game.physics.arcade.overlap(sprite,bossBullets3, bulletHitPlayer, null , this);
-    game.physics.arcade.overlap(sprite,bossBullets4, bulletHitPlayer, null , this);
-    game.physics.arcade.overlap(sprite,bossBullets5, bulletHitPlayer, null , this);
+    game.physics.arcade.overlap(sprite2,laserBeam1, bulletHitPlayer, null , this);
+    game.physics.arcade.overlap(sprite2,laserBeam2, bulletHitPlayer, null , this);
+    game.physics.arcade.overlap(sprite2,laserBeam3, bulletHitPlayer, null , this);
+    game.physics.arcade.overlap(sprite2,enemyBullets, bulletHitPlayer, null , this);
+    game.physics.arcade.overlap(sprite2,bossBullets1, bulletHitPlayer, null , this);
+    game.physics.arcade.overlap(sprite2,bossBullets2, bulletHitPlayer, null , this);
+    game.physics.arcade.overlap(sprite2,bossBullets3, bulletHitPlayer, null , this);
+    game.physics.arcade.overlap(sprite2,bossBullets4, bulletHitPlayer, null , this);
+    game.physics.arcade.overlap(sprite2,bossBullets5, bulletHitPlayer, null , this);
     for (var i = 0; i < enemy.length; i++){
         if(wave%7!=6){
             game.physics.arcade.overlap(enemy[i].enemy_ship,bullets, bulletHitEnemy, null , this);
-            game.physics.arcade.overlap(enemy[i].enemy_ship,sprite, bulletHitPlayer, null , this);
+            game.physics.arcade.overlap(enemy[i].enemy_ship,sprite2, bulletHitPlayer, null , this);
         }
         else{
             console.log("PPP");
             game.physics.arcade.overlap(enemy[i].boss,bullets,bulletHitBoss,null,this);
-            game.physics.arcade.overlap(enemy[i].boss,sprite, bulletHitPlayer, null , this);
+            game.physics.arcade.overlap(enemy[i].boss,sprite2, bulletHitPlayer, null , this);
 
         }
         if(enemy[i].alive){
