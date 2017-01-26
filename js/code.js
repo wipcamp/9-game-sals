@@ -9,9 +9,10 @@
   firebase.initializeApp(config);
 
 var dbSals = firebase.database().ref().child("sals");
+
 // mock up name
-var token = "qqq";
-var name = "patis";
+var token = "qqqq";
+var name = "aaaaaa";
 
 var game = new Phaser.Game(337.5, 600, Phaser.AUTO, "game");
 var main = { preload : preload , create: create , update : update};
@@ -246,7 +247,7 @@ function update() {
 	if(destroyedCount==0){
 		wave++;
         plan = game.rnd.integerInRange(1, 10);
-		console.log(plan);
+
         if(wave%7==0)
 			summonWave(4);
 		else if(wave%7==1)
@@ -283,7 +284,6 @@ function update() {
             game.physics.arcade.overlap(enemy[i].enemy_ship,sprite2, bulletHitPlayer, null , this);
         }
         else{
-            console.log("PPP");
             game.physics.arcade.overlap(enemy[i].boss,bullets,bulletHitBoss,null,this);
             game.physics.arcade.overlap(enemy[i].boss,sprite2, bulletHitPlayer, null , this);
 
@@ -311,9 +311,7 @@ function update() {
   		game.paused = true;
   	}
   	window.onkeydown = function(event) {
-    console.log("OK")
     if (game.input.keyboard.event.keyCode == 13){
-		console.log("P");
         game.paused = false;
     }
 }
@@ -429,7 +427,6 @@ function fireBot (enemy_ship) {
     }
     else if(plan==3||plan==4){
 
-        console.log(">>");
         if(enemy_ship.count%30==0){
             bullet = enemyBullets.getFirstExists(false);
             bullet.reset(enemy_ship.x, enemy_ship.y);
@@ -540,7 +537,7 @@ EnemyBoss.prototype.update = function(){
 }
 
 function bulletHitBoss (boss, bullet) {
-    console.log("???");
+
     if(boss.alive){
       bullet.kill();
       var destroyed = enemy[0].damage();
@@ -652,7 +649,7 @@ function lockOn (cannon,bullets,speed) {//30 400
 }
 
 function laserOnTheMove (cannon,bullets) { //40<7
-    console.log(bullets.name);
+
     shot = game.add.audio('laser');
     shot.play();
     bullet = bullets.getFirstExists(false);
@@ -762,7 +759,7 @@ function fireWorks (cannon,bullets) {
     game.time.events.add(Phaser.Timer.SECOND * 3.3, boom,this,cannon);
 }
 function boom(cannon){
-    console.log(".");
+
     var x = cannon.x;
     var y = game.world.height*(3/5);
     bullet.kill();
@@ -837,24 +834,29 @@ function toHowToPlay(){
 
 
 
-function setScore() {  
-    if(dbSals.child(token) == null){
-        dbSals.on("child_add",function () { 
-            dbSals.push(
-                {
-                    "name" : name,
-                    "score" : score
-                }
-            );    
-        });
-    }else{
+function setScore() {
+    var highscore;
+    var sals = dbSals.child(token);
+    sals.on('value', function(snapshot) {
+        highscore = snapshot.val().highscore;
+    });
+
+    if(highscore < score){
         dbSals.child(token).update(
-            {
-                "name" : name,
-                "score" : score
+            {    "name" : name,
+                 "score" : score,
+                 "highscore" : score
             }
         );
-    }
+        console.log("set highscore complete");
+    }else{
 
-    console.log("set score complete");
+        dbSals.child(token).update(
+             {
+                 "name" : name,
+                 "score" : score,
+             }
+        );
+    }
+     console.log("set score complete");
 }
