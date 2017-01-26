@@ -1,3 +1,4 @@
+
 var game = new Phaser.Game(337.5, 600, Phaser.AUTO, "game");
 var main = { preload : preload , create: create , update : update};
 var manu = { preload : preload , create : create1 , update : update1};
@@ -817,3 +818,6 @@ function toGame(){
 function toHowToPlay(){
     game.state.start('htp');
 }
+
+
+
