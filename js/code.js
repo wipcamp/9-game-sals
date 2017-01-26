@@ -1,3 +1,17 @@
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyAhBOG3nZFT0xjOu5UPm1k-ZVot1IPEfoQ",
+    authDomain: "wip-camps-game.firebaseapp.com",
+    databaseURL: "https://wip-camps-game.firebaseio.com",
+    storageBucket: "wip-camps-game.appspot.com",
+    messagingSenderId: "768785136426"
+  };
+  firebase.initializeApp(config);
+
+var dbSals = firebase.database().ref().child("sals");
+// mock up name
+var token = "qqq";
+var name = "patis";
 
 var game = new Phaser.Game(337.5, 600, Phaser.AUTO, "game");
 var main = { preload : preload , create: create , update : update};
@@ -807,6 +821,8 @@ function create3(){
     text = game.add.text(game.world.centerX,game.world.centerY,"Score : "+score,{fontSize : "20px",fill : "#ed3465"});
     text.anchor.set(0.5);
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+
+    setScore();
 }
 function update1(){
     if(fireButton.isDown)
@@ -821,3 +837,24 @@ function toHowToPlay(){
 
 
 
+function setScore() {  
+    if(dbSals.child(token) == null){
+        dbSals.on("child_add",function () { 
+            dbSals.push(
+                {
+                    "name" : name,
+                    "score" : score
+                }
+            );    
+        });
+    }else{
+        dbSals.child(token).update(
+            {
+                "name" : name,
+                "score" : score
+            }
+        );
+    }
+
+    console.log("set score complete");
+}
