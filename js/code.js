@@ -29,10 +29,11 @@ game.state.add('report',report);
 game.state.add('credit',credit);
 game.state.start('menu');
 function preload() {
-	game.load.image('collider','images/collider.png');
+    game.load.spritesheet('bomb', 'images/boomspritesheet.png',400/5,90);
+	  game.load.image('collider','images/collider.png');
     game.load.image('bullet', 'images/bullet.png');
     game.load.image('ship', 'images/ship.png');
-	game.load.image('boss','images/boss.png');
+	  game.load.image('boss','images/boss.png');
     game.load.image('enemy_ship','images/enemyship.png');
     game.load.image('background','images/sea.png');
     game.load.image('laser','images/biglaser.png');
@@ -65,6 +66,10 @@ var bossBullets2;
 var bossBullets3;
 var bossBullets4;
 var bossBullets5;
+var bomb;
+var bombGroup;
+var bombCooldown;
+var bombFirstDeployTime;
 var sprite,sprite2;
 var weapon;
 var weapon2;
@@ -102,12 +107,13 @@ function createGamePlay() {
     game.physics.arcade.enable(sprite);
     sprite.body.drag.set(70);
     sprite.body.maxVelocity.set(300);
+    itemCooldown = 0;
     score=0;
     textScore = game.add.text(20,20,"Score : "+score,{fontSize : "20px",fill : "#ed3465"});
     cursors = this.input.keyboard.createCursorKeys();
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     destroyedCount=0;
-	wave=-1;
+	  wave=-1;
     laserBeam1 = game.add.group();
     laserBeam1.enableBody = true;
     laserBeam1.physicsBodyType = Phaser.Physics.ARCADE;
@@ -238,6 +244,20 @@ function createGamePlay() {
         b.checkWorldBounds = true;
         b.events.onOutOfBounds.add(BounceAndSplit2, this);
     }
+    //bomb
+    bombGroup = game.add.group();
+    bombGroup.enableBody = true;
+    bombGroup.physicsBodyType = Phaser.Physics.ARCADE;
+    for (var i = 0; i < 16; i++) {
+        bomb = bombGroup.create(0, 0, 'bomb');
+        bomb.scale.setTo(0.7, 0.7);
+        bomb.exists = false;
+        bomb.visible = false;
+        bomb.checkWorldBounds = true;
+        bomb.events.onOutOfBounds.add(resetBullet, this);
+        bomb.body.setCircle(45);
+    }
+    bombGroup.callAll('animations.add', 'animations', 'move', [0, 1], 4, true);
     //pause_label = this.input.keyboard.addKey(Phaser.KeyCode.ENTER);
     //pause_label.events.onInputUp.add(function () {game.paused = true;});
     sprite.body.collideWorldBounds = true;
@@ -276,6 +296,10 @@ function updateGamePlay() {
     		summonBoss();
         }
 	}
+  if (itemCooldown <= 0) {
+      Spawner();
+  }
+  itemCooldown--;
 
     if (fireButton.isDown)
     {
@@ -290,6 +314,7 @@ function updateGamePlay() {
     game.physics.arcade.overlap(sprite2,bossBullets3, bulletHitPlayer, null , this);
     game.physics.arcade.overlap(sprite2,bossBullets4, bulletHitPlayer, null , this);
     game.physics.arcade.overlap(sprite2,bossBullets5, bulletHitPlayer, null , this);
+    game.physics.arcade.overlap(sprite2, bombGroup, bulletHitPlayer, null, this);
     for (var i = 0; i < enemy.length; i++){
         if(wave%7!=6){
             game.physics.arcade.overlap(enemy[i].enemy_ship,bullets, bulletHitEnemy, null , this);
@@ -332,10 +357,9 @@ function updateGamePlay() {
 //EndUpdateGamePlay
 
 //subportGamePlay
-function bulletHitPlayer (ship, bullet) {
+function bulletHitPlayer () {
     shot = game.add.audio('Death');
     shot.play();
-    bullet.kill();
     ///
     game.state.start('result');
 }
@@ -352,7 +376,24 @@ function bulletHitEnemy (enemy_ship, bullet) {
       }
     }
 }
-
+function Spawner() {
+    var output = game.rnd.integerInRange(0, 2);
+    console.log("bomb is ready to deploy, random = "+output)
+    if (output == 0) {
+        console.log("bomb spawn");
+        bombCooldown = 400;
+        bomby = bombGroup.getFirstExists(false);
+        var bombDropAt = game.rnd.integerInRange(1, 25);
+        bomby.reset(game.world.width * (bombDropAt / 26), 0);
+        bomby.body.velocity.y = 200;
+        bombGroup.callAll('animations.play', 'animations', 'move');
+    }else if(output == 1){
+      //itemSpawn
+    }
+    else {
+        itemCooldown+=60;
+    }
+}
 function fire () {
 	var vv = game.rnd.integerInRange(-75, 75);
     if (game.time.now > bulletTime)
@@ -456,6 +497,19 @@ function reposition() {
     for (var i = 0; i < enemy.length; i++){
       randPositionX[i] = game.rnd.integerInRange(0, game.world.width);
       randPositionY[i] = game.rnd.integerInRange(0, (game.world.height*(3/5)));
+    }
+}
+
+function bulletHitEnemy (enemy_ship, bullet) {
+    if(enemy_ship.alive){
+      bullet.kill();
+      var destroyed = enemy[enemy_ship.name].damage();
+      if(destroyed){
+          ////play anime
+          shot = game.add.audio('ENdestroy');
+          shot.play();
+          destroyedCount--;
+      }
     }
 }
 
