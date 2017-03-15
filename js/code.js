@@ -14,16 +14,16 @@ var dbSals = firebase.database().ref().child("sals");
 var token = "qqqq";
 var name = "aaaaaa";
 
-var game = new Phaser.Game(337.5, 600, Phaser.AUTO, "game");
-var main = { preload : preload , create: create , update : update};
-var manu = { preload : preload , create : create1 , update : update1};
-var htp = { preload : preload , create : create2 , update : update1};
-var postScore = {preload : preload , create : create3 , update : update1}
-game.state.add('main', main);
-game.state.add('manu', manu);
-game.state.add('htp', htp);
-game.state.add('postScore',postScore);
-game.state.start('manu');
+var game = new Phaser.Game(500, 750, Phaser.AUTO, "game");
+var gamePlay = { preload : preload , create: createGamePlay , update : updateGamePlay};
+var menu = { preload : preload , create : createMenu};
+var howtoPlay = { preload : preload , create : createHowtoPlay};
+var result = {preload : preload , create : createResult , update : updateResult}
+game.state.add('gamePlay', gamePlay);
+game.state.add('menu', menu);
+game.state.add('howtoPlay', howtoPlay);
+game.state.add('result',result);
+game.state.start('menu');
 function preload() {
 	game.load.image('collider','images/collider.png');
     game.load.image('bullet', 'images/bullet.png');
@@ -63,13 +63,14 @@ var randPositionX=[];
 var randPositionY=[];
 var bullets;
 var countRound = 0;
-var fireRate = 100;
-var nextFire = 0;
 var bulletTime = 0;
 var Boss,pause_label;
 var score = 0,textScore;
 var interMu;
-function create() {
+var buttonStart,buttonHowToPlay;
+var text;
+//createGamePlay 
+function createGamePlay() {
     interMu.stop();
     interMu = game.add.audio('Play');
     interMu.loopFull();
@@ -233,15 +234,10 @@ function create() {
     timer.loop(3001, reposition, this);
     timer.start();
 }
-/*
-function unpause(event){
-	if(game.paused){
-		if(fireButton.isDown){
-			game.paused = false;
-		}
-	}
-}*/
-function update() {
+//EndCreateGamePlay
+
+//updateGamePlay
+function updateGamePlay() {
 	sprite2.x=sprite.x;
 	sprite2.y=sprite.y;
 	if(destroyedCount==0){
@@ -311,72 +307,15 @@ function update() {
   		game.paused = true;
   	}
   	window.onkeydown = function(event) {
-    if (game.input.keyboard.event.keyCode == 13){
-        game.paused = false;
-    }
-}
-}
-EnemyShip = function (index, game, bullets) {
-    var x = game.world.randomX;
-    var y = 0;
-    this.game = game;
-    this.health = 3;
-    this.bullets = bullets;
-    this.alive = true;
-    this.enemy_ship = game.add.sprite(x, y, 'enemy_ship');
-    this.enemy_ship.anchor.set(0.5);
-    this.enemy_ship.scale.setTo(0.75, 0.75);
-    this.enemy_ship.name = index.toString();
-    this.enemy_ship.count=0;
-    this.enemy_ship.countBullet=0;
-    game.physics.enable(this.enemy_ship);
-    this.enemy_ship.body.immovable = false;
-    this.enemy_ship.body.collideWorldBounds = true;
-    this.enemy_ship.body.bounce.setTo(1, 1);
-    this.enemy_ship.body.maxVelocity.set(200);
-};
-
-EnemyShip.prototype.damage = function() {
-
-    this.health -= 1;
-
-    if (this.health <= 0)
-    {
-        score += 100;
-        textScore.text = "Score : "+score;
-        this.alive = false;
-        this.enemy_ship.kill();
-	    return true;
-    }
-    return false;
-
-}
-function reposition() {
-    for (var i = 0; i < enemy.length; i++){
-      randPositionX[i] = game.rnd.integerInRange(0, game.world.width);
-      randPositionY[i] = game.rnd.integerInRange(0, (game.world.height*(3/5)));
-    }
-}
-EnemyShip.prototype.update = function(i) {
-    this.enemy_ship.body.velocity.y=0;
-    this.enemy_ship.body.velocity.x=0;
-    if(this.enemy_ship.x - randPositionX[i] <= 10){
-        this.enemy_ship.body.velocity.x = 150;
-    }else
-    if(this.enemy_ship.x - randPositionX[i] >= 20){
-        this.enemy_ship.body.velocity.x = -150;
-    }
-    if(this.enemy_ship.y - randPositionY[i] <= 10){
-        this.enemy_ship.body.velocity.y = 150;
-    }else
-    if(this.enemy_ship.y - randPositionY[i] >= 20){
-        this.enemy_ship.body.velocity.y = -150;
-    }
-    if(this.alive){
-        fireBot(this.enemy_ship);
-    }
+    	if (game.input.keyboard.event.keyCode == 13){
+        	game.paused = false;
+    	}
+	}
 }
 
+//EndUpdateGamePlay
+
+//subportGamePlay
 function bulletHitPlayer (ship, bullet) {
     shot = game.add.audio('Death');
     shot.play();
@@ -413,6 +352,97 @@ function fire () {
         }
     }
 }
+function resetBullet (bullet) {
+    bullet.kill();
+}
+function summonWave(numberWave){
+    var l = enemy.length;
+    for(var i=0;i<l;i++)
+    	enemy.pop();
+    destroyedCount=numberWave;
+    for (var i = 0; i < numberWave; i++){
+        enemy.push(new EnemyShip(i, game, enemyBullets));
+    }
+}
+function bulletHitBoss (boss, bullet) {
+
+    if(boss.alive){
+      bullet.kill();
+      var destroyed = enemy[0].damage();
+      if(destroyed){
+          ////play anime
+          shot = game.add.audio('BossDeath');
+          shot.play();
+          destroyedCount--;
+      }
+    }
+}
+//subportGamePlay
+
+//ObjectBotShip
+EnemyShip = function (index, game, bullets) {
+    var x = game.world.randomX;
+    var y = 0;
+    this.game = game;
+    this.health = 3;
+    this.bullets = bullets;
+    this.alive = true;
+    this.enemy_ship = game.add.sprite(x, y, 'enemy_ship');
+    this.enemy_ship.anchor.set(0.5);
+    this.enemy_ship.scale.setTo(0.75, 0.75);
+    this.enemy_ship.name = index.toString();
+    this.enemy_ship.count=0;
+    this.enemy_ship.countBullet=0;
+    game.physics.enable(this.enemy_ship);
+    this.enemy_ship.body.immovable = false;
+    this.enemy_ship.body.collideWorldBounds = true;
+    this.enemy_ship.body.bounce.setTo(1, 1);
+    this.enemy_ship.body.maxVelocity.set(200);
+};
+EnemyShip.prototype.damage = function() {
+
+    this.health -= 1;
+
+    if (this.health <= 0)
+    {
+        score += 100;
+        textScore.text = "Score : "+score;
+        this.alive = false;
+        this.enemy_ship.kill();
+	    return true;
+    }
+    return false;
+
+}
+EnemyShip.prototype.update = function(i) {
+    this.enemy_ship.body.velocity.y=0;
+    this.enemy_ship.body.velocity.x=0;
+    if(this.enemy_ship.x - randPositionX[i] <= 10){
+        this.enemy_ship.body.velocity.x = 150;
+    }else
+    if(this.enemy_ship.x - randPositionX[i] >= 20){
+        this.enemy_ship.body.velocity.x = -150;
+    }
+    if(this.enemy_ship.y - randPositionY[i] <= 10){
+        this.enemy_ship.body.velocity.y = 150;
+    }else
+    if(this.enemy_ship.y - randPositionY[i] >= 20){
+        this.enemy_ship.body.velocity.y = -150;
+    }
+    if(this.alive){
+        fireBot(this.enemy_ship);
+    }
+}
+//EndObjectBotShip
+
+//subportObjectfunction
+function reposition() {
+    for (var i = 0; i < enemy.length; i++){
+      randPositionX[i] = game.rnd.integerInRange(0, game.world.width);
+      randPositionY[i] = game.rnd.integerInRange(0, (game.world.height*(3/5)));
+    }
+}
+
 var shot;
 function fireBot (enemy_ship) {
     if(plan==1||plan==2){
@@ -462,20 +492,7 @@ function fireBot (enemy_ship) {
     }
     enemy_ship.count++;
 }
-
-function resetBullet (bullet) {
-    bullet.kill();
-}
-
-function summonWave(numberWave){
-    var l = enemy.length;
-    for(var i=0;i<l;i++)
-    	enemy.pop();
-    destroyedCount=numberWave;
-    for (var i = 0; i < numberWave; i++){
-        enemy.push(new EnemyShip(i, game, enemyBullets));
-    }
-}
+//EndsubportObjectfunction
 
 
 EnemyBoss = function (game) {
@@ -536,19 +553,6 @@ EnemyBoss.prototype.update = function(){
     this.countPlan++;
 }
 
-function bulletHitBoss (boss, bullet) {
-
-    if(boss.alive){
-      bullet.kill();
-      var destroyed = enemy[0].damage();
-      if(destroyed){
-          ////play anime
-          shot = game.add.audio('BossDeath');
-          shot.play();
-          destroyedCount--;
-      }
-    }
-}
 
 //+60
 function fireBoss(cannon1,cannon2,cannon3,countPlan){
@@ -793,16 +797,15 @@ function summonBoss(){
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-var buttonStart,buttonHowToPlay;
-var text;
-function create1(){
+function createMenu(){
     interMu = game.add.audio('intro');
     interMu.loopFull();
     buttonStart = game.add.button(game.world.centerX, game.world.centerY, 'start', toGame, this);
     buttonHowToPlay = game.add.button(game.world.centerX, game.world.centerY+100, 'howtoplay', toHowToPlay, this);
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
 }
-function create2(){
+
+function createHowtoPlay(){
     interMu.stop();
     interMu = game.add.audio('intro');
     interMu.loopFull();
@@ -811,7 +814,8 @@ function create2(){
     buttonStart = game.add.button(game.world.centerX, game.world.centerY, 'start', toGame, this);
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
 }
-function create3(){
+
+function createResult(){
     interMu.stop();
     interMu = game.add.audio('Died');
     interMu.loopFull();
@@ -821,17 +825,19 @@ function create3(){
 
     setScore();
 }
-function update1(){
+function updateResult(){
     if(fireButton.isDown)
-        game.state.start('main');
+        game.state.start('gamePlay');
 }
 function toGame(){
-    game.state.start('main');
+    game.state.start('gamePlay');
 }
 function toHowToPlay(){
-    game.state.start('htp');
+    game.state.start('howtoPlay');
 }
-
+function toMenu() {
+	game.state.start('menu');
+}
 
 
 function setScore() {
