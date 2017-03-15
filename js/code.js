@@ -37,6 +37,7 @@ function preload() {
     game.load.image('background','images/sea.png');
     game.load.image('laser','images/biglaser.png');
     
+    game.load.spritesheet('mute','images/mute.png',450,447);
     game.load.spritesheet('start','images/start.png',3876/3,196);
     game.load.spritesheet('howtoplay','images/howtoplay.png',3876/3,196);
     game.load.spritesheet('menu','images/mainmenu.png',3876/3,196);
@@ -81,6 +82,7 @@ var score = 0,textScore;
 var interMu;
 var buttonStart,buttonHowToPlay;
 var text;
+var isSound = true;
 //createGamePlay 
 function createGamePlay() {
     interMu.stop();
@@ -241,6 +243,8 @@ function createGamePlay() {
     sprite.body.collideWorldBounds = true;
     sprite2.body.collideWorldBounds = true;
     enemy = [];
+    mute = game.add.button(400,20,'mute',muteSounds,this);
+    mute.scale.setTo(0.1,0.1);
     //game.pause_label.isDown.add(unpause, self);
     timer = game.time.create(false);
     timer.loop(3001, reposition, this);
@@ -823,6 +827,8 @@ function createMenu(){
     buttonCredit = game.add.button(game.world.centerX, game.world.centerY-100,'credit',toCredit,this)
     buttonCredit.scale.setTo(0.2,0.2);
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+    mute = game.add.button(400,20,'mute',muteSounds,this);
+    mute.scale.setTo(0.1,0.1);
 }
 
 function createHowtoPlay(){
@@ -835,6 +841,8 @@ function createHowtoPlay(){
     buttonStart.scale.setTo(0.2,0.2);
     buttonMenu = game.add.button(game.world.centerX, game.world.centerY+100, 'menu', toMenu, this);
     buttonMenu.scale.setTo(0.2,0.2);
+    mute = game.add.button(400,20,'mute',muteSounds,this);
+    mute.scale.setTo(0.1,0.1);
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
 }
 function createReport(){
@@ -847,6 +855,8 @@ function createReport(){
     buttonSubmit.scale.setTo(0.2,0.2);
     buttonMenu = game.add.button(game.world.centerX, game.world.centerY+100, 'menu', toMenu, this);
     buttonMenu.scale.setTo(0.2,0.2);
+    mute = game.add.button(400,20,'mute',muteSounds,this);
+    mute.scale.setTo(0.1,0.1);
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
 }
 function createCredit(){
@@ -859,6 +869,8 @@ function createCredit(){
     buttonStart.scale.setTo(0.2,0.2);
     buttonMenu = game.add.button(game.world.centerX, game.world.centerY+100, 'menu', toMenu, this);
     buttonMenu.scale.setTo(0.2,0.2);
+    mute = game.add.button(400,20,'mute',muteSounds,this);
+    mute.scale.setTo(0.1,0.1);
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
 }
 function createResult(){
@@ -873,6 +885,8 @@ function createResult(){
     buttonReport.scale.setTo(0.2,0.2);
     buttonMenu = game.add.button(game.world.centerX, game.world.centerY+200, 'menu', toMenu, this);
     buttonMenu.scale.setTo(0.2,0.2);
+    mute = game.add.button(400,20,'mute',muteSounds,this);
+    mute.scale.setTo(0.1,0.1);
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     setScore();
 }
@@ -901,6 +915,19 @@ function toScoreboard() {
 }
 function toCredit() {
 	game.state.start('credit');
+}
+
+function muteSounds() {
+    isSound = !isSound;
+    if (!isSound) {
+        console.log("mute");
+        game.sound.mute = true;
+        mute.frame = 1;
+    } else {
+    	console.log("not mute");
+        mute.frame = 0;
+        game.sound.mute = false;
+    }
 }
 
 function setScore() {
