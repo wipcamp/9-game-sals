@@ -18,11 +18,15 @@ var game = new Phaser.Game(500, 750, Phaser.AUTO, "game");
 var gamePlay = { preload : preload , create: createGamePlay , update : updateGamePlay};
 var menu = { preload : preload , create : createMenu};
 var howtoPlay = { preload : preload , create : createHowtoPlay};
-var result = {preload : preload , create : createResult , update : updateResult}
+var result = {preload : preload , create : createResult , update : updateResult};
+var report = {preload : preload ,create : createReport};
+var credit = {preload : preload ,create : createCredit};
 game.state.add('gamePlay', gamePlay);
 game.state.add('menu', menu);
 game.state.add('howtoPlay', howtoPlay);
 game.state.add('result',result);
+game.state.add('report',report);
+game.state.add('credit',credit);
 game.state.start('menu');
 function preload() {
 	game.load.image('collider','images/collider.png');
@@ -32,8 +36,16 @@ function preload() {
     game.load.image('enemy_ship','images/enemyship.png');
     game.load.image('background','images/sea.png');
     game.load.image('laser','images/biglaser.png');
-    game.load.image('start','images/start.png');
-    game.load.image('howtoplay','images/howtoplay.png');
+    
+    game.load.spritesheet('start','images/start.png',3876/3,196);
+    game.load.spritesheet('howtoplay','images/howtoplay.png',3876/3,196);
+    game.load.spritesheet('menu','images/mainmenu.png',3876/3,196);
+    game.load.spritesheet('report','images/report.png',3876/3,196);
+    game.load.spritesheet('scoreboard','images/score.png',3876/3,196);
+    game.load.spritesheet('playagain','images/playagain.png',3876/3,196);
+    game.load.spritesheet('submit','images/submit.png',3876/3,196);
+    game.load.spritesheet('credit','images/credit.png',3876/3,196);
+
     game.load.audio('Play','sound/WhilePlay.ogg');
     game.load.audio('Died','sound/You Died.ogg');
     game.load.audio('intro','sound/Interface.ogg');
@@ -321,7 +333,7 @@ function bulletHitPlayer (ship, bullet) {
     shot.play();
     bullet.kill();
     ///
-    game.state.start('postScore');
+    game.state.start('result');
 }
 
 function bulletHitEnemy (enemy_ship, bullet) {
@@ -801,7 +813,15 @@ function createMenu(){
     interMu = game.add.audio('intro');
     interMu.loopFull();
     buttonStart = game.add.button(game.world.centerX, game.world.centerY, 'start', toGame, this);
+    buttonStart.scale.setTo(0.2,0.2);
     buttonHowToPlay = game.add.button(game.world.centerX, game.world.centerY+100, 'howtoplay', toHowToPlay, this);
+    buttonHowToPlay.scale.setTo(0.2,0.2);
+    buttonReport = game.add.button(game.world.centerX, game.world.centerY+200,'report',toReport,this);
+    buttonReport.scale.setTo(0.2,0.2);
+    buttonScore = game.add.button(game.world.centerX, game.world.centerY+300,'scoreboard',toScoreboard,this)
+    buttonScore.scale.setTo(0.2,0.2);
+    buttonCredit = game.add.button(game.world.centerX, game.world.centerY-100,'credit',toCredit,this)
+    buttonCredit.scale.setTo(0.2,0.2);
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
 }
 
@@ -812,22 +832,57 @@ function createHowtoPlay(){
     text = game.add.text(game.world.centerX,game.world.centerY*(1/5),"How To Play",{fontSize : "20px",fill : "#ed3465"});
     text.anchor.set(0.5);
     buttonStart = game.add.button(game.world.centerX, game.world.centerY, 'start', toGame, this);
+    buttonStart.scale.setTo(0.2,0.2);
+    buttonMenu = game.add.button(game.world.centerX, game.world.centerY+100, 'menu', toMenu, this);
+    buttonMenu.scale.setTo(0.2,0.2);
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
 }
-
+function createReport(){
+    interMu.stop();
+    interMu = game.add.audio('intro');
+    interMu.loopFull();
+    text = game.add.text(game.world.centerX,game.world.centerY*(1/5),"Report",{fontSize : "20px",fill : "#ed3465"});
+    text.anchor.set(0.5);
+    buttonSubmit = game.add.button(game.world.centerX, game.world.centerY, 'submit', toSubmit, this);
+    buttonSubmit.scale.setTo(0.2,0.2);
+    buttonMenu = game.add.button(game.world.centerX, game.world.centerY+100, 'menu', toMenu, this);
+    buttonMenu.scale.setTo(0.2,0.2);
+    fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+}
+function createCredit(){
+    interMu.stop();
+    interMu = game.add.audio('intro');
+    interMu.loopFull();
+    text = game.add.text(game.world.centerX,game.world.centerY*(1/5),"credit",{fontSize : "20px",fill : "#ed3465"});
+    text.anchor.set(0.5);
+    buttonStart = game.add.button(game.world.centerX, game.world.centerY, 'start', toGame, this);
+    buttonStart.scale.setTo(0.2,0.2);
+    buttonMenu = game.add.button(game.world.centerX, game.world.centerY+100, 'menu', toMenu, this);
+    buttonMenu.scale.setTo(0.2,0.2);
+    fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+}
 function createResult(){
     interMu.stop();
     interMu = game.add.audio('Died');
     interMu.loopFull();
     text = game.add.text(game.world.centerX,game.world.centerY,"Score : "+score,{fontSize : "20px",fill : "#ed3465"});
     text.anchor.set(0.5);
+    buttonPlayagain = game.add.button(game.world.centerX, game.world.centerY, 'playagain', toGame, this);
+    buttonPlayagain.scale.setTo(0.2,0.2);
+    buttonReport = game.add.button(game.world.centerX, game.world.centerY+100, 'report', toReport, this);
+    buttonReport.scale.setTo(0.2,0.2);
+    buttonMenu = game.add.button(game.world.centerX, game.world.centerY+200, 'menu', toMenu, this);
+    buttonMenu.scale.setTo(0.2,0.2);
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
-
     setScore();
 }
 function updateResult(){
     if(fireButton.isDown)
         game.state.start('gamePlay');
+}
+
+function toSubmit(){
+    game.state.start('gamePlay');
 }
 function toGame(){
     game.state.start('gamePlay');
@@ -838,7 +893,15 @@ function toHowToPlay(){
 function toMenu() {
 	game.state.start('menu');
 }
-
+function toReport() {
+	game.state.start('report');
+}
+function toScoreboard() {
+	game.state.start('gamePlay');
+}
+function toCredit() {
+	game.state.start('credit');
+}
 
 function setScore() {
     var highscore;
