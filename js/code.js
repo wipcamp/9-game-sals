@@ -29,15 +29,15 @@ game.state.add('report',report);
 game.state.add('credit',credit);
 game.state.start('menu');
 function preload() {
-    game.load.spritesheet('bomb', 'images/boomspritesheet.png',400/5,90);
+    game.load.spritesheet('bomb', 'images/item_move.png',800/8,100);
 	  game.load.image('collider','images/collider.png');
     game.load.image('bullet', 'images/bullet.png');
-    game.load.image('ship', 'images/ship.png');
-	  game.load.image('boss','images/boss.png');
-    game.load.image('enemy_ship','images/enemyship.png');
-    game.load.image('background','images/sea.png');
+    game.load.image('ship', 'images/playership.png');
+	  game.load.image('boss','images/bossboss.png');
+    game.load.image('enemy_ship','images/enemyship_red.png');
+    game.load.image('background','images/bg.png');
     game.load.image('laser','images/biglaser.png');
-    
+
     game.load.spritesheet('mute','images/mute.png',450,447);
     game.load.spritesheet('start','images/start.png',3876/3,196);
     game.load.spritesheet('howtoplay','images/howtoplay.png',3876/3,196);
@@ -88,7 +88,7 @@ var interMu;
 var buttonStart,buttonHowToPlay;
 var text;
 var isSound = true;
-//createGamePlay 
+//createGamePlay
 function createGamePlay() {
     interMu.stop();
     interMu = game.add.audio('Play');
@@ -113,7 +113,7 @@ function createGamePlay() {
     cursors = this.input.keyboard.createCursorKeys();
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     destroyedCount=0;
-	  wave=-1;
+	  wave=4; //test wave
     laserBeam1 = game.add.group();
     laserBeam1.enableBody = true;
     laserBeam1.physicsBodyType = Phaser.Physics.ARCADE;
@@ -257,7 +257,8 @@ function createGamePlay() {
         bomb.events.onOutOfBounds.add(resetBullet, this);
         bomb.body.setCircle(45);
     }
-    bombGroup.callAll('animations.add', 'animations', 'move', [0, 1], 4, true);
+    bombGroup.callAll('animations.add', 'animations', 'move', [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,3,4], 30, true);
+    //test animation item
     //pause_label = this.input.keyboard.addKey(Phaser.KeyCode.ENTER);
     //pause_label.events.onInputUp.add(function () {game.paused = true;});
     sprite.body.collideWorldBounds = true;
@@ -278,6 +279,7 @@ function updateGamePlay() {
 	sprite2.y=sprite.y;
 	if(destroyedCount==0){
 		wave++;
+    //wave == 6;
         plan = game.rnd.integerInRange(1, 10);
 
         if(wave%7==0)
@@ -580,7 +582,7 @@ EnemyBoss = function (game) {
     this.cannon2.name = 2;
     this.cannon3.name = 3;
     //this.boss.anchor.set(0.5);
-    this.boss.scale.setTo(0.5,0.15);
+    this.boss.scale.setTo(1.0,1.0); //ปรับ scale boss
     this.cannon1.anchor.set(0.5);
     this.cannon2.anchor.set(0.5);
     this.cannon3.anchor.set(0.5);
