@@ -37,7 +37,7 @@ function preload() {
     game.load.image('enemy_ship','images/enemyship.png');
     game.load.image('background','images/sea.png');
     game.load.image('laser','images/biglaser.png');
-    
+
     game.load.spritesheet('mute','images/mute.png',450,447);
     game.load.spritesheet('start','images/start.png',3876/3,196);
     game.load.spritesheet('howtoplay','images/howtoplay.png',3876/3,196);
@@ -88,7 +88,7 @@ var interMu;
 var buttonStart,buttonHowToPlay;
 var text;
 var isSound = true;
-//createGamePlay 
+//createGamePlay
 function createGamePlay() {
     interMu.stop();
     interMu = game.add.audio('Play');
@@ -378,10 +378,10 @@ function bulletHitEnemy (enemy_ship, bullet) {
 }
 function Spawner() {
     var output = game.rnd.integerInRange(0, 2);
-    console.log("bomb is ready to deploy, random = "+output)
+    console.log("random output = "+output)
     if (output == 0) {
         console.log("bomb spawn");
-        bombCooldown = 400;
+        itemCooldown = 400;
         bomby = bombGroup.getFirstExists(false);
         var bombDropAt = game.rnd.integerInRange(1, 25);
         bomby.reset(game.world.width * (bombDropAt / 26), 0);
