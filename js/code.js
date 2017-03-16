@@ -14,7 +14,7 @@ var dbSals = firebase.database().ref().child("sals");
 var token = "qqqq";
 var name = "aaaaaa";
 
-var game = new Phaser.Game(500, 750, Phaser.AUTO, "game");
+var game = new Phaser.Game(350, 560, Phaser.AUTO, "game");
 var gamePlay = { preload : preload , create: createGamePlay , update : updateGamePlay};
 var menu = { preload : preload , create : createMenu};
 var howtoPlay = { preload : preload , create : createHowtoPlay};
@@ -30,14 +30,17 @@ game.state.add('credit',credit);
 game.state.start('menu');
 function preload() {
     game.load.spritesheet('bomb', 'images/boomspritesheet.png',400/5,90);
-	  game.load.image('collider','images/collider.png');
+	game.load.image('collider','images/collider.png');
     game.load.image('bullet', 'images/bullet.png');
     game.load.image('ship', 'images/ship.png');
-	  game.load.image('boss','images/boss.png');
+	game.load.image('boss','images/boss.png');
     game.load.image('enemy_ship','images/enemyship.png');
     game.load.image('background','images/sea.png');
     game.load.image('laser','images/biglaser.png');
-    
+    game.load.image('speed','images/item_move.png');
+    game.load.image('firerate','images/item_fire.png');
+    game.load.image('scoreUp','images/item_score.png');
+
     game.load.spritesheet('mute','images/mute.png',450,447);
     game.load.spritesheet('start','images/start.png',3876/3,196);
     game.load.spritesheet('howtoplay','images/howtoplay.png',3876/3,196);
@@ -69,6 +72,7 @@ var bossBullets5;
 var bomb;
 var bombGroup;
 var bombCooldown;
+var itemCooldown;
 var bombFirstDeployTime;
 var sprite,sprite2;
 var weapon;
@@ -88,8 +92,23 @@ var interMu;
 var buttonStart,buttonHowToPlay;
 var text;
 var isSound = true;
+var speedGroup;
+var firerateGroup;
+var scoreGroup;
+var speedTime;
+var firerateTime;
+var scoreTime;
+var speedMove;
+var scoreMultiplier;
+var firerateOutput;
 //createGamePlay 
 function createGamePlay() {
+    firerateOutput = 100;
+    speedMove=300;
+    speedTime=0;
+	firerateTime=0;
+	scoreTime=0;
+	scoreMultiplier = 1;
     interMu.stop();
     interMu = game.add.audio('Play');
     interMu.loopFull();
@@ -100,20 +119,19 @@ function createGamePlay() {
     sprite2.scale.setTo(0.20, 0.20);
     game.physics.arcade.enable(sprite2);
     sprite2.body.drag.set(70);
-    sprite2.body.maxVelocity.set(300);
     sprite = this.add.sprite(game.world.width/2,game.world.height*(3/5), 'ship');
     sprite.anchor.set(0.5);
     sprite.scale.setTo(0.50, 0.50);
     game.physics.arcade.enable(sprite);
     sprite.body.drag.set(70);
-    sprite.body.maxVelocity.set(300);
-    itemCooldown = 0;
+    bombCooldown = 0;
+    itemCooldown = game.rnd.integerInRange(0,240);
     score=0;
     textScore = game.add.text(20,20,"Score : "+score,{fontSize : "20px",fill : "#ed3465"});
     cursors = this.input.keyboard.createCursorKeys();
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     destroyedCount=0;
-	  wave=-1;
+	wave=-1;
     laserBeam1 = game.add.group();
     laserBeam1.enableBody = true;
     laserBeam1.physicsBodyType = Phaser.Physics.ARCADE;
@@ -258,6 +276,45 @@ function createGamePlay() {
         bomb.body.setCircle(45);
     }
     bombGroup.callAll('animations.add', 'animations', 'move', [0, 1], 4, true);
+    //speed
+    speedGroup = game.add.group();
+    speedGroup.enableBody = true;
+    speedGroup.physicsBodyType = Phaser.Physics.ARCADE;
+    for (var i = 0; i < 16; i++) {
+    	speed = speedGroup.create(0,0,'speed');
+    	speed.scale.setTo(0.065, 0.065);
+        speed.exists = false;
+        speed.visible = false;
+        speed.checkWorldBounds = true;
+        speed.events.onOutOfBounds.add(resetBullet, this);
+        speed.body.setCircle(45);
+    }
+    //firerate
+    firerateGroup = game.add.group();
+    firerateGroup.enableBody = true;
+    firerateGroup.physicsBodyType = Phaser.Physics.ARCADE;
+    for (var i = 0; i < 16; i++) {
+    	fireObj = firerateGroup.create(0,0,'firerate');
+    	fireObj.scale.setTo(0.065, 0.065);
+        fireObj.exists = false;
+        fireObj.visible = false;
+        fireObj.checkWorldBounds = true;
+        fireObj.events.onOutOfBounds.add(resetBullet, this);
+        fireObj.body.setCircle(45);
+    }
+    //score
+    scoreGroup = game.add.group();
+    scoreGroup.enableBody = true;
+    scoreGroup.physicsBodyType = Phaser.Physics.ARCADE;
+    for (var i = 0; i < 16; i++) {
+    	scoreObj = scoreGroup.create(0,0,'scoreUp');
+    	scoreObj.scale.setTo(0.065, 0.065);
+        scoreObj.exists = false;
+        scoreObj.visible = false;
+        scoreObj.checkWorldBounds = true;
+        scoreObj.events.onOutOfBounds.add(resetBullet, this);
+        scoreObj.body.setCircle(45);
+    }
     //pause_label = this.input.keyboard.addKey(Phaser.KeyCode.ENTER);
     //pause_label.events.onInputUp.add(function () {game.paused = true;});
     sprite.body.collideWorldBounds = true;
@@ -265,6 +322,10 @@ function createGamePlay() {
     enemy = [];
     mute = game.add.button(400,20,'mute',muteSounds,this);
     mute.scale.setTo(0.1,0.1);
+    if(isSound)
+    	mute.frame = 0;
+    else
+    	mute.frame = 1;
     //game.pause_label.isDown.add(unpause, self);
     timer = game.time.create(false);
     timer.loop(3001, reposition, this);
@@ -276,6 +337,32 @@ function createGamePlay() {
 function updateGamePlay() {
 	sprite2.x=sprite.x;
 	sprite2.y=sprite.y;
+	if(speedTime==0){
+		speedMove = 300;
+		speedTime--;
+	}
+	else if(speedTime>0){
+		speedMove = 1000;
+		speedTime--;
+	}
+
+	if(scoreTime == 0){
+		scoreMultiplier = 1;
+		scoreTime--;
+	}
+	else if(scoreTime>0){
+		scoreMultiplier = 2;
+		scoreTime--;
+	}
+
+	if(firerateTime == 0){
+		firerateOutput = 100;
+		firerateTime--;
+	}
+	else if(firerateTime>0){
+		firerateOutput = 20;
+		firerateTime--;
+	}
 	if(destroyedCount==0){
 		wave++;
         plan = game.rnd.integerInRange(1, 10);
@@ -296,16 +383,19 @@ function updateGamePlay() {
     		summonBoss();
         }
 	}
-  if (itemCooldown <= 0) {
-      Spawner();
-  }
-  itemCooldown--;
+  	if(bombCooldown <= 0)
+    	Spawner();
+  	bombCooldown--;
+
+  	if(itemCooldown <= 0)
+  		itemSpawner();
+  	itemCooldown--;
 
     if (fireButton.isDown)
     {
         fire();
     }
-    game.physics.arcade.overlap(sprite2,laserBeam1, bulletHitPlayer, null , this);
+    /*game.physics.arcade.overlap(sprite2,laserBeam1, bulletHitPlayer, null , this);
     game.physics.arcade.overlap(sprite2,laserBeam2, bulletHitPlayer, null , this);
     game.physics.arcade.overlap(sprite2,laserBeam3, bulletHitPlayer, null , this);
     game.physics.arcade.overlap(sprite2,enemyBullets, bulletHitPlayer, null , this);
@@ -314,7 +404,10 @@ function updateGamePlay() {
     game.physics.arcade.overlap(sprite2,bossBullets3, bulletHitPlayer, null , this);
     game.physics.arcade.overlap(sprite2,bossBullets4, bulletHitPlayer, null , this);
     game.physics.arcade.overlap(sprite2,bossBullets5, bulletHitPlayer, null , this);
-    game.physics.arcade.overlap(sprite2, bombGroup, bulletHitPlayer, null, this);
+    game.physics.arcade.overlap(sprite2, bombGroup, bulletHitPlayer, null, this);*/
+    game.physics.arcade.overlap(sprite2,speedGroup, getSpeed, null , this);
+    game.physics.arcade.overlap(sprite2,firerateGroup, getFirerate, null , this);
+    game.physics.arcade.overlap(sprite2,scoreGroup, getScore, null , this);
     for (var i = 0; i < enemy.length; i++){
         if(wave%7!=6){
             game.physics.arcade.overlap(enemy[i].enemy_ship,bullets, bulletHitEnemy, null , this);
@@ -330,18 +423,18 @@ function updateGamePlay() {
         }
     }
     sprite.body.velocity.y=0;
-	  sprite.body.velocity.x=0;
+	sprite.body.velocity.x=0;
   	if(cursors.up.isDown){
-  		sprite.body.velocity.y = -300;
+  		sprite.body.velocity.y = -speedMove;
   	}
   	if(cursors.down.isDown){
-  		sprite.body.velocity.y = 300;
+  		sprite.body.velocity.y = speedMove;
   	}
   	if(cursors.left.isDown){
-  		sprite.body.velocity.x = -300;
+  		sprite.body.velocity.x = -speedMove;
   	}
   	if(cursors.right.isDown){
-  		sprite.body.velocity.x = 300;
+  		sprite.body.velocity.x = speedMove;
   	}
 
   	if(this.input.keyboard.addKey(Phaser.KeyCode.ENTER).isDown){
@@ -357,6 +450,22 @@ function updateGamePlay() {
 //EndUpdateGamePlay
 
 //subportGamePlay
+function getScore(player,item) {
+	console.log("score");
+	item.kill();
+	scoreTime = 300;
+}
+function getFirerate(player,item) {
+	item.kill();
+	console.log("firerate");
+	firerateTime = 300;
+}
+function getSpeed(player,item) {
+	item.kill();
+	console.log("speed");
+	speedTime = 300;
+}
+
 function bulletHitPlayer () {
     shot = game.add.audio('Death');
     shot.play();
@@ -381,19 +490,50 @@ function Spawner() {
     console.log("bomb is ready to deploy, random = "+output)
     if (output == 0) {
         console.log("bomb spawn");
-        bombCooldown = 400;
+        bombCooldown  = 400;
         bomby = bombGroup.getFirstExists(false);
         var bombDropAt = game.rnd.integerInRange(1, 25);
         bomby.reset(game.world.width * (bombDropAt / 26), 0);
         bomby.body.velocity.y = 200;
         bombGroup.callAll('animations.play', 'animations', 'move');
-    }else if(output == 1){
-      //itemSpawn
     }
     else {
-        itemCooldown+=60;
+        bombCooldown +=60;
     }
 }
+
+function itemSpawner() {
+	var output = game.rnd.integerInRange(0,2);
+	console.log(output);
+	if(output==0)
+		speedUp();
+	else if(output==1)
+		firerateUp();
+	else
+		scoreUp();
+}
+function speedUp() {
+	itemCooldown = game.rnd.integerInRange(240,400);
+	var position = game.rnd.integerInRange(0,game.world.width);
+	speed = speedGroup.getFirstExists(false);
+	speed.reset(position,0);
+	speed.body.velocity.y = 150;
+}
+function firerateUp() {
+	itemCooldown = game.rnd.integerInRange(240,400);
+	var position = game.rnd.integerInRange(0,game.world.width);
+	fireRate = firerateGroup.getFirstExists(false);
+	fireRate.reset(position,0);
+	fireRate.body.velocity.y = 150;
+}
+function scoreUp() {
+	itemCooldown = game.rnd.integerInRange(240,400);
+	var position = game.rnd.integerInRange(0,game.world.width);
+	scoreObj = scoreGroup.getFirstExists(false);
+	scoreObj.reset(position,0);
+	scoreObj.body.velocity.y = 150;
+}
+
 function fire () {
 	var vv = game.rnd.integerInRange(-75, 75);
     if (game.time.now > bulletTime)
@@ -405,7 +545,7 @@ function fire () {
             bullet.reset(sprite.x, sprite.y-10);
             bullet.body.velocity.x = vv;
             bullet.body.velocity.y = -900;
-            bulletTime = game.time.now + 100;
+            bulletTime = game.time.now + firerateOutput;
         }
     }
 }
@@ -462,7 +602,7 @@ EnemyShip.prototype.damage = function() {
 
     if (this.health <= 0)
     {
-        score += 100;
+        score += 100*scoreMultiplier;
         textScore.text = "Score : "+score;
         this.alive = false;
         this.enemy_ship.kill();
@@ -876,13 +1016,17 @@ function createMenu(){
     buttonHowToPlay.scale.setTo(0.2,0.2);
     buttonReport = game.add.button(game.world.centerX, game.world.centerY+200,'report',toReport,this);
     buttonReport.scale.setTo(0.2,0.2);
-    buttonScore = game.add.button(game.world.centerX, game.world.centerY+300,'scoreboard',toScoreboard,this)
+    buttonScore = game.add.button(game.world.centerX, game.world.centerY-200,'scoreboard',toScoreboard,this)
     buttonScore.scale.setTo(0.2,0.2);
     buttonCredit = game.add.button(game.world.centerX, game.world.centerY-100,'credit',toCredit,this)
     buttonCredit.scale.setTo(0.2,0.2);
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     mute = game.add.button(400,20,'mute',muteSounds,this);
     mute.scale.setTo(0.1,0.1);
+    if(isSound)
+    	mute.frame = 0;
+    else
+    	mute.frame = 1;
 }
 
 function createHowtoPlay(){
@@ -897,6 +1041,10 @@ function createHowtoPlay(){
     buttonMenu.scale.setTo(0.2,0.2);
     mute = game.add.button(400,20,'mute',muteSounds,this);
     mute.scale.setTo(0.1,0.1);
+    if(isSound)
+    	mute.frame = 0;
+    else
+    	mute.frame = 1;
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
 }
 function createReport(){
@@ -911,6 +1059,10 @@ function createReport(){
     buttonMenu.scale.setTo(0.2,0.2);
     mute = game.add.button(400,20,'mute',muteSounds,this);
     mute.scale.setTo(0.1,0.1);
+    if(isSound)
+    	mute.frame = 0;
+    else
+    	mute.frame = 1;
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
 }
 function createCredit(){
@@ -925,6 +1077,10 @@ function createCredit(){
     buttonMenu.scale.setTo(0.2,0.2);
     mute = game.add.button(400,20,'mute',muteSounds,this);
     mute.scale.setTo(0.1,0.1);
+    if(isSound)
+    	mute.frame = 0;
+    else
+    	mute.frame = 1;
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
 }
 function createResult(){
@@ -941,6 +1097,10 @@ function createResult(){
     buttonMenu.scale.setTo(0.2,0.2);
     mute = game.add.button(400,20,'mute',muteSounds,this);
     mute.scale.setTo(0.1,0.1);
+    if(isSound)
+    	mute.frame = 0;
+    else
+    	mute.frame = 1;
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     setScore();
 }
