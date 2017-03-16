@@ -29,19 +29,22 @@ game.state.add('report',report);
 game.state.add('credit',credit);
 game.state.start('menu');
 function preload() {
-    game.load.spritesheet('bomb', 'images/item_move.png',800/8,100);
-    game.load.spritesheet('shark', 'images/shark.png', 50, 50);
-	  game.load.image('collider','images/collider.png');
+	game.load.image('collider','images/collider.png');
     game.load.image('bullet', 'images/bullet.png');
     game.load.image('ship', 'images/playership.png');
-	  game.load.image('boss','images/bossboss.png');
+	game.load.image('boss','images/bossboss.png');
     game.load.image('enemy_ship','images/enemyship_red.png');
     game.load.image('background','images/bg.png');
     game.load.image('laser','images/biglaser.png');
-    game.load.image('speed','images/item_move.png');
-    game.load.image('firerate','images/item_fire.png');
-    game.load.image('scoreUp','images/item_score.png');
+    game.load.image('text_speed','images/text_move.png');
+    game.load.image('text_fire','images/text_fire.png');
+    game.load.image('text_score','images/text_score.png');
 
+    game.load.spritesheet('speed','images/item_move.png',800/8,100);
+    game.load.spritesheet('firerate','images/item_fire.png',800/8,100);
+    game.load.spritesheet('scoreUp','images/item_score.png',800/8,100);
+    game.load.spritesheet('bomb', 'images/boomspritesheet.png',400/5,90);
+    game.load.spritesheet('shark', 'images/shark.png', 50, 50);
     game.load.spritesheet('mute','images/mute.png',450,447);
     game.load.spritesheet('start','images/start.png',3876/3,196);
     game.load.spritesheet('howtoplay','images/howtoplay.png',3876/3,196);
@@ -142,7 +145,7 @@ function createGamePlay() {
     for (var i = 0; i < 100; i++){
         var b = laserBeam1.create(0, 0, 'laser');
         b.anchor.set(0.5);
-        b.scale.setTo(3,1);
+        b.scale.setTo(3,2.7);
         b.name = 'laser' + i;
         b.exists = false;
         b.visible = false;
@@ -155,7 +158,7 @@ function createGamePlay() {
     for (var i = 0; i < 100; i++){
         var b = laserBeam2.create(0, 0, 'laser');
         b.anchor.set(0.5);
-        b.scale.setTo(3,1);
+        b.scale.setTo(3,2.7);
         b.name = 'laser' + i;
         b.exists = false;
         b.visible = false;
@@ -168,7 +171,7 @@ function createGamePlay() {
     for (var i = 0; i < 100; i++){
         var b = laserBeam3.create(0, 0, 'laser');
         b.anchor.set(0.5);
-        b.scale.setTo(3,1);
+        b.scale.setTo(3,2.7);
         b.name = 'laser' + i;
         b.exists = false;
         b.visible = false;
@@ -286,7 +289,6 @@ function createGamePlay() {
     speedGroup.physicsBodyType = Phaser.Physics.ARCADE;
     for (var i = 0; i < 16; i++) {
     	speed = speedGroup.create(0,0,'speed');
-    	speed.scale.setTo(0.065, 0.065);
         speed.exists = false;
         speed.visible = false;
         speed.checkWorldBounds = true;
@@ -299,7 +301,6 @@ function createGamePlay() {
     firerateGroup.physicsBodyType = Phaser.Physics.ARCADE;
     for (var i = 0; i < 16; i++) {
     	fireObj = firerateGroup.create(0,0,'firerate');
-    	fireObj.scale.setTo(0.065, 0.065);
         fireObj.exists = false;
         fireObj.visible = false;
         fireObj.checkWorldBounds = true;
@@ -312,14 +313,12 @@ function createGamePlay() {
     scoreGroup.physicsBodyType = Phaser.Physics.ARCADE;
     for (var i = 0; i < 16; i++) {
     	scoreObj = scoreGroup.create(0,0,'scoreUp');
-    	scoreObj.scale.setTo(0.065, 0.065);
         scoreObj.exists = false;
         scoreObj.visible = false;
         scoreObj.checkWorldBounds = true;
         scoreObj.events.onOutOfBounds.add(resetBullet, this);
         scoreObj.body.setCircle(45);
     }
-    bombGroup.callAll('animations.add', 'animations', 'move', [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,3,4], 50, true);
     sharkGroup = game.add.group();
     sharkGroup.enableBody = true;
     sharkGroup.physicsBodyType = Phaser.Physics.ARCADE;
@@ -341,7 +340,7 @@ function createGamePlay() {
     sprite.body.collideWorldBounds = true;
     sprite2.body.collideWorldBounds = true;
     enemy = [];
-    mute = game.add.button(400,20,'mute',muteSounds,this);
+    mute = game.add.button(300,20,'mute',muteSounds,this);
     mute.scale.setTo(0.1,0.1);
     if(isSound)
     	mute.frame = 0;
@@ -480,18 +479,54 @@ function updateGamePlay() {
 //subportGamePlay
 function getScore(player,item) {
 	console.log("score");
+	var scale = 0.7;
+	var obj = game.add.image(item.x,item.y,'text_score');
+	obj.anchor.set(0.5);
+	obj.scale.setTo(scale);
 	item.kill();
-	scoreTime = 300;
+	scoreTime = 120;
+	game.time.events.loop(Phaser.Timer.SECOND * 0.0625, function(){
+		scale+=0.025;
+		obj.scale.setTo(scale);
+		obj.alpha-=0.025;
+	}, this);
+	game.time.events.add(Phaser.Timer.SECOND * 2, function(){
+		obj.kill();
+	}, this);
 }
 function getFirerate(player,item) {
 	item.kill();
+	var scale = 0.7;
+	var obj = game.add.image(item.x,item.y,'text_fire');
+	obj.anchor.set(0.5);
+	obj.scale.setTo(scale);
 	console.log("firerate");
-	firerateTime = 300;
+	firerateTime = 120;
+	game.time.events.loop(Phaser.Timer.SECOND * 0.0625, function(){
+		scale+=0.025;
+		obj.scale.setTo(scale);
+		obj.alpha-=0.025;
+	}, this);
+	game.time.events.add(Phaser.Timer.SECOND * 2, function(){
+		obj.kill();
+	}, this);
 }
 function getSpeed(player,item) {
 	item.kill();
+	var scale = 0.7;
+	var obj = game.add.image(item.x,item.y,'text_speed');
+	obj.anchor.set(0.5);
+	obj.scale.setTo(scale);
 	console.log("speed");
-	speedTime = 300;
+	speedTime = 120;
+	game.time.events.loop(Phaser.Timer.SECOND * 0.0625, function(){
+		scale+=0.025;
+		obj.scale.setTo(scale);
+		obj.alpha-=0.025;
+	}, this);
+	game.time.events.add(Phaser.Timer.SECOND * 2, function(){
+		obj.kill();
+	}, this);
 }
 
 function bulletHitPlayer () {
@@ -929,7 +964,7 @@ function laserOnTheMove (cannon,bullets) { //40<7
     shot.play();
     bullet = bullets.getFirstExists(false);
     bullet.reset(cannon.x+15, cannon.y+20);
-    bullet.body.velocity.y = 400;
+    bullet.body.velocity.y = 1200;
     //bullet.rotation = this.game.physics.arcade.moveToObject(bullet, sprite, 200);
 }
 
@@ -1082,7 +1117,7 @@ function createMenu(){
     buttonCredit = game.add.button(game.world.centerX, game.world.centerY-100,'credit',toCredit,this)
     buttonCredit.scale.setTo(0.2,0.2);
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
-    mute = game.add.button(400,20,'mute',muteSounds,this);
+    mute = game.add.button(300,20,'mute',muteSounds,this);
     mute.scale.setTo(0.1,0.1);
     if(isSound)
     	mute.frame = 0;
@@ -1100,7 +1135,7 @@ function createHowtoPlay(){
     buttonStart.scale.setTo(0.2,0.2);
     buttonMenu = game.add.button(game.world.centerX, game.world.centerY+100, 'menu', toMenu, this);
     buttonMenu.scale.setTo(0.2,0.2);
-    mute = game.add.button(400,20,'mute',muteSounds,this);
+    mute = game.add.button(300,20,'mute',muteSounds,this);
     mute.scale.setTo(0.1,0.1);
     if(isSound)
     	mute.frame = 0;
@@ -1118,7 +1153,7 @@ function createReport(){
     buttonSubmit.scale.setTo(0.2,0.2);
     buttonMenu = game.add.button(game.world.centerX, game.world.centerY+100, 'menu', toMenu, this);
     buttonMenu.scale.setTo(0.2,0.2);
-    mute = game.add.button(400,20,'mute',muteSounds,this);
+    mute = game.add.button(300,20,'mute',muteSounds,this);
     mute.scale.setTo(0.1,0.1);
     if(isSound)
     	mute.frame = 0;
@@ -1136,7 +1171,7 @@ function createCredit(){
     buttonStart.scale.setTo(0.2,0.2);
     buttonMenu = game.add.button(game.world.centerX, game.world.centerY+100, 'menu', toMenu, this);
     buttonMenu.scale.setTo(0.2,0.2);
-    mute = game.add.button(400,20,'mute',muteSounds,this);
+    mute = game.add.button(300,20,'mute',muteSounds,this);
     mute.scale.setTo(0.1,0.1);
     if(isSound)
     	mute.frame = 0;
@@ -1156,7 +1191,7 @@ function createResult(){
     buttonReport.scale.setTo(0.2,0.2);
     buttonMenu = game.add.button(game.world.centerX, game.world.centerY+200, 'menu', toMenu, this);
     buttonMenu.scale.setTo(0.2,0.2);
-    mute = game.add.button(400,20,'mute',muteSounds,this);
+    mute = game.add.button(300,20,'mute',muteSounds,this);
     mute.scale.setTo(0.1,0.1);
     if(isSound)
     	mute.frame = 0;
