@@ -29,10 +29,10 @@ game.state.add('report',report);
 game.state.add('credit',credit);
 game.state.start('menu');
 function preload() {
-	game.load.image('collider','images/collider.png');
+	  game.load.image('collider','images/collider.png');
     game.load.image('bullet', 'images/bullet.png');
     game.load.image('ship', 'images/playership.png');
-	game.load.image('boss','images/bossboss.png');
+	  game.load.image('boss','images/bossboss.png');
     game.load.image('enemy_ship','images/enemyship_red.png');
     game.load.image('background','images/bg.png');
     game.load.image('laser','images/biglaser.png');
@@ -73,12 +73,12 @@ var bossBullets2;
 var bossBullets3;
 var bossBullets4;
 var bossBullets5;
-var bomb;
 var bombGroup;
 var bombCooldown;
 var itemCooldown;
-var bombFirstDeployTime;
 var shark;
+var rockGroup;
+var rockCooldown;
 var sharkGroup;
 var sharkCooldown;
 var sprite,sprite2;
@@ -108,7 +108,7 @@ var scoreTime;
 var speedMove;
 var scoreMultiplier;
 var firerateOutput;
-//createGamePlay 
+//createGamePlay
 function createGamePlay() {
     firerateOutput = 100;
     speedMove=300;
@@ -133,6 +133,8 @@ function createGamePlay() {
     sprite.body.drag.set(70);
     bombCooldown = 0;
     itemCooldown = game.rnd.integerInRange(0,240);
+    sharkCooldown = 0;
+    rockCooldown = 0;
     score=0;
     textScore = game.add.text(20,20,"Score : "+score,{fontSize : "20px",fill : "#ed3465"});
     cursors = this.input.keyboard.createCursorKeys();
@@ -319,6 +321,19 @@ function createGamePlay() {
         scoreObj.events.onOutOfBounds.add(resetBullet, this);
         scoreObj.body.setCircle(45);
     }
+    bombGroup.callAll('animations.add', 'animations', 'move', [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,3,4], 50, true);
+    rockGroup = game.add.group();
+    rockGroup.enableBody = true;
+    rockGroup.physicsBodyType = Phaser.Physics.ARCADE;
+    for (var i = 0; i < 16; i++) {
+        rock = rockGroup.create(0, 0, 'rock');
+        rock.scale.setTo(0.5, 0.5);
+        rock.exists = false;
+        rock.visible = false;
+        rock.checkWorldBounds = true;
+        rock.events.onOutOfBounds.add(resetBullet, this);
+        rock.body.setCircle(28);
+    }
     sharkGroup = game.add.group();
     sharkGroup.enableBody = true;
     sharkGroup.physicsBodyType = Phaser.Physics.ARCADE;
@@ -411,11 +426,15 @@ function updateGamePlay() {
   if (sharkCooldown <= 0) {
       sharkSpawn();
   }
+  if (rockCooldown <= 0){
+      rockSpawn();
+  }
   bombCooldown--;
   sharkCooldown--;
   	if(itemCooldown <= 0)
   		itemSpawner();
   	itemCooldown--;
+  rockCooldown--;
     if (fireButton.isDown)
     {
         fire();
@@ -430,11 +449,11 @@ function updateGamePlay() {
     game.physics.arcade.overlap(sprite2,bossBullets4, bulletHitPlayer, null , this);
     game.physics.arcade.overlap(sprite2,bossBullets5, bulletHitPlayer, null , this);
     game.physics.arcade.overlap(sprite2, bombGroup, bulletHitPlayer, null, this);
-    game.physics.arcade.overlap(sprite2, sharkGroup, bulletHitPlayer, null, this);
-    game.physics.arcade.overlap(sprite2, bombGroup, bulletHitPlayer, null, this);*/
+    game.physics.arcade.overlap(sprite2, sharkGroup, bulletHitPlayer, null, this);*/
     game.physics.arcade.overlap(sprite2,speedGroup, getSpeed, null , this);
     game.physics.arcade.overlap(sprite2,firerateGroup, getFirerate, null , this);
     game.physics.arcade.overlap(sprite2,scoreGroup, getScore, null , this);
+    game.physics.arcade.overlap(sprite2, rockGroup, rockOverlapPlayer, null, this);
     for (var i = 0; i < enemy.length; i++){
         if(wave%7!=6){
             game.physics.arcade.overlap(enemy[i].enemy_ship,bullets, bulletHitEnemy, null , this);
@@ -548,19 +567,36 @@ function bulletHitEnemy (enemy_ship, bullet) {
       }
     }
 }
+function rockOverlapPlayer(playership,rock) {
+    //sprite
+}
 function bombSpawn() {
     var output = game.rnd.integerInRange(0, 1);
     console.log("randomBomb output = "+output)
     if (output == 0) {
         console.log("bomb spawn");
-        bombCooldown  = 400;
-        bomby = bombGroup.getFirstExists(false);
+        bombCooldown = 400;
+        var bomb = bombGroup.getFirstExists(false);
         var bombDropAt = game.rnd.integerInRange(1, 25);
-        bomby.reset(game.world.width * (bombDropAt / 26), 0);
-        bomby.body.velocity.y = 200;
+        bomb.reset(game.world.width * (bombDropAt / 26), 0);
+        bomb.body.velocity.y = 200;
         bombGroup.callAll('animations.play', 'animations', 'move');
     }else{
         bombCooldown+=60;
+    }
+}
+function rockSpawn() {
+    var output = game.rnd.integerInRange(0, 1);
+    console.log("randomRock output = "+output)
+    if (output == 0) {
+        console.log("rock spawn");
+        rockCooldown = 400;
+        var rock = rockGroup.getFirstExists(false);
+        var rockDropAt = game.rnd.integerInRange(1, 25);
+        rock.reset(game.world.width * (rockDropAt / 26), 0);
+        rock.body.velocity.y = 200;
+    }else{
+        rockCooldown+=60;
     }
 }
 function sharkSpawn() {
@@ -569,31 +605,30 @@ function sharkSpawn() {
     if (output == 0) {
         console.log("shark spawn");
         sharkCooldown = 180;
-        var sharky = sharkGroup.getFirstExists(false);
-
+        var shark = sharkGroup.getFirstExists(false);
         var sharkLaunchAt = game.rnd.integerInRange(1, 31);
         var spawnSide = game.rnd.integerInRange(0,1);
         if(spawnSide==0){
-            sharky.reset(0, game.world.width * (sharkLaunchAt / 30));
-            sharky.animations.stop();
+            shark.reset(0, game.world.width * (sharkLaunchAt / 30));
+            shark.animations.stop();
         }else{
-            sharky.reset(game.world.width, game.world.height * (sharkLaunchAt / 30));
-            sharky.animations.stop();
+            shark.reset(game.world.width, game.world.height * (sharkLaunchAt / 30));
+            shark.animations.stop();
         }
-        game.time.events.add(Phaser.Timer.SECOND * 3.0, sharkLaunch, this, spawnSide, sharky);
+        game.time.events.add(Phaser.Timer.SECOND * 3.0, sharkLaunch, this, spawnSide, shark);
 
     }else{
         sharkCooldown+=60;
     }
 }
-function sharkLaunch(spawnSide,sharky) {
+function sharkLaunch(spawnSide,shark) {
     console.log("spawnside="+spawnSide);
     if(spawnSide==0){
-        sharky.body.velocity.x = 600;
-        sharky.animations.play('moveFromLeft');
+        shark.body.velocity.x = 600;
+        shark.animations.play('moveFromLeft');
     }else {
-        sharky.body.velocity.x = -600;
-        sharky.animations.play('moveFromRight');
+        shark.body.velocity.x = -600;
+        shark.animations.play('moveFromRight');
     }
 }
 
