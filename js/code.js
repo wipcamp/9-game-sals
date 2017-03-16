@@ -33,16 +33,18 @@ function preload() {
     game.load.image('bullet', 'images/bullet.png');
     game.load.image('ship', 'images/playership.png');
 	  game.load.image('boss','images/bossboss.png');
-    game.load.image('enemy_ship','images/enemyship_red.png');
+    game.load.image('enemyship_red','images/enemyship_red.png');
+    game.load.image('enemyship_blue','images/enemyship_blue.png');
+    game.load.image('enemyship_green','images/enemyship_green.png');
     game.load.image('background','images/bg.png');
     game.load.image('laser','images/biglaser.png');
     game.load.image('text_speed','images/text_move.png');
     game.load.image('text_fire','images/text_fire.png');
     game.load.image('text_score','images/text_score.png');
+    game.load.image('rock1','images/rock1.png');
+    game.load.image('rock2','images/rock2.png');
+    game.load.image('rock3','images/rock3.png');
 
-    game.load.spritesheet('rock1','images/rock1.png');
-    game.load.spritesheet('rock2','images/rock2.png');
-    game.load.spritesheet('rock3','images/rock3.png');
     game.load.spritesheet('speed','images/item_move.png',800/8,100);
     game.load.spritesheet('firerate','images/item_fire.png',800/8,100);
     game.load.spritesheet('scoreUp','images/item_score.png',800/8,100);
@@ -672,7 +674,7 @@ function rockSpawn() {
     }
 }
 function rockOverlapPlayer(playership,rock) {
-    if(sprite.y-rock.y<=40&&sprite.y-rock.y>=-5){
+    if(sprite.y-rock.y<=40&&sprite.y-rock.y>=-5&&sprite.x-rock.x<=28&&sprite.x-rock.x>=-30){
         sprite.body.velocity.y = 100;
         if(cursors.down.isDown){
             sprite.body.velocity.y = speedMove;
@@ -685,8 +687,8 @@ function rockOverlapPlayer(playership,rock) {
             sprite.body.velocity.y = 0;
         }
     }
-    console.log("rock.y = "+rock.y);
-    console.log("ship.y = "+sprite.y);
+    console.log("rock.x = "+rock.x);
+    console.log("ship.x = "+sprite.x);
     if(sprite.x-rock.x<=40&&sprite.x-rock.x>=-5&&cursors.left.isDown&&sprite.y-rock.y<=20){
         sprite.body.velocity.x = 0;
     }else if(rock.x-sprite.x<=40&&rock.x-sprite.x>=-5&&cursors.right.isDown&&sprite.y-rock.y<=20){
@@ -716,6 +718,7 @@ function sharkSpawn() {
     }
 }
 function sharkLaunch(spawnSide,shark) {
+    ///// sound shark
     console.log("spawnside="+spawnSide);
     if(spawnSide==0){
         shark.body.velocity.x = 800;
@@ -728,6 +731,7 @@ function sharkLaunch(spawnSide,shark) {
 
 
 function itemSpawner() {
+  /////// sound item spawn
 	var output = game.rnd.integerInRange(0,2);
 	console.log(output);
 	if(output==0)
@@ -782,8 +786,18 @@ function summonWave(numberWave){
     for(var i=0;i<l;i++)
     	enemy.pop();
     destroyedCount=numberWave;
+    var randColor = game.rnd.integerInRange(1,3);
+    var color;
+    switch (randColor) {
+      case 1:color="red";
+      break;
+      case 2:color="blue";
+      break;
+      case 3:color="green";
+      break;
+    }
     for (var i = 0; i < numberWave; i++){
-        enemy.push(new EnemyShip(i, game, enemyBullets));
+        enemy.push(new EnemyShip(i, game, enemyBullets,color));
     }
 }
 function bulletHitBoss (boss, bullet) {
@@ -802,16 +816,26 @@ function bulletHitBoss (boss, bullet) {
 //subportGamePlay
 
 //ObjectBotShip
-EnemyShip = function (index, game, bullets) {
+EnemyShip = function (index, game, bullets,color) {
     var x = game.world.randomX;
     var y = 0;
     this.game = game;
     this.health = 3;
     this.bullets = bullets;
     this.alive = true;
-    this.enemy_ship = game.add.sprite(x, y, 'enemy_ship');
+    switch (color) {
+      case "red":this.enemy_ship = game.add.sprite(x, y, 'enemyship_red');
+      this.enemy_ship.scale.setTo(0.75, 0.75);
+      break;
+      case "blue":this.enemy_ship = game.add.sprite(x, y, 'enemyship_blue');
+      this.enemy_ship.scale.setTo(0.1, 0.1);
+      break;
+      case "green":this.enemy_ship = game.add.sprite(x, y, 'enemyship_green');
+      this.enemy_ship.scale.setTo(0.1, 0.1);
+      break;
+    }
     this.enemy_ship.anchor.set(0.5);
-    this.enemy_ship.scale.setTo(0.75, 0.75);
+
     this.enemy_ship.name = index.toString();
     this.enemy_ship.count=0;
     this.enemy_ship.countBullet=0;
