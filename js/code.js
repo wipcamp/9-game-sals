@@ -45,9 +45,9 @@ function preload() {
     game.load.image('rock3','images/rock3.png');
 
     game.load.spritesheet('ship', 'images/playership.png',56/3,96);
-    game.load.spritesheet('speed','images/item_move.png',800/8,100);
-    game.load.spritesheet('firerate','images/item_fire.png',800/8,100);
-    game.load.spritesheet('scoreUp','images/item_score.png',800/8,100);
+    game.load.spritesheet('speed','images/item_move.png',800/8,100,8);
+    game.load.spritesheet('firerate','images/item_fire.png',800/8,100,8);
+    game.load.spritesheet('scoreUp','images/item_score.png',800/8,100,8);
     game.load.spritesheet('bomb', 'images/boomspritesheet.png',400/5,90);
     game.load.spritesheet('shark', 'images/shark.png', 50, 50);
     game.load.spritesheet('mute','images/mute.png',450,447);
@@ -303,6 +303,7 @@ function createGamePlay() {
         speed.events.onOutOfBounds.add(resetBullet, this);
         speed.body.setCircle(45);
     }
+    speedGroup.callAll('animations.add', 'animations', 'shake', [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,3,4,5,6,7,0], 60, true);
     //firerate
     firerateGroup = game.add.group();
     firerateGroup.enableBody = true;
@@ -315,6 +316,7 @@ function createGamePlay() {
         fireObj.events.onOutOfBounds.add(resetBullet, this);
         fireObj.body.setCircle(45);
     }
+    firerateGroup.callAll('animations.add', 'animations', 'shake', [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,3,4,5,6,7,0], 60, true);
     //score
     scoreGroup = game.add.group();
     scoreGroup.enableBody = true;
@@ -327,19 +329,7 @@ function createGamePlay() {
         scoreObj.events.onOutOfBounds.add(resetBullet, this);
         scoreObj.body.setCircle(45);
     }
-    bombGroup.callAll('animations.add', 'animations', 'move', [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,3,4], 50, true);
-    /*rockGroup = game.add.group();
-    rockGroup.enableBody = true;
-    rockGroup.physicsBodyType = Phaser.Physics.ARCADE;
-    rock1 = rockGroup.create(0, 0, 'rock1');
-    rock2 = rockGroup.create(0, 0, 'rock2');
-    rock3 = rockGroup.create(0, 0, 'rock3');
-    rockGroup.scale.setTo(1.3, 1.3);
-    rockGroup.exists = false;
-    rockGroup.visible = false;
-    rockGroup.checkWorldBounds = true;
-    rockGroup.events.onOutOfBounds.add(resetBullet, this);
-    rockGroup.body.setCircle(28);*/
+    scoreGroup.callAll('animations.add', 'animations', 'shake', [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,3,4,5,6,7,0], 60, true);
     rock1 = this.add.sprite(0,0, 'rock1');
     game.physics.arcade.enable(rock1);
     rock1.enableBody = true;
@@ -351,7 +341,6 @@ function createGamePlay() {
     rock1.checkWorldBounds = true;
     rock1.events.onOutOfBounds.add(resetBullet, this);
     rock1.body.velocity.y = 100;
-    //rock1.body.setSize(40,30,0,0);
 
     rock2 = this.add.sprite(0,0, 'rock2');
     game.physics.arcade.enable(rock2);
@@ -364,7 +353,6 @@ function createGamePlay() {
     rock2.checkWorldBounds = true;
     rock2.events.onOutOfBounds.add(resetBullet, this);
     rock2.body.velocity.y = 100;
-    //rock2.body.setSize(40,30,0,0);
 
     rock3 = this.add.sprite(0,0, 'rock3');
     game.physics.arcade.enable(rock3);
@@ -377,28 +365,7 @@ function createGamePlay() {
     rock3.checkWorldBounds = true;
     rock3.events.onOutOfBounds.add(resetBullet, this);
     rock3.body.velocity.y = 100;
-    //rock3.body.setSize(40,30,0,0);
-    //rock2.body.velocity.y = 100;
-    //rock3.body.velocity.y = 100;
-    /*for (var i = 0; i < 16; i++) {
-        var rand = game.rnd.integerInRange(1, 3);
-        console.log("rock type = "+rand);
-        var rock;
-        switch (rand) {
-            case 1:rock = rockGroup.create(0, 0, 'rock1');
-            break;
-            case 2:rock = rockGroup.create(0, 0, 'rock2');
-            break;
-            case 3:rock = rockGroup.create(0, 0, 'rock3');
-            break;
-        }
-        rock.scale.setTo(1.3, 1.3);
-        rock.exists = false;
-        rock.visible = false;
-        rock.checkWorldBounds = true;
-        rock.events.onOutOfBounds.add(resetBullet, this);
-        rock.body.setCircle(28);
-    }*/
+
     sharkGroup = game.add.group();
     sharkGroup.enableBody = true;
     sharkGroup.physicsBodyType = Phaser.Physics.ARCADE;
@@ -435,7 +402,6 @@ function createGamePlay() {
 
 //updateGamePlay
 function updateGamePlay() {
-  //game.debug.body(bombGroup.getFirstExists(false));
 	sprite2.x=sprite.x;
 	sprite2.y=sprite.y;
 	if(speedTime==0){
@@ -750,6 +716,7 @@ function speedUp() {
 	speed = speedGroup.getFirstExists(false);
 	speed.reset(position,0);
 	speed.body.velocity.y = 150;
+  speedGroup.callAll('animations.play', 'animations', 'shake');
 }
 function firerateUp() {
 	itemCooldown = game.rnd.integerInRange(240,400);
@@ -757,6 +724,7 @@ function firerateUp() {
 	fireRate = firerateGroup.getFirstExists(false);
 	fireRate.reset(position,0);
 	fireRate.body.velocity.y = 150;
+  firerateGroup.callAll('animations.play', 'animations', 'shake');
 }
 function scoreUp() {
 	itemCooldown = game.rnd.integerInRange(240,400);
@@ -764,6 +732,7 @@ function scoreUp() {
 	scoreObj = scoreGroup.getFirstExists(false);
 	scoreObj.reset(position,0);
 	scoreObj.body.velocity.y = 150;
+  scoreGroup.callAll('animations.play', 'animations', 'shake');
 }
 
 function fire () {
