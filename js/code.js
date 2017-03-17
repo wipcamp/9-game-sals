@@ -46,12 +46,11 @@ function preload() {
     game.load.image('text_score','images/text_score.png');
     game.load.image('rock1','images/rock1.png');
     game.load.image('rock2','images/rock2.png');
-    game.load.image('rock3','images/rock3.png');
 
     game.load.spritesheet('ship', 'images/playership.png',56/3,96);
-    game.load.spritesheet('speed','images/item_move.png',800/8,100,8);
-    game.load.spritesheet('firerate','images/item_fire.png',800/8,100,8);
-    game.load.spritesheet('scoreUp','images/item_score.png',800/8,100,8);
+    game.load.spritesheet('speed','images/item_move.png',50,50,8);
+    game.load.spritesheet('firerate','images/item_fire.png',50,50,8);
+    game.load.spritesheet('scoreUp','images/item_score.png',50,50,8);
     game.load.spritesheet('bomb', 'images/boomspritesheet.png',400/5,90);
     game.load.spritesheet('shark', 'images/shark.png', 50, 50);
     game.load.spritesheet('mute','images/mute.png',450,447);
@@ -63,6 +62,7 @@ function preload() {
     game.load.spritesheet('playagain','images/playagain.png',3876/3,196);
     game.load.spritesheet('submit','images/submit.png',3876/3,196);
     game.load.spritesheet('credit','images/credit.png',3876/3,196);
+    game.load.spritesheet('seawave','images/wave.png',165/11,4);
 
     game.load.audio('Play','sound/WhilePlay.ogg');
     game.load.audio('Died','sound/You Died.ogg');
@@ -86,7 +86,7 @@ var bombGroup;
 var bombCooldown;
 var itemCooldown;
 var shark;
-var rock1,rock2,rock3;
+var rock1,rock2;
 var rockGroup;
 var rockCooldown;
 var sharkGroup;
@@ -362,18 +362,6 @@ function createGamePlay() {
     rock2.events.onOutOfBounds.add(resetBullet, this);
     rock2.body.velocity.y = 100;
 
-    rock3 = this.add.sprite(0,0, 'rock3');
-    game.physics.arcade.enable(rock3);
-    rock3.enableBody = true;
-    rock3.exists = false;
-    rock3.visible = false;
-    rock3.scale.setTo(1.3,1.3);
-    rock3.anchor.set(0.5);
-    rock3.body.setCircle(22);
-    rock3.checkWorldBounds = true;
-    rock3.events.onOutOfBounds.add(resetBullet, this);
-    rock3.body.velocity.y = 100;
-
     sharkGroup = game.add.group();
     sharkGroup.enableBody = true;
     sharkGroup.physicsBodyType = Phaser.Physics.ARCADE;
@@ -396,13 +384,13 @@ function createGamePlay() {
     for (var i = 0; i < 100; i++){
         var wave = seawaveGroup.create(0, 0, 'seawave');
         wave.anchor.set(0.5);
-        wave.scale.setTo(0.70,0.70);
+        wave.scale.setTo(1,1);
         wave.exists = false;
         wave.visible = false;
         wave.checkWorldBounds = true;
         wave.events.onOutOfBounds.add(resetBullet, this);
     }
-    seawaveGroup.callAll('animations.add', 'animations', 'default', [0,1,2,3,4,5,6,7], 3, true);
+    seawaveGroup.callAll('animations.add', 'animations', 'default', [0,1,2,3,4,5,6,7,8,9], 6, true);
     //test animation item
     //pause_label = this.input.keyboard.addKey(Phaser.KeyCode.ENTER);
     //pause_label.events.onInputUp.add(function () {game.paused = true;});
@@ -544,7 +532,6 @@ function updateGamePlay() {
   	}
     game.physics.arcade.overlap(sprite, rock1, rockOverlapPlayer, null, this);
     game.physics.arcade.overlap(sprite, rock2, rockOverlapPlayer, null, this);
-    game.physics.arcade.overlap(sprite, rock3, rockOverlapPlayer, null, this);
   	if(this.input.keyboard.addKey(Phaser.KeyCode.ENTER).isDown){
   		game.paused = true;
   	}
@@ -658,9 +645,6 @@ function rockSpawn() {
             break;
             case 2:rock2.reset(game.world.width * (rockDropAt / 26), 0);
                   rock2.body.velocity.y = 100;
-            break;
-            case 3:rock3.reset(game.world.width * (rockDropAt / 26), 0);
-                  rock3.body.velocity.y = 100;
             break;
         }
         rockCooldown = 400;
@@ -848,10 +832,10 @@ EnemyShip = function (index, game, bullets,color) {
       this.enemy_ship.scale.setTo(0.75, 0.75);
       break;
       case "blue":this.enemy_ship = game.add.sprite(x, y, 'enemyship_blue');
-      this.enemy_ship.scale.setTo(0.1, 0.1);
+      this.enemy_ship.scale.setTo(0.75, 0.75);
       break;
       case "green":this.enemy_ship = game.add.sprite(x, y, 'enemyship_green');
-      this.enemy_ship.scale.setTo(0.1, 0.1);
+      this.enemy_ship.scale.setTo(0.75, 0.75);
       break;
     }
     this.enemy_ship.anchor.set(0.5);
