@@ -32,6 +32,10 @@ function preload() {
 	  game.load.image('collider','images/collider.png');
     game.load.image('bullet', 'images/bullet.png');
 	  game.load.image('boss','images/bossboss.png');
+    game.load.image('bullet_blue','images/bullet_blue.png');
+    game.load.image('bullet_green','images/bullet_green.png');
+    game.load.image('bullet_red','images/bullet_red.png');
+    game.load.image('bullet_yellow','images/bullet_yellow.png');
     game.load.image('enemyship_red','images/enemyship_red.png');
     game.load.image('enemyship_blue','images/enemyship_blue.png');
     game.load.image('enemyship_green','images/enemyship_green.png');
@@ -114,6 +118,9 @@ var scoreTime;
 var speedMove;
 var scoreMultiplier;
 var firerateOutput;
+var seawaveGroup;
+var seawaveCooldown;
+var seawaveDropAt = [];
 //createGamePlay
 function createGamePlay() {
     firerateOutput = 100;
@@ -141,6 +148,7 @@ function createGamePlay() {
     itemCooldown = game.rnd.integerInRange(0,240);
     sharkCooldown = 0;
     rockCooldown = 0;
+    seawaveCooldown = 60;
     score=0;
     textScore = game.add.text(20,20,"Score : "+score,{fontSize : "20px",fill : "#ed3465"});
     cursors = this.input.keyboard.createCursorKeys();
@@ -381,6 +389,20 @@ function createGamePlay() {
     }
     sharkGroup.callAll('animations.add', 'animations', 'moveFromLeft', [13,12,11,10,9,8,7,6,5,4,3,2,1,0], 50, true);
     sharkGroup.callAll('animations.add', 'animations', 'moveFromRight', [13,12,11,10,9,8,7,6,5,4,3,2,1,0], 50, true);
+
+    seawaveGroup = game.add.group();
+    seawaveGroup.enableBody = true;
+    seawaveGroup.physicsBodyType = Phaser.Physics.ARCADE;
+    for (var i = 0; i < 100; i++){
+        var wave = seawaveGroup.create(0, 0, 'seawave');
+        wave.anchor.set(0.5);
+        wave.scale.setTo(0.70,0.70);
+        wave.exists = false;
+        wave.visible = false;
+        wave.checkWorldBounds = true;
+        wave.events.onOutOfBounds.add(resetBullet, this);
+    }
+    seawaveGroup.callAll('animations.add', 'animations', 'default', [0,1,2,3,4,5,6,7], 3, true);
     //test animation item
     //pause_label = this.input.keyboard.addKey(Phaser.KeyCode.ENTER);
     //pause_label.events.onInputUp.add(function () {game.paused = true;});
@@ -460,8 +482,12 @@ function updateGamePlay() {
   if (rockCooldown <= 0){
       rockSpawn();
   }
+  if (seawaveCooldown <= 0) {
+      seawaveSpawn();
+  }
   bombCooldown--;
   sharkCooldown--;
+  seawaveCooldown--;
   	if(itemCooldown <= 0)
   		itemSpawner();
   	itemCooldown--;
@@ -697,8 +723,30 @@ function sharkLaunch(spawnSide,shark) {
         shark.animations.play('moveFromRight');
     }
 }
+function seawaveSpawn(){
+    seawaveCooldown=30;
+    if(seawaveDropAt.length==0){
+        seawaveDropAt=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];
+        seawaveDropAt=shuffle(seawaveDropAt);
+    }
+    var wave = seawaveGroup.getFirstExists(false);
+    wave.reset(game.world.width * (seawaveDropAt.pop() / 21), 0);
+    wave.body.velocity.y = 100;
+    wave.animations.play('default');
 
+}
+function shuffle(array) {
+  var currentIndex = array.length, temporaryValue, randomIndex;
+  while (0 !== currentIndex) {
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
 
+  return array;
+}
 function itemSpawner() {
   /////// sound item spawn
 	var output = game.rnd.integerInRange(0,2);
