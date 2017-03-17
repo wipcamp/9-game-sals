@@ -31,7 +31,6 @@ game.state.start('menu');
 function preload() {
 	  game.load.image('collider','images/collider.png');
     game.load.image('bullet', 'images/bullet.png');
-    game.load.image('ship', 'images/playership.png');
 	  game.load.image('boss','images/bossboss.png');
     game.load.image('enemyship_red','images/enemyship_red.png');
     game.load.image('enemyship_blue','images/enemyship_blue.png');
@@ -45,6 +44,7 @@ function preload() {
     game.load.image('rock2','images/rock2.png');
     game.load.image('rock3','images/rock3.png');
 
+    game.load.spritesheet('ship', 'images/playership.png',56/3,96);
     game.load.spritesheet('speed','images/item_move.png',800/8,100);
     game.load.spritesheet('firerate','images/item_fire.png',800/8,100);
     game.load.spritesheet('scoreUp','images/item_score.png',800/8,100);
@@ -535,14 +535,17 @@ function updateGamePlay() {
     }
     sprite.body.velocity.y=0;
 	  sprite.body.velocity.x=0;
+    sprite.frame = 0;
   	if(cursors.up.isDown){
   		sprite.body.velocity.y = -speedMove;
   	}
   	if(cursors.left.isDown){
   		sprite.body.velocity.x = -speedMove;
+      sprite.frame = 1;
   	}
   	if(cursors.right.isDown){
   		sprite.body.velocity.x = speedMove;
+      sprite.frame = 2;
   	}
     if(cursors.down.isDown){
   		sprite.body.velocity.y = speedMove;
@@ -674,7 +677,7 @@ function rockSpawn() {
     }
 }
 function rockOverlapPlayer(playership,rock) {
-    if(sprite.y-rock.y<=40&&sprite.y-rock.y>=-5&&sprite.x-rock.x<=28&&sprite.x-rock.x>=-30){
+    if(sprite.y-rock.y<=50&&sprite.y-rock.y>=-5&&sprite.x-rock.x<=28&&sprite.x-rock.x>=-28){
         sprite.body.velocity.y = 100;
         if(cursors.down.isDown){
             sprite.body.velocity.y = speedMove;
