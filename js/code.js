@@ -17,7 +17,7 @@ var name = "aaaaaa";
 var game = new Phaser.Game(350, 560, Phaser.AUTO, "game");
 var gamePlay = { preload : preload , create: createGamePlay , update : updateGamePlay};
 var menu = { preload : preload , create : createMenu};
-var howtoPlay = { preload : preload , create : createHowtoPlay};
+var howtoPlay = { preload : preload , create : createHowtoPlay ,update : updateHowtoPlay};
 var result = {preload : preload , create : createResult , update : updateResult};
 var report = {preload : preload ,create : createReport};
 var credit = {preload : preload ,create : createCredit};
@@ -29,7 +29,7 @@ game.state.add('report',report);
 game.state.add('credit',credit);
 game.state.start('menu');
 function preload() {
-	  game.load.image('collider','images/collider.png');
+	game.load.image('collider','images/collider.png');
     game.load.image('bullet', 'images/bullet.png');
 	  game.load.image('boss','images/bossboss.png');
     game.load.image('bullet_blue','images/bullet_blue.png');
@@ -46,6 +46,10 @@ function preload() {
     game.load.image('text_score','images/text_score.png');
     game.load.image('rock1','images/rock1.png');
     game.load.image('rock2','images/rock2.png');
+    game.load.image('bgGame','images/bgGame.png');
+    game.load.image('oldMap','images/oldMap.png');
+    game.load.image('gameover','images/GAME-OVER-01.png');
+    game.load.image('pause','images/pause.png');
 
     game.load.spritesheet('ship', 'images/playership.png',350/5,96,5);
     game.load.spritesheet('speed','images/item_move.png',50,50,8);
@@ -63,6 +67,13 @@ function preload() {
     game.load.spritesheet('submit','images/submit.png',3876/3,196);
     game.load.spritesheet('credit','images/credit.png',3876/3,196);
     game.load.spritesheet('seawave','images/wave.png',165/11,4);
+    game.load.spritesheet('up','images/up.png',50,46);
+    game.load.spritesheet('right','images/right.png',50,46);
+    game.load.spritesheet('left','images/left.png',50,46);
+    game.load.spritesheet('down','images/down.png',50,46);
+    game.load.spritesheet('spacebar','images/spacebar.png',2584/2,196);
+    game.load.spritesheet('enter','images/enter.png',2553/3,196);
+    game.load.spritesheet('wip','images/wip.png');
 
     game.load.audio('play','sound/WhilePlay.ogg');
     game.load.audio('Died','sound/You Died.ogg');
@@ -77,6 +88,7 @@ function preload() {
     game.load.audio('beam','sound/Beam.mp3');
     game.loaa.audio('pickItem','sound/Aftergethit.ogg');
 }
+var ckShoot;
 var plan,p1,p2;
 var destroyedCount=0;
 var wave=-1;
@@ -135,6 +147,7 @@ var firerateOutput;
 var seawaveGroup;
 var seawaveCooldown;
 var seawaveDropAt = [];
+var isPause;
 //createGamePlay
 function createGamePlay() {
     firerateOutput = 100;
@@ -473,7 +486,7 @@ function createGamePlay() {
     sprite2.body.collideWorldBounds = true;
     enemy = [];
     mute = game.add.button(300,20,'mute',muteSounds,this);
-    mute.scale.setTo(0.1,0.1);
+    mute.scale.setTo(0.08,0.08);
     if(isSound)
     	mute.frame = 0;
     else
@@ -616,11 +629,19 @@ function updateGamePlay() {
     game.physics.arcade.overlap(sprite, rock1, rockOverlapPlayer, null, this);
     game.physics.arcade.overlap(sprite, rock2, rockOverlapPlayer, null, this);
   	if(this.input.keyboard.addKey(Phaser.KeyCode.ENTER).isDown){
-  		game.paused = true;
+  		isPause = game.add.image(game.world.width/2,game.world.height/2,'pause');
+        isPause.anchor.set(0.5);
+        isPause.scale.setTo(0.95);
+        isPause.alpha = 0.8;
+        textPause = game.add.text(game.world.width/2,game.world.height/2,'press enter to resume',{font : "24px",fill : "#FFFFFF"});
+        textPause.anchor.set(0.5);
+        game.paused = true;
   	}
   	window.onkeydown = function(event) {
     	if (game.input.keyboard.event.keyCode == 13){
-        	game.paused = false;
+        	isPause.kill();
+            textPause.kill();
+            game.paused = false;
     	}
 	  }
 
@@ -1049,17 +1070,14 @@ EnemyBoss = function (game) {
     this.countPlan=0;
     this.alive = true;
     this.boss = game.add.sprite(0,0,'boss');
-    this.cannon1 = game.add.sprite((x*(1/4)), y, 'enemy_ship');
-    this.cannon2 = game.add.sprite(x, y, 'enemy_ship');
-    this.cannon3 = game.add.sprite((x*(7/4)), y, 'enemy_ship');
+    this.cannon1 = [x*(1/4), y];
+    this.cannon2 = [x,y];
+    this.cannon3 = [x*(7/4), y];
     this.cannon1.name = 1;
     this.cannon2.name = 2;
     this.cannon3.name = 3;
     //this.boss.anchor.set(0.5);
     this.boss.scale.setTo(1.0,1.0); //ปรับ scale boss
-    this.cannon1.anchor.set(0.5);
-    this.cannon2.anchor.set(0.5);
-    this.cannon3.anchor.set(0.5);
     this.cannon1.count=0;
     this.cannon2.count=0;
     this.cannon3.count=0;
@@ -1206,14 +1224,14 @@ function laserOnTheMove (cannon,bullets) { //40<7
     shot = game.add.audio('laser');
     shot.play();
     bullet = bullets.getFirstExists(false);
-    bullet.reset(cannon.x+15, cannon.y+20);
+    bullet.reset(cannon[0]+15, cannon[1]+20);
     bullet.body.velocity.y = 1200;
     //bullet.rotation = this.game.physics.arcade.moveToObject(bullet, sprite, 200);
 }
 
 function superSplash (cannon,bullets) { //10
     bullet = bullets.getFirstExists(false);
-    bullet.reset(cannon.x+15, cannon.y+20);
+    bullet.reset(cannon[0]+15, cannon[1]+20);
     if(cannon.countBullet%9==0){
         bullet.body.velocity.y = 100;
         bullet.body.velocity.x = 200;
@@ -1253,7 +1271,7 @@ function superSplash (cannon,bullets) { //10
 }
 function fireBounceAndSplit(cannon,bullets){
     bullet = bullets.getFirstExists(false);
-    bullet.reset(cannon.x+15, cannon.y+20);
+    bullet.reset(cannon[0]+15, cannon[1]+20);
     bullet.body.velocity.y = 200;
 }
 function BounceAndSplit (bullet) {
@@ -1307,12 +1325,11 @@ function BounceAndSplit2 (bullet) {
 
 function fireWorks (cannon,bullets) {
     bullet = bullets.getFirstExists(false);
-    bullet.reset(cannon.x, cannon.y);
+    bullet.reset(cannon[0], cannon[1]);
     bullet.body.velocity.y = 100;
     game.time.events.add(Phaser.Timer.SECOND * 3.3, boom,this,cannon);
 }
 function boom(cannon){
-
     var x = cannon.x;
     var y = game.world.height*(3/5);
     bullet.kill();
@@ -1355,19 +1372,28 @@ function createMenu(){
         menuBGM.loopFull();
         isFirstTimeMenu=false;
     }
-    buttonStart = game.add.button(game.world.centerX, game.world.centerY, 'start', toGame, this);
-    buttonStart.scale.setTo(0.2,0.2);
-    buttonHowToPlay = game.add.button(game.world.centerX, game.world.centerY+100, 'howtoplay', toHowToPlay, this);
-    buttonHowToPlay.scale.setTo(0.2,0.2);
-    buttonReport = game.add.button(game.world.centerX, game.world.centerY+200,'report',toReport,this);
-    buttonReport.scale.setTo(0.2,0.2);
-    buttonScore = game.add.button(game.world.centerX, game.world.centerY-200,'scoreboard',toScoreboard,this)
-    buttonScore.scale.setTo(0.2,0.2);
-    buttonCredit = game.add.button(game.world.centerX, game.world.centerY-100,'credit',toCredit,this)
-    buttonCredit.scale.setTo(0.2,0.2);
-    fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+    bg = game.add.image(0,0,'bgGame');
+    bg.scale.setTo(0.17,0.18);
+    logo = game.add.image(game.world.width/2, game.world.height*(0.75/4),'wip');
+    logo.anchor.set(0.5);
+    logo.scale.setTo(0.5);
+    buttonStart = game.add.button(game.world.width/2, game.world.height*(3/4)+15, 'start', toGame, this);
+    buttonStart.scale.setTo(0.12);
+    buttonStart.anchor.set(0.5);
+    buttonHowToPlay = game.add.button(game.world.width*(1/4), game.world.height*(3.25/4)+15, 'howtoplay', toHowToPlay, this);
+    buttonHowToPlay.scale.setTo(0.12);
+    buttonHowToPlay.anchor.set(0.5);
+    buttonReport = game.add.button(game.world.width*(1/4), game.world.height*(3.5/4)+15,'report',toReport,this);
+    buttonReport.scale.setTo(0.12);
+    buttonReport.anchor.set(0.5);
+    buttonScore = game.add.button(game.world.width*(3/4), game.world.height*(3.25/4)+15,'scoreboard',toScoreboard,this)
+    buttonScore.scale.setTo(0.12);
+    buttonScore.anchor.set(0.5);
+    buttonCredit = game.add.button(game.world.width*(3/4), game.world.height*(3.5/4)+15,'credit',toCredit,this)
+    buttonCredit.scale.setTo(0.12);
+    buttonCredit.anchor.set(0.5);
     mute = game.add.button(300,20,'mute',muteSounds,this);
-    mute.scale.setTo(0.1,0.1);
+    mute.scale.setTo(0.08,0.08);
     if(isSound)
     	mute.frame = 0;
     else
@@ -1375,29 +1401,176 @@ function createMenu(){
 }
 
 function createHowtoPlay(){
-    text = game.add.text(game.world.centerX,game.world.centerY*(1/5),"How To Play",{fontSize : "20px",fill : "#ed3465"});
+    bg = game.add.image(0,0,'bgGame');
+    bg.scale.setTo(0.17,0.18);
+    map = game.add.image(game.world.width/2,game.world.height/2,'oldMap');
+    map.anchor.set(0.5);
+    map.scale.setTo(0.95);
+    text = game.add.image(game.world.centerX,game.world.centerY*(1.2/5),"howtoplay");
     text.anchor.set(0.5);
-    buttonStart = game.add.button(game.world.centerX, game.world.centerY, 'start', toGame, this);
-    buttonStart.scale.setTo(0.2,0.2);
-    buttonMenu = game.add.button(game.world.centerX, game.world.centerY+100, 'menu', toMenu, this);
-    buttonMenu.scale.setTo(0.2,0.2);
+    text.scale.setTo(0.19);
+    enemyBullets = game.add.group();
+    enemyBullets.enableBody = true;
+    enemyBullets.physicsBodyType = Phaser.Physics.ARCADE;
+    for (var i = 0; i < 100; i++){
+        var b = enemyBullets.create(0, 0, 'bullet');
+        b.anchor.set(0.5);
+        b.scale.setTo(0.70,0.70);
+        b.name = 'bullet' + i;
+        b.exists = false;
+        b.visible = false;
+        b.checkWorldBounds = true;
+        b.events.onOutOfBounds.add(resetBullet, this);
+    }
+    buttonStart = game.add.button(game.world.width*(2.25/3), game.world.height*(4.6/5), 'start', toGame, this);
+    buttonStart.scale.setTo(0.11);
+    buttonStart.anchor.set(0.5);
+    buttonMenu = game.add.button(game.world.width*(0.75/3), game.world.height*(4.6/5), 'menu', toMenu, this);
+    buttonMenu.scale.setTo(0.11);
+    buttonMenu.anchor.set(0.5);
+
+    sprite = game.add.sprite(game.world.width/7+25, game.world.height*(1.5/5)+25 ,'ship');
+    sprite.anchor.set(0.5);
+    sprite.frame = 0;
+    game.physics.arcade.enable(sprite);
+    
+    up = game.add.sprite(game.world.width/7+45, game.world.height*(2.5/5)+25, 'up');
+    up.scale.setTo(0.5);
+    up.anchor.set(0.5);
+
+    down = game.add.sprite(game.world.width/7+45, game.world.height*(2.75/5)+25, 'down');
+    down.scale.setTo(0.5);
+    down.anchor.set(0.5);
+
+    left = game.add.sprite(game.world.width*(0.4/7)+45, game.world.height*(2.75/5)+25, 'left');
+    left.scale.setTo(0.5);
+    left.anchor.set(0.5);
+    
+    right = game.add.sprite(game.world.width*(1.6/7)+45, game.world.height*(2.75/5)+25, 'right');
+    right.scale.setTo(0.5);
+    right.anchor.set(0.5);
+
+    spriteShoot = game.add.sprite(game.world.width*(4.5/7)+25, game.world.height*(1.5/5)+25 ,'ship');
+    spriteShoot.anchor.set(0.5);
+    spriteShoot.frame = 0;
+
+    spacebar = game.add.sprite(game.world.width*(4.5/7)+25, game.world.height*(2.75/5)+25,'spacebar');
+    spacebar.scale.setTo(0.1,0.15);
+    spacebar.anchor.set(0.5);
+    spacebarAnimation = spacebar.animations.add('play',[0,1],2,true);
+    spacebarAnimation.onComplete.add(function() {
+        spacebar.frame = 0;
+    }, this);
+
+    enter = game.add.sprite(game.world.width/2, game.world.height*(3.65/5)+25,'enter');
+    enter.scale.setTo(0.15);
+    enter.anchor.set(0.5);
+    enterAnimation = enter.animations.add('play',[0,1],2,true);
+    enterAnimation.onComplete.add(function() {
+        enter.frame = 0;
+    }, this);
+    
+    text = game.add.text(game.world.width/2, game.world.height*(3.95/5)+25,'press to pause and resume game',{font : "24px",fill : "#5B3B00"});
+    text.anchor.set(0.5);
+
+    game.time.events.loop(1500, function() {//enter
+        enterAnimation.play(2,false);
+    }, this);
+    ckShoot = true;
+    game.time.events.loop(3000, function() {//shoot
+        if(ckShoot)
+            spacebar.frame = 1;
+        else
+            spacebar.frame = 0;
+        ckShoot=!ckShoot;
+    }, this);
+    var ck = 0;
+    game.time.events.loop(500, function() {//move
+        if(ck%5 == 0){
+            up.frame = 1;
+            right.frame = 0;
+            down.frame = 0;
+            left.frame = 0;
+            sprite.body.velocity.x = 0;
+            sprite.body.velocity.y = -100;
+        }
+        else if(ck%5 == 1){
+            up.frame = 0;
+            right.frame = 1;
+            down.frame = 0;
+            left.frame = 0;
+            sprite.body.velocity.x = 100;
+            sprite.body.velocity.y = 0;
+        }
+        else if(ck%5 == 2){
+            up.frame = 0;
+            right.frame = 0;
+            down.frame = 1;
+            left.frame = 0;
+            sprite.body.velocity.x = 0;
+            sprite.body.velocity.y = 100;
+        }
+        else if(ck%5 == 3){
+            up.frame = 0;
+            right.frame = 0;
+            down.frame = 0;
+            left.frame = 1;
+            sprite.body.velocity.x = -100;
+            sprite.body.velocity.y = 0;
+        }
+        else if(ck%5 == 4){
+            up.frame = 0;
+            right.frame = 0;
+            down.frame = 0;
+            left.frame = 0;
+            sprite.body.velocity.x = 0;
+            sprite.body.velocity.y = 0;
+        }
+        ck++;
+    }, this);
     mute = game.add.button(300,20,'mute',muteSounds,this);
-    mute.scale.setTo(0.1,0.1);
+    mute.scale.setTo(0.08,0.08);
     if(isSound)
     	mute.frame = 0;
     else
     	mute.frame = 1;
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+    bulletTime = 0;
 }
+function updateHowtoPlay() {
+    if(!ckShoot){
+        var vv = game.rnd.integerInRange(-75, 75);
+        if (game.time.now > bulletTime)
+        {
+            bullet = enemyBullets.getFirstExists(false);
+            if (bullet)
+            {
+                bullet.reset(spriteShoot.x, spriteShoot.y-10);
+                bullet.body.velocity.x = vv;
+                bullet.body.velocity.y = -900;
+                bulletTime = game.time.now + 100;
+            }
+        }
+    }    
+}
+
 function createReport(){
-    text = game.add.text(game.world.centerX,game.world.centerY*(1/5),"Report",{fontSize : "20px",fill : "#ed3465"});
+    bg = game.add.image(0,0,'bgGame');
+    bg.scale.setTo(0.17,0.18);
+    map = game.add.image(game.world.width/2,game.world.height/2,'oldMap');
+    map.anchor.set(0.5);
+    map.scale.setTo(0.95);
+    text = game.add.image(game.world.centerX,game.world.centerY*(1.2/5),"report");
     text.anchor.set(0.5);
-    buttonSubmit = game.add.button(game.world.centerX, game.world.centerY, 'submit', toSubmit, this);
-    buttonSubmit.scale.setTo(0.2,0.2);
-    buttonMenu = game.add.button(game.world.centerX, game.world.centerY+100, 'menu', toMenu, this);
-    buttonMenu.scale.setTo(0.2,0.2);
+    text.scale.setTo(0.19);
+    buttonSubmit = game.add.button(game.world.width*(2.25/3), game.world.height*(4.6/5), 'submit', toSubmit, this);
+    buttonSubmit.scale.setTo(0.11);
+    buttonSubmit.anchor.set(0.5);
+    buttonMenu = game.add.button(game.world.width*(0.75/3), game.world.height*(4.6/5), 'menu', toMenu, this);
+    buttonMenu.scale.setTo(0.11);
+    buttonMenu.anchor.set(0.5);
     mute = game.add.button(300,20,'mute',muteSounds,this);
-    mute.scale.setTo(0.1,0.1);
+    mute.scale.setTo(0.08,0.08);
     if(isSound)
     	mute.frame = 0;
     else
@@ -1405,14 +1578,38 @@ function createReport(){
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
 }
 function createCredit(){
-    text = game.add.text(game.world.centerX,game.world.centerY*(1/5),"credit",{fontSize : "20px",fill : "#ed3465"});
+    bg = game.add.image(0,0,'bgGame');
+    bg.scale.setTo(0.17,0.18);
+    map = game.add.image(game.world.width/2,game.world.height/2,'oldMap');
+    map.anchor.set(0.5);
+    map.scale.setTo(0.95);
+    text = game.add.image(game.world.centerX,game.world.centerY*(1.2/5),"credit");
     text.anchor.set(0.5);
-    buttonStart = game.add.button(game.world.centerX, game.world.centerY, 'start', toGame, this);
-    buttonStart.scale.setTo(0.2,0.2);
-    buttonMenu = game.add.button(game.world.centerX, game.world.centerY+100, 'menu', toMenu, this);
-    buttonMenu.scale.setTo(0.2,0.2);
+    text.scale.setTo(0.19);
+    buttonStart = game.add.button(game.world.width*(2.25/3), game.world.height*(4.6/5), 'start', toGame, this);
+    buttonStart.scale.setTo(0.11);
+    buttonStart.anchor.set(0.5);
+    buttonMenu = game.add.button(game.world.width*(0.75/3), game.world.height*(4.6/5), 'menu', toMenu, this);
+    buttonMenu.scale.setTo(0.11);
+    buttonMenu.anchor.set(0.5);
+    textCredit = game.add.text(game.world.width /2, 550 * (1 / 4) - 25 + 10, "Audio Library – No Copyright Music", { fontSize: "16px", fill: "#5B3B00" });
+    textCredit.anchor.set(0.5);
+    textCredit = game.add.text(game.world.width /2, 550 * (1 / 4) + 5 + 10, "URL : goo.gl/yReazM", { fontSize: "12px", fill: "#5B3B00" });
+    textCredit.anchor.set(0.5);
+    textCredit = game.add.text(game.world.width /2, 550 * (1 / 4) + 35 + 10, "Ross Bugden - Music", { fontSize: "16px", fill: "#5B3B00" });
+    textCredit.anchor.set(0.5);
+    textCredit = game.add.text(game.world.width /2, 550 * (1 / 4) + 65 + 10, "URL : goo.gl/NDMy6w", { fontSize: "12px", fill: "#5B3B00" });
+    textCredit.anchor.set(0.5);
+    textCredit = game.add.text(game.world.width /2, 550 * (1 / 4) + 95 + 10, "Ship sailing on the sea", { fontSize: "16px", fill: "#5B3B00" });
+    textCredit.anchor.set(0.5);
+    textCredit = game.add.text(game.world.width /2, 550 * (1 / 4) + 125 + 10, "URL : goo.gl/1YpYo3", { fontSize: "12px", fill: "#5B3B00" });
+    textCredit.anchor.set(0.5);
+    textCredit = game.add.text(game.world.width /2, 550 * (1 / 4) + 155 + 10, "Beach party wooden sign", { fontSize: "16px", fill: "#5B3B00" });
+    textCredit.anchor.set(0.5);
+    textCredit = game.add.text(game.world.width /2, 550 * (1 / 4) + 185 + 10, "URL : goo.gl/9kzuhy", { fontSize: "12px", fill: "#5B3B00" });
+    textCredit.anchor.set(0.5);
     mute = game.add.button(300,20,'mute',muteSounds,this);
-    mute.scale.setTo(0.1,0.1);
+    mute.scale.setTo(0.08,0.08);
     if(isSound)
     	mute.frame = 0;
     else
@@ -1420,19 +1617,30 @@ function createCredit(){
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
 }
 function createResult(){
+    bg = game.add.image(0,0,'bgGame');
+    bg.scale.setTo(0.17,0.18);
+    logo = game.add.image(game.world.width/2,game.world.height*(1/4),'gameover');
+    logo.anchor.set(0.5);
+    logo.scale.setTo(0.1);
+    text = game.add.text(game.world.width/2+50,game.world.height*(1.25/4),"Score : "+score,{fontSize : "20px",fill : "#5B3B00"});
     gameBGM.stop();
     bossBGM.stop();
     resultBGM.loopFull();
-    text = game.add.text(game.world.centerX,game.world.centerY,"Score : "+score,{fontSize : "20px",fill : "#ed3465"});
     text.anchor.set(0.5);
-    buttonPlayagain = game.add.button(game.world.centerX, game.world.centerY, 'playagain', toGame, this);
-    buttonPlayagain.scale.setTo(0.2,0.2);
-    buttonReport = game.add.button(game.world.centerX, game.world.centerY+100, 'report', toReport, this);
-    buttonReport.scale.setTo(0.2,0.2);
-    buttonMenu = game.add.button(game.world.centerX, game.world.centerY+200, 'menu', toMenu, this);
-    buttonMenu.scale.setTo(0.2,0.2);
+    buttonPlayagain = game.add.button(game.world.width/2, game.world.height*(3/4), 'playagain', toGame, this);
+    buttonPlayagain.scale.setTo(0.12);
+    buttonPlayagain.anchor.set(0.5);
+    buttonScore = game.add.button(game.world.width/2, game.world.height*(3.22/4),'scoreboard',toScoreboard,this)
+    buttonScore.scale.setTo(0.12);
+    buttonScore.anchor.set(0.5);
+    buttonReport = game.add.button(game.world.width/2, game.world.height*(3.44/4), 'report', toReport, this);
+    buttonReport.scale.setTo(0.12);
+    buttonReport.anchor.set(0.5);
+    buttonMenu = game.add.button(game.world.width/2, game.world.height*(3.66/4), 'menu', toMenu, this);
+    buttonMenu.scale.setTo(0.12);
+    buttonMenu.anchor.set(0.5);
     mute = game.add.button(300,20,'mute',muteSounds,this);
-    mute.scale.setTo(0.1,0.1);
+    mute.scale.setTo(0.08,0.08);
     if(isSound)
     	mute.frame = 0;
     else
