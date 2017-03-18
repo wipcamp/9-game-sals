@@ -49,6 +49,7 @@ function preload() {
     game.load.image('bgGame','images/bgGame.png');
     game.load.image('oldMap','images/oldMap.png');
     game.load.image('gameover','images/GAME-OVER-01.png');
+    game.load.image('pause','images/pause.png');
 
     game.load.spritesheet('ship', 'images/playership.png',350/5,96,5);
     game.load.spritesheet('speed','images/item_move.png',50,50,8);
@@ -133,6 +134,7 @@ var firerateOutput;
 var seawaveGroup;
 var seawaveCooldown;
 var seawaveDropAt = [];
+var isPause;
 //createGamePlay
 function createGamePlay() {
     firerateOutput = 100;
@@ -606,11 +608,19 @@ function updateGamePlay() {
     game.physics.arcade.overlap(sprite, rock1, rockOverlapPlayer, null, this);
     game.physics.arcade.overlap(sprite, rock2, rockOverlapPlayer, null, this);
   	if(this.input.keyboard.addKey(Phaser.KeyCode.ENTER).isDown){
-  		game.paused = true;
+  		isPause = game.add.image(game.world.width/2,game.world.height/2,'pause');
+        isPause.anchor.set(0.5);
+        isPause.scale.setTo(0.95);
+        isPause.alpha = 0.8;
+        textPause = game.add.text(game.world.width/2,game.world.height/2,'press enter to resume',{font : "24px",fill : "#FFFFFF"});
+        textPause.anchor.set(0.5);
+        game.paused = true;
   	}
   	window.onkeydown = function(event) {
     	if (game.input.keyboard.event.keyCode == 13){
-        	game.paused = false;
+        	isPause.kill();
+            textPause.kill();
+            game.paused = false;
     	}
 	  }
 
