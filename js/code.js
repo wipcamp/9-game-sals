@@ -64,13 +64,18 @@ function preload() {
     game.load.spritesheet('credit','images/credit.png',3876/3,196);
     game.load.spritesheet('seawave','images/wave.png',165/11,4);
 
-    game.load.audio('Play','sound/WhilePlay.ogg');
+    game.load.audio('play','sound/WhilePlay.ogg');
     game.load.audio('Died','sound/You Died.ogg');
     game.load.audio('intro','sound/Interface.ogg');
     //game.load.audio('ENshot','sound/EnemyShot(Normal).wav');
     game.load.audio('Death','sound/Aftergethit.ogg');
     game.load.audio('BossDeath','sound/BossDeath.ogg');
     game.load.audio('ENdestroy','sound/EnemyShot(Normal).ogg');
+    game.load.audio('shark','sound/Shark.mp3');
+    game.load.audio('click','sound/ButtonPush.mp3');
+    game.load.audio('bossBGM','sound/BossBGM.mp3');
+    game.load.audio('beam','sound/Beam.mp3');
+    game.loaa.audio('pickItem','sound/Aftergethit.ogg');
 }
 var plan,p1,p2;
 var destroyedCount=0;
@@ -106,9 +111,17 @@ var countRound = 0;
 var bulletTime = 0;
 var Boss,pause_label;
 var score = 0,textScore;
-var interMu;
 var buttonStart,buttonHowToPlay;
 var text;
+var menuBGM;
+var gameBGM;
+var bossBGM;
+var resultBGM;
+var clickSound;
+var sharkSound;
+var beamSound;
+var pickItem;
+var isFirstTimeMenu = true;
 var isSound = true;
 var speedGroup;
 var firerateGroup;
@@ -127,12 +140,18 @@ function createGamePlay() {
     firerateOutput = 100;
     speedMove=300;
     speedTime=0;
-	firerateTime=0;
-	scoreTime=0;
-	scoreMultiplier = 1;
-    interMu.stop();
-    interMu = game.add.audio('Play');
-    interMu.loopFull();
+	  firerateTime=0;
+	  scoreTime=0;
+	  scoreMultiplier = 1;
+    isFirstTimeMenu=true;
+    gameBGM = game.add.audio('play');
+    bossBGM = game.add.audio('bossBGM');
+    sharkSound = game.add.audio('shark');
+    beamSound = game.add.audio('beam');
+    pickItem = game.add.audio('pickItem');
+    menuBGM.stop();
+    resultBGM.stop();
+    gameBGM.loopFull();
     countRound = 0;
     game.add.sprite(0,0,'background');
     sprite2 = this.add.sprite(game.world.width/2,game.world.height*(3/5), 'collider');
@@ -501,10 +520,11 @@ function updateGamePlay() {
     //wave == 6;
     //    plan = game.rnd.integerInRange(1, 10);
 
-    if(wave%7==0)
-      ////sound normal bgm
+    if(wave%7==0){
+      bossBGM.stop();
+      gameBGM.play();
 			summonWave(4);
-		else if(wave%7==1)
+		}else if(wave%7==1)
 			summonWave(5);
 		else if(wave%7==2)
 			summonWave(6);
@@ -514,10 +534,11 @@ function updateGamePlay() {
       summonWave(8);
     else if(wave%7==5)
       summonWave(9);
-    else{	///boss
-      ////sound boss bgm
+    else{
+      gameBGM.stop();
+      bossBGM.play();
     	summonBoss();
-        }
+    }
 	}
   if (bombCooldown <= 0) {
       bombSpawn();
@@ -609,7 +630,7 @@ function updateGamePlay() {
 
 //subportGamePlay
 function getScore(player,item) {
-  ////// sound get item
+  pickItem.play();
 	console.log("score");
 	var scale = 0.7;
 	var obj = game.add.image(item.x,item.y,'text_score');
@@ -627,7 +648,7 @@ function getScore(player,item) {
 	}, this);
 }
 function getFirerate(player,item) {
-  ////// sound get item
+  pickItem.play();
 	item.kill();
 	var scale = 0.7;
 	var obj = game.add.image(item.x,item.y,'text_fire');
@@ -645,7 +666,7 @@ function getFirerate(player,item) {
 	}, this);
 }
 function getSpeed(player,item) {
-  ////// sound get item
+  pickItem.play();
 	item.kill();
 	var scale = 0.7;
 	var obj = game.add.image(item.x,item.y,'text_speed');
@@ -1097,7 +1118,9 @@ function fireBoss(cannon1,cannon2,cannon3,countPlan){
     }
     else if(countPlan%3600>800&&countPlan%3600<=1060){//180
         if(countPlan%6==0){
-            //if(!lasersound.isPlaying()){sound laserbeam}
+            if(!beamSound.isPlaying()){
+                beamSound.play();
+            }
             laserOnTheMove(cannon1,laserBeam1);
             laserOnTheMove(cannon2,laserBeam2);
             laserOnTheMove(cannon3,laserBeam3);
@@ -1325,8 +1348,13 @@ function summonBoss(){
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function createMenu(){
-    interMu = game.add.audio('intro');
-    interMu.loopFull();
+    if(isFirstTimeMenu){
+        clickSound = game.add.audio('click');
+        resultBGM = game.add.audio('Died');
+        menuBGM = game.add.audio('intro');
+        menuBGM.loopFull();
+        isFirstTimeMenu=false;
+    }
     buttonStart = game.add.button(game.world.centerX, game.world.centerY, 'start', toGame, this);
     buttonStart.scale.setTo(0.2,0.2);
     buttonHowToPlay = game.add.button(game.world.centerX, game.world.centerY+100, 'howtoplay', toHowToPlay, this);
@@ -1347,9 +1375,6 @@ function createMenu(){
 }
 
 function createHowtoPlay(){
-    interMu.stop();
-    interMu = game.add.audio('intro');
-    interMu.loopFull();
     text = game.add.text(game.world.centerX,game.world.centerY*(1/5),"How To Play",{fontSize : "20px",fill : "#ed3465"});
     text.anchor.set(0.5);
     buttonStart = game.add.button(game.world.centerX, game.world.centerY, 'start', toGame, this);
@@ -1365,9 +1390,6 @@ function createHowtoPlay(){
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
 }
 function createReport(){
-    interMu.stop();
-    interMu = game.add.audio('intro');
-    interMu.loopFull();
     text = game.add.text(game.world.centerX,game.world.centerY*(1/5),"Report",{fontSize : "20px",fill : "#ed3465"});
     text.anchor.set(0.5);
     buttonSubmit = game.add.button(game.world.centerX, game.world.centerY, 'submit', toSubmit, this);
@@ -1383,9 +1405,6 @@ function createReport(){
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
 }
 function createCredit(){
-    interMu.stop();
-    interMu = game.add.audio('intro');
-    interMu.loopFull();
     text = game.add.text(game.world.centerX,game.world.centerY*(1/5),"credit",{fontSize : "20px",fill : "#ed3465"});
     text.anchor.set(0.5);
     buttonStart = game.add.button(game.world.centerX, game.world.centerY, 'start', toGame, this);
@@ -1401,9 +1420,9 @@ function createCredit(){
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
 }
 function createResult(){
-    interMu.stop();
-    interMu = game.add.audio('Died');
-    interMu.loopFull();
+    gameBGM.stop();
+    bossBGM.stop();
+    resultBGM.loopFull();
     text = game.add.text(game.world.centerX,game.world.centerY,"Score : "+score,{fontSize : "20px",fill : "#ed3465"});
     text.anchor.set(0.5);
     buttonPlayagain = game.add.button(game.world.centerX, game.world.centerY, 'playagain', toGame, this);
@@ -1427,25 +1446,33 @@ function updateResult(){
 }
 
 function toSubmit(){
+    clickSound.play();
     game.state.start('gamePlay');
 }
 function toGame(){
+    clickSound.play();
     game.state.start('gamePlay');
 }
 function toHowToPlay(){
+    clickSound.play();
     game.state.start('howtoPlay');
 }
 function toMenu() {
-	game.state.start('menu');
+    clickSound.play();
+    resultBGM.stop();
+  	game.state.start('menu');
 }
 function toReport() {
-	game.state.start('report');
+    clickSound.play();
+	  game.state.start('report');
 }
 function toScoreboard() {
-	game.state.start('gamePlay');
+    clickSound.play();
+    game.state.start('gamePlay');
 }
 function toCredit() {
-	game.state.start('credit');
+    clickSound.play();
+    game.state.start('credit');
 }
 
 function muteSounds() {
