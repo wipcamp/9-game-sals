@@ -602,7 +602,7 @@ function updateGamePlay() {
     {
         fire();
     }
-    /*game.physics.arcade.overlap(sprite2,laserBeam1, function(){
+    game.physics.arcade.overlap(sprite2,laserBeam1, function(){
         bulletHitPlayer("โอ๊ย!!! เรือบ้าอะไรยิงเลเซอร์ได้ด้วย!!");
     }, null, this);
     game.physics.arcade.overlap(sprite2,laserBeam2,  function(){
@@ -643,7 +643,7 @@ function updateGamePlay() {
     }, null, this);
     game.physics.arcade.overlap(sprite2,sharkGroup,  function(){
         bulletHitPlayer("ฉลามมาได้ไงเนี่ยยยยยย!?");
-    }, null, this);*/
+    }, null, this);
     game.physics.arcade.overlap(sprite2,speedGroup, getSpeed, null , this);
     game.physics.arcade.overlap(sprite2,firerateGroup, getFirerate, null , this);
     game.physics.arcade.overlap(sprite2,scoreGroup, getScore, null , this);
