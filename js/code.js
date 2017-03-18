@@ -31,7 +31,11 @@ game.state.start('menu');
 function preload() {
 	game.load.image('collider','images/collider.png');
     game.load.image('bullet', 'images/bullet.png');
-	game.load.image('boss','images/bossboss.png');
+	  game.load.image('boss','images/bossboss.png');
+    game.load.image('bullet_blue','images/bullet_blue.png');
+    game.load.image('bullet_green','images/bullet_green.png');
+    game.load.image('bullet_red','images/bullet_red.png');
+    game.load.image('bullet_yellow','images/bullet_yellow.png');
     game.load.image('enemyship_red','images/enemyship_red.png');
     game.load.image('enemyship_blue','images/enemyship_blue.png');
     game.load.image('enemyship_green','images/enemyship_green.png');
@@ -42,14 +46,13 @@ function preload() {
     game.load.image('text_score','images/text_score.png');
     game.load.image('rock1','images/rock1.png');
     game.load.image('rock2','images/rock2.png');
-    game.load.image('rock3','images/rock3.png');
     game.load.image('bgGame','images/bgGame.png');
     game.load.image('oldMap','images/oldMap.png');
 
-    game.load.spritesheet('ship', 'images/playership.png',56/3,96);
-    game.load.spritesheet('speed','images/item_move.png',800/8,100);
-    game.load.spritesheet('firerate','images/item_fire.png',800/8,100);
-    game.load.spritesheet('scoreUp','images/item_score.png',800/8,100);
+    game.load.spritesheet('ship', 'images/playership.png',350/5,96,5);
+    game.load.spritesheet('speed','images/item_move.png',50,50,8);
+    game.load.spritesheet('firerate','images/item_fire.png',50,50,8);
+    game.load.spritesheet('scoreUp','images/item_score.png',50,50,8);
     game.load.spritesheet('bomb', 'images/boomspritesheet.png',400/5,90);
     game.load.spritesheet('shark', 'images/shark.png', 50, 50);
     game.load.spritesheet('mute','images/mute.png',450,447);
@@ -61,6 +64,7 @@ function preload() {
     game.load.spritesheet('playagain','images/playagain.png',3876/3,196);
     game.load.spritesheet('submit','images/submit.png',3876/3,196);
     game.load.spritesheet('credit','images/credit.png',3876/3,196);
+    game.load.spritesheet('seawave','images/wave.png',165/11,4);
     game.load.spritesheet('up','images/up.png',50,46);
     game.load.spritesheet('right','images/right.png',50,46);
     game.load.spritesheet('left','images/left.png',50,46);
@@ -92,9 +96,10 @@ var bombGroup;
 var bombCooldown;
 var itemCooldown;
 var shark;
-var rock1,rock2,rock3;
+var rock1,rock2;
 var rockGroup;
 var rockCooldown;
+var isRockActive;
 var sharkGroup;
 var sharkCooldown;
 var sprite,sprite2;
@@ -124,6 +129,9 @@ var scoreTime;
 var speedMove;
 var scoreMultiplier;
 var firerateOutput;
+var seawaveGroup;
+var seawaveCooldown;
+var seawaveDropAt = [];
 //createGamePlay
 function createGamePlay() {
     firerateOutput = 100;
@@ -147,10 +155,14 @@ function createGamePlay() {
     sprite.scale.setTo(0.50, 0.50);
     game.physics.arcade.enable(sprite);
     sprite.body.drag.set(70);
+    sprite.animations.add('moveLeft',[1,2],10,false);
+    sprite.animations.add('moveRight',[3,4],10,false);
     bombCooldown = 0;
     itemCooldown = game.rnd.integerInRange(0,240);
     sharkCooldown = 0;
     rockCooldown = 0;
+    isRockActive = true;
+    seawaveCooldown = 60;
     score=0;
     textScore = game.add.text(20,20,"Score : "+score,{fontSize : "20px",fill : "#ed3465"});
     cursors = this.input.keyboard.createCursorKeys();
@@ -200,9 +212,61 @@ function createGamePlay() {
     bullets.enableBody = true;
     bullets.physicsBodyType = Phaser.Physics.ARCADE;
     for (var i = 0; i < 100; i++){
-        var b = bullets.create(0, 0, 'bullet');
+        var b = bullets.create(0, 0, 'bullet_yellow');
         b.anchor.set(0.5);
-        b.scale.setTo(0.70,0.70);
+        b.scale.setTo(0.2,0.2);
+        b.name = 'bullet' + i;
+        b.exists = false;
+        b.visible = false;
+        b.checkWorldBounds = true;
+        b.events.onOutOfBounds.add(resetBullet, this);
+    }
+    bullets_green = game.add.group();
+    bullets_green.enableBody = true;
+    bullets_green.physicsBodyType = Phaser.Physics.ARCADE;
+    for (var i = 0; i < 100; i++){
+        var b = bullets_green.create(0, 0, 'bullet_green');
+        b.anchor.set(0.5);
+        b.scale.setTo(0.2,0.2);
+        b.name = 'bullet' + i;
+        b.exists = false;
+        b.visible = false;
+        b.checkWorldBounds = true;
+        b.events.onOutOfBounds.add(resetBullet, this);
+    }
+    bullets_blue = game.add.group();
+    bullets_blue.enableBody = true;
+    bullets_blue.physicsBodyType = Phaser.Physics.ARCADE;
+    for (var i = 0; i < 100; i++){
+        var b = bullets_blue.create(0, 0, 'bullet_blue');
+        b.anchor.set(0.5);
+        b.scale.setTo(0.2,0.2);
+        b.name = 'bullet' + i;
+        b.exists = false;
+        b.visible = false;
+        b.checkWorldBounds = true;
+        b.events.onOutOfBounds.add(resetBullet, this);
+    }
+    bullets_red = game.add.group();
+    bullets_red.enableBody = true;
+    bullets_red.physicsBodyType = Phaser.Physics.ARCADE;
+    for (var i = 0; i < 100; i++){
+        var b = bullets_red.create(0, 0, 'bullet_red');
+        b.anchor.set(0.5);
+        b.scale.setTo(0.2,0.2);
+        b.name = 'bullet' + i;
+        b.exists = false;
+        b.visible = false;
+        b.checkWorldBounds = true;
+        b.events.onOutOfBounds.add(resetBullet, this);
+    }
+    bullets_green = game.add.group();
+    bullets_green.enableBody = true;
+    bullets_green.physicsBodyType = Phaser.Physics.ARCADE;
+    for (var i = 0; i < 100; i++){
+        var b = bullets_green.create(0, 0, 'bullet_green');
+        b.anchor.set(0.5);
+        b.scale.setTo(0.2,0.2);
         b.name = 'bullet' + i;
         b.exists = false;
         b.visible = false;
@@ -215,7 +279,7 @@ function createGamePlay() {
     for (var i = 0; i < 100; i++){
         var b = enemyBullets.create(0, 0, 'bullet');
         b.anchor.set(0.5);
-        b.scale.setTo(0.70,0.70);
+        b.scale.setTo(0.2,0.2);
         b.name = 'bullet' + i;
         b.exists = false;
         b.visible = false;
@@ -264,7 +328,7 @@ function createGamePlay() {
     bossBullets4 = game.add.group();
     bossBullets4.enableBody = true;
     bossBullets4.physicsBodyType = Phaser.Physics.ARCADE;
-    for (var i = 0; i < 100; i++){
+    for (var i = 0; i < 120; i++){
         var b = bossBullets4.create(0, 0, 'bullet');
         b.name = 'bullet' + i;
         b.anchor.set(0.5);
@@ -277,7 +341,7 @@ function createGamePlay() {
     bossBullets5 = game.add.group();
     bossBullets5.enableBody = true;
     bossBullets5.physicsBodyType = Phaser.Physics.ARCADE;
-    for (var i = 0; i < 100; i++){
+    for (var i = 0; i < 120; i++){
         var b = bossBullets5.create(0, 0, 'bullet');
         b.anchor.set(0.5);
         b.scale.setTo(0.70,0.70);
@@ -311,8 +375,9 @@ function createGamePlay() {
         speed.visible = false;
         speed.checkWorldBounds = true;
         speed.events.onOutOfBounds.add(resetBullet, this);
-        speed.body.setCircle(45);
+        speed.body.setSize(50,70,0,-15);
     }
+    speedGroup.callAll('animations.add', 'animations', 'shake', [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,3,4,5,6,7,0], 60, true);
     //firerate
     firerateGroup = game.add.group();
     firerateGroup.enableBody = true;
@@ -323,8 +388,9 @@ function createGamePlay() {
         fireObj.visible = false;
         fireObj.checkWorldBounds = true;
         fireObj.events.onOutOfBounds.add(resetBullet, this);
-        fireObj.body.setCircle(45);
+        fireObj.body.setSize(50,70,0,-15);
     }
+    firerateGroup.callAll('animations.add', 'animations', 'shake', [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,3,4,5,6,7,0], 60, true);
     //score
     scoreGroup = game.add.group();
     scoreGroup.enableBody = true;
@@ -335,21 +401,9 @@ function createGamePlay() {
         scoreObj.visible = false;
         scoreObj.checkWorldBounds = true;
         scoreObj.events.onOutOfBounds.add(resetBullet, this);
-        scoreObj.body.setCircle(45);
+        scoreObj.body.setSize(50,70,0,-15);
     }
-    bombGroup.callAll('animations.add', 'animations', 'move', [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,3,4], 50, true);
-    /*rockGroup = game.add.group();
-    rockGroup.enableBody = true;
-    rockGroup.physicsBodyType = Phaser.Physics.ARCADE;
-    rock1 = rockGroup.create(0, 0, 'rock1');
-    rock2 = rockGroup.create(0, 0, 'rock2');
-    rock3 = rockGroup.create(0, 0, 'rock3');
-    rockGroup.scale.setTo(1.3, 1.3);
-    rockGroup.exists = false;
-    rockGroup.visible = false;
-    rockGroup.checkWorldBounds = true;
-    rockGroup.events.onOutOfBounds.add(resetBullet, this);
-    rockGroup.body.setCircle(28);*/
+    scoreGroup.callAll('animations.add', 'animations', 'shake', [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,3,4,5,6,7,0], 60, true);
     rock1 = this.add.sprite(0,0, 'rock1');
     game.physics.arcade.enable(rock1);
     rock1.enableBody = true;
@@ -361,7 +415,6 @@ function createGamePlay() {
     rock1.checkWorldBounds = true;
     rock1.events.onOutOfBounds.add(resetBullet, this);
     rock1.body.velocity.y = 100;
-    //rock1.body.setSize(40,30,0,0);
 
     rock2 = this.add.sprite(0,0, 'rock2');
     game.physics.arcade.enable(rock2);
@@ -374,41 +427,7 @@ function createGamePlay() {
     rock2.checkWorldBounds = true;
     rock2.events.onOutOfBounds.add(resetBullet, this);
     rock2.body.velocity.y = 100;
-    //rock2.body.setSize(40,30,0,0);
 
-    rock3 = this.add.sprite(0,0, 'rock3');
-    game.physics.arcade.enable(rock3);
-    rock3.enableBody = true;
-    rock3.exists = false;
-    rock3.visible = false;
-    rock3.scale.setTo(1.3,1.3);
-    rock3.anchor.set(0.5);
-    rock3.body.setCircle(22);
-    rock3.checkWorldBounds = true;
-    rock3.events.onOutOfBounds.add(resetBullet, this);
-    rock3.body.velocity.y = 100;
-    //rock3.body.setSize(40,30,0,0);
-    //rock2.body.velocity.y = 100;
-    //rock3.body.velocity.y = 100;
-    /*for (var i = 0; i < 16; i++) {
-        var rand = game.rnd.integerInRange(1, 3);
-        console.log("rock type = "+rand);
-        var rock;
-        switch (rand) {
-            case 1:rock = rockGroup.create(0, 0, 'rock1');
-            break;
-            case 2:rock = rockGroup.create(0, 0, 'rock2');
-            break;
-            case 3:rock = rockGroup.create(0, 0, 'rock3');
-            break;
-        }
-        rock.scale.setTo(1.3, 1.3);
-        rock.exists = false;
-        rock.visible = false;
-        rock.checkWorldBounds = true;
-        rock.events.onOutOfBounds.add(resetBullet, this);
-        rock.body.setCircle(28);
-    }*/
     sharkGroup = game.add.group();
     sharkGroup.enableBody = true;
     sharkGroup.physicsBodyType = Phaser.Physics.ARCADE;
@@ -424,6 +443,20 @@ function createGamePlay() {
     }
     sharkGroup.callAll('animations.add', 'animations', 'moveFromLeft', [13,12,11,10,9,8,7,6,5,4,3,2,1,0], 50, true);
     sharkGroup.callAll('animations.add', 'animations', 'moveFromRight', [13,12,11,10,9,8,7,6,5,4,3,2,1,0], 50, true);
+
+    seawaveGroup = game.add.group();
+    seawaveGroup.enableBody = true;
+    seawaveGroup.physicsBodyType = Phaser.Physics.ARCADE;
+    for (var i = 0; i < 100; i++){
+        var wave = seawaveGroup.create(0, 0, 'seawave');
+        wave.anchor.set(0.5);
+        wave.scale.setTo(1,1);
+        wave.exists = false;
+        wave.visible = false;
+        wave.checkWorldBounds = true;
+        wave.events.onOutOfBounds.add(resetBullet, this);
+    }
+    seawaveGroup.callAll('animations.add', 'animations', 'default', [0,1,2,3,4,5,6,7,8,9], 6, true);
     //test animation item
     //pause_label = this.input.keyboard.addKey(Phaser.KeyCode.ENTER);
     //pause_label.events.onInputUp.add(function () {game.paused = true;});
@@ -445,7 +478,6 @@ function createGamePlay() {
 
 //updateGamePlay
 function updateGamePlay() {
-  //game.debug.body(bombGroup.getFirstExists(false));
 	sprite2.x=sprite.x;
 	sprite2.y=sprite.y;
 	if(speedTime==0){
@@ -501,15 +533,21 @@ function updateGamePlay() {
   if (sharkCooldown <= 0) {
       sharkSpawn();
   }
-  if (rockCooldown <= 0){
-      rockSpawn();
+  if(isRockActive){
+      if (rockCooldown <= 0){
+          rockSpawn();
+      }
+      rockCooldown--;
+  }
+  if (seawaveCooldown <= 0) {
+      seawaveSpawn();
   }
   bombCooldown--;
   sharkCooldown--;
+  seawaveCooldown--;
   	if(itemCooldown <= 0)
   		itemSpawner();
   	itemCooldown--;
-  rockCooldown--;
     if (fireButton.isDown)
     {
         fire();
@@ -545,24 +583,25 @@ function updateGamePlay() {
     }
     sprite.body.velocity.y=0;
 	  sprite.body.velocity.x=0;
-    sprite.frame = 0;
   	if(cursors.up.isDown){
   		sprite.body.velocity.y = -speedMove;
   	}
   	if(cursors.left.isDown){
   		sprite.body.velocity.x = -speedMove;
-      sprite.frame = 1;
-  	}
-  	if(cursors.right.isDown){
+      if(sprite.frame!=2)
+        sprite.animations.play('moveLeft');
+  	}else if(cursors.right.isDown){
   		sprite.body.velocity.x = speedMove;
-      sprite.frame = 2;
-  	}
+      if(sprite.frame!=4)
+        sprite.animations.play('moveRight');
+  	}else{
+      sprite.frame = 0;
+    }
     if(cursors.down.isDown){
   		sprite.body.velocity.y = speedMove;
   	}
     game.physics.arcade.overlap(sprite, rock1, rockOverlapPlayer, null, this);
     game.physics.arcade.overlap(sprite, rock2, rockOverlapPlayer, null, this);
-    game.physics.arcade.overlap(sprite, rock3, rockOverlapPlayer, null, this);
   	if(this.input.keyboard.addKey(Phaser.KeyCode.ENTER).isDown){
   		game.paused = true;
   	}
@@ -570,7 +609,7 @@ function updateGamePlay() {
     	if (game.input.keyboard.event.keyCode == 13){
         	game.paused = false;
     	}
-	}
+	  }
 
 }
 
@@ -677,9 +716,6 @@ function rockSpawn() {
             case 2:rock2.reset(game.world.width * (rockDropAt / 26), 0);
                   rock2.body.velocity.y = 100;
             break;
-            case 3:rock3.reset(game.world.width * (rockDropAt / 26), 0);
-                  rock3.body.velocity.y = 100;
-            break;
         }
         rockCooldown = 400;
     }else{
@@ -741,8 +777,30 @@ function sharkLaunch(spawnSide,shark) {
         shark.animations.play('moveFromRight');
     }
 }
+function seawaveSpawn(){
+    seawaveCooldown=30;
+    if(seawaveDropAt.length==0){
+        seawaveDropAt=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];
+        seawaveDropAt=shuffle(seawaveDropAt);
+    }
+    var wave = seawaveGroup.getFirstExists(false);
+    wave.reset(game.world.width * (seawaveDropAt.pop() / 21), 0);
+    wave.body.velocity.y = 100;
+    wave.animations.play('default');
 
+}
+function shuffle(array) {
+  var currentIndex = array.length, temporaryValue, randomIndex;
+  while (0 !== currentIndex) {
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
 
+  return array;
+}
 function itemSpawner() {
   /////// sound item spawn
 	var output = game.rnd.integerInRange(0,2);
@@ -760,6 +818,7 @@ function speedUp() {
 	speed = speedGroup.getFirstExists(false);
 	speed.reset(position,0);
 	speed.body.velocity.y = 150;
+  speedGroup.callAll('animations.play', 'animations', 'shake');
 }
 function firerateUp() {
 	itemCooldown = game.rnd.integerInRange(240,400);
@@ -767,6 +826,7 @@ function firerateUp() {
 	fireRate = firerateGroup.getFirstExists(false);
 	fireRate.reset(position,0);
 	fireRate.body.velocity.y = 150;
+  firerateGroup.callAll('animations.play', 'animations', 'shake');
 }
 function scoreUp() {
 	itemCooldown = game.rnd.integerInRange(240,400);
@@ -774,6 +834,7 @@ function scoreUp() {
 	scoreObj = scoreGroup.getFirstExists(false);
 	scoreObj.reset(position,0);
 	scoreObj.body.velocity.y = 150;
+  scoreGroup.callAll('animations.play', 'animations', 'shake');
 }
 
 function fire () {
@@ -812,6 +873,7 @@ function summonWave(numberWave){
     for (var i = 0; i < numberWave; i++){
         enemy.push(new EnemyShip(i, game, enemyBullets,color));
     }
+    isRockActive=true;
 }
 function bulletHitBoss (boss, bullet) {
 
@@ -841,10 +903,10 @@ EnemyShip = function (index, game, bullets,color) {
       this.enemy_ship.scale.setTo(0.75, 0.75);
       break;
       case "blue":this.enemy_ship = game.add.sprite(x, y, 'enemyship_blue');
-      this.enemy_ship.scale.setTo(0.1, 0.1);
+      this.enemy_ship.scale.setTo(0.75, 0.75);
       break;
       case "green":this.enemy_ship = game.add.sprite(x, y, 'enemyship_green');
-      this.enemy_ship.scale.setTo(0.1, 0.1);
+      this.enemy_ship.scale.setTo(0.75, 0.75);
       break;
     }
     this.enemy_ship.anchor.set(0.5);
@@ -919,18 +981,16 @@ var shot;
 function fireBot (enemy_ship) {
     if(plan==1||plan==2){
         if(enemy_ship.count%60==0){
-
-            bullet = enemyBullets.getFirstExists(false);
+            bullet = bullets_red.getFirstExists(false);
             bullet.reset(enemy_ship.x, enemy_ship.y);
             bullet.body.velocity.y = 200;
             bullet.rotation = this.game.physics.arcade.moveToObject(bullet, sprite, 350);
-
         }
     }
     else if(plan==3||plan==4){
 
         if(enemy_ship.count%30==0){
-            bullet = enemyBullets.getFirstExists(false);
+            bullet = bullets_green.getFirstExists(false);
             bullet.reset(enemy_ship.x, enemy_ship.y);
             if(enemy_ship.countBullet%5==0){
                 bullet.body.velocity.y = 100;
@@ -957,7 +1017,7 @@ function fireBot (enemy_ship) {
     else{
 
         if(enemy_ship.count%50==0){
-            bullet = enemyBullets.getFirstExists(false);
+            bullet = bullets_blue.getFirstExists(false);
             bullet.reset(enemy_ship.x, enemy_ship.y);
             bullet.body.velocity.y = 100;
         }
@@ -1261,6 +1321,7 @@ function summonBoss(){
         enemy.pop();
     destroyedCount=1;
     enemy.push(new EnemyBoss(game));
+    isRockActive=false;
 }
 
 
