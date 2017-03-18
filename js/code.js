@@ -150,6 +150,7 @@ var seawaveCooldown;
 var seawaveDropAt = [];
 var isPause;
 var isFirstSubmit;
+var causeOfDeath;
 //createGamePlay
 function createGamePlay() {
     firerateOutput = 100;
@@ -173,25 +174,25 @@ function createGamePlay() {
     seawaveGroup.enableBody = true;
     seawaveGroup.physicsBodyType = Phaser.Physics.ARCADE;
     for (var i = 0; i < 100; i++){
-        var wave = seawaveGroup.create(0, 0, 'seawave');
-        wave.anchor.set(0.5);
-        wave.scale.setTo(1.5,1.5);
-        wave.exists = false;
-        wave.visible = false;
-        wave.checkWorldBounds = true;
-        wave.events.onOutOfBounds.add(resetBullet, this);
+        var seawave = seawaveGroup.create(0, 0, 'seawave');
+        seawave.anchor.set(0.5);
+        seawave.scale.setTo(1.5,1.5);
+        seawave.exists = false;
+        seawave.visible = false;
+        seawave.checkWorldBounds = true;
+        seawave.events.onOutOfBounds.add(resetBullet, this);
     }
     seawaveGroup.callAll('animations.add', 'animations', 'default', [0,1,2,3,4,5,6,7,8,9], 6, true);
-    sprite2 = this.add.sprite(game.world.width/2,game.world.height*(3/5), 'collider');
-    sprite2.anchor.set(0.5);
-    sprite2.scale.setTo(0.20, 0.20);
-    game.physics.arcade.enable(sprite2);
-    sprite2.body.drag.set(70);
     sprite = this.add.sprite(game.world.width/2,game.world.height*(3/5), 'ship');
     sprite.anchor.set(0.5);
-    sprite.scale.setTo(0.50, 0.50);
+    sprite.scale.setTo(0.4, 0.4);
     game.physics.arcade.enable(sprite);
-    sprite.body.drag.set(70);
+    //sprite.body.drag.set(70);
+    sprite2 = this.add.sprite(game.world.width/2,game.world.height*(3/5), 'collider');
+    sprite2.anchor.set(0.5);
+    sprite2.scale.setTo(0.3, 0.3);
+    game.physics.arcade.enable(sprite2);
+    //sprite2.body.drag.set(70);
     sprite.animations.add('moveLeft',[1,2],10,false);
     sprite.animations.add('moveRight',[3,4],10,false);
     bombCooldown = 0;
@@ -205,14 +206,15 @@ function createGamePlay() {
     cursors = this.input.keyboard.createCursorKeys();
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     destroyedCount=0;
-	wave=-1;
+	wave=5;
     laserBeam1 = game.add.group();
     laserBeam1.enableBody = true;
     laserBeam1.physicsBodyType = Phaser.Physics.ARCADE;
     for (var i = 0; i < 100; i++){
         var b = laserBeam1.create(0, 0, 'laser');
         b.anchor.set(0.5);
-        b.scale.setTo(3,2.7);
+        b.scale.setTo(2.5,2.7);
+        b.body.setSize(75,121.5);
         b.name = 'laser' + i;
         b.exists = false;
         b.visible = false;
@@ -225,7 +227,8 @@ function createGamePlay() {
     for (var i = 0; i < 100; i++){
         var b = laserBeam2.create(0, 0, 'laser');
         b.anchor.set(0.5);
-        b.scale.setTo(3,2.7);
+        b.scale.setTo(2.5,2.7);
+        b.body.setSize(75,121.5);
         b.name = 'laser' + i;
         b.exists = false;
         b.visible = false;
@@ -238,7 +241,8 @@ function createGamePlay() {
     for (var i = 0; i < 100; i++){
         var b = laserBeam3.create(0, 0, 'laser');
         b.anchor.set(0.5);
-        b.scale.setTo(3,2.7);
+        b.scale.setTo(2.5,2.7);
+        b.body.setSize(75,121.5);
         b.name = 'laser' + i;
         b.exists = false;
         b.visible = false;
@@ -257,6 +261,7 @@ function createGamePlay() {
         b.visible = false;
         b.checkWorldBounds = true;
         b.events.onOutOfBounds.add(resetBullet, this);
+        b.body.setCircle(5);
     }
     bullets_green = game.add.group();
     bullets_green.enableBody = true;
@@ -270,6 +275,7 @@ function createGamePlay() {
         b.visible = false;
         b.checkWorldBounds = true;
         b.events.onOutOfBounds.add(resetBullet, this);
+        b.body.setCircle(5);
     }
     bullets_blue = game.add.group();
     bullets_blue.enableBody = true;
@@ -283,6 +289,7 @@ function createGamePlay() {
         b.visible = false;
         b.checkWorldBounds = true;
         b.events.onOutOfBounds.add(resetBullet, this);
+        b.body.setCircle(5);
     }
     bullets_red = game.add.group();
     bullets_red.enableBody = true;
@@ -296,6 +303,7 @@ function createGamePlay() {
         b.visible = false;
         b.checkWorldBounds = true;
         b.events.onOutOfBounds.add(resetBullet, this);
+        b.body.setCircle(5);
     }
     bullets_green = game.add.group();
     bullets_green.enableBody = true;
@@ -309,11 +317,12 @@ function createGamePlay() {
         b.visible = false;
         b.checkWorldBounds = true;
         b.events.onOutOfBounds.add(resetBullet, this);
+        b.body.setCircle(5);
     }
     enemyBullets = game.add.group();
     enemyBullets.enableBody = true;
     enemyBullets.physicsBodyType = Phaser.Physics.ARCADE;
-    for (var i = 0; i < 100; i++){
+    for (var i = 0; i < 120; i++){
         var b = enemyBullets.create(0, 0, 'bullet');
         b.anchor.set(0.5);
         b.scale.setTo(0.7,0.7);
@@ -399,7 +408,7 @@ function createGamePlay() {
         bomb.visible = false;
         bomb.checkWorldBounds = true;
         bomb.events.onOutOfBounds.add(resetBullet, this);
-        bomb.body.setCircle(22);
+        bomb.body.setCircle(18);
     }
     bombGroup.callAll('animations.add', 'animations', 'move', [0, 1], 4, true);
     //speed
@@ -474,7 +483,7 @@ function createGamePlay() {
         shark.visible = false;
         shark.scale.setTo(1,1);
         shark.anchor.set(0.5);
-        shark.body.setCircle(25);
+        shark.body.setCircle(16.5);
         shark.checkWorldBounds = true;
         shark.events.onOutOfBounds.add(resetBullet, this);
     }
@@ -502,6 +511,16 @@ function createGamePlay() {
 
 //updateGamePlay
 function updateGamePlay() {
+  game.debug.body(sprite2);
+  if(laserBeam3.getFirstAlive!=null){
+    game.debug.body(laserBeam3.getFirstAlive());
+  }
+  if(laserBeam2.getFirstAlive!=null){
+    game.debug.body(laserBeam2.getFirstAlive());
+  }
+  if(laserBeam1.getFirstAlive!=null){
+    game.debug.body(laserBeam1.getFirstAlive());
+  }
 	sprite2.x=sprite.x;
 	sprite2.y=sprite.y;
 	if(speedTime==0){
@@ -580,17 +599,20 @@ function updateGamePlay() {
     {
         fire();
     }
-    /*game.physics.arcade.overlap(sprite2,laserBeam1, bulletHitPlayer, null , this);
-    game.physics.arcade.overlap(sprite2,laserBeam2, bulletHitPlayer, null , this);
-    game.physics.arcade.overlap(sprite2,laserBeam3, bulletHitPlayer, null , this);
-    game.physics.arcade.overlap(sprite2,enemyBullets, bulletHitPlayer, null , this);
-    game.physics.arcade.overlap(sprite2,bossBullets1, bulletHitPlayer, null , this);
-    game.physics.arcade.overlap(sprite2,bossBullets2, bulletHitPlayer, null , this);
-    game.physics.arcade.overlap(sprite2,bossBullets3, bulletHitPlayer, null , this);
-    game.physics.arcade.overlap(sprite2,bossBullets4, bulletHitPlayer, null , this);
-    game.physics.arcade.overlap(sprite2,bossBullets5, bulletHitPlayer, null , this);
-    game.physics.arcade.overlap(sprite2, bombGroup, bulletHitPlayer, null, this);
-    game.physics.arcade.overlap(sprite2, sharkGroup, bulletHitPlayer, null, this);*/
+    game.physics.arcade.overlap(sprite2,laserBeam1, bulletHitPlayer,"โอ๊ย!!! เรือบ้าอะไรยิงเลเซอร์ได้ด้วย!!");
+    game.physics.arcade.overlap(sprite2,laserBeam2, bulletHitPlayer, null , this,"โอ๊ย!!! เรือบ้าอะไรยิงเลเซอร์ได้ด้วย!!");
+    game.physics.arcade.overlap(sprite2,laserBeam3, bulletHitPlayer, null , this,"โอ๊ย!!! เรือบ้าอะไรยิงเลเซอร์ได้ด้วย!!");
+    game.physics.arcade.overlap(sprite2,enemyBullets, bulletHitPlayer, null , this,"นี่มันบ้าอะไรเนี่ย!!");
+    game.physics.arcade.overlap(sprite2,bullets_red, bulletHitPlayer, null , this,"นี่มันจะโกงเกินไปแล้ว!");
+    game.physics.arcade.overlap(sprite2,bullets_blue, bulletHitPlayer, null , this,"เจ็บใจนัก ข้าจะกลับมาแก้แค้น.");
+    game.physics.arcade.overlap(sprite2,bullets_green, bulletHitPlayer, null , this,"นี่ข้าหลบไม่พ้นได้ยังไง!?");
+    game.physics.arcade.overlap(sprite2,bossBullets1, bulletHitPlayer,null,"เจ็บใจนัก ข้าจะกลับมาแก้แค้น.");
+    game.physics.arcade.overlap(sprite2,bossBullets2, bulletHitPlayer("เจ็บใจนัก ข้าจะกลับมาแก้แค้น."),null);
+    game.physics.arcade.overlap(sprite2,bossBullets3, bulletHitPlayer,null,"เจ็บใจนัก ข้าจะกลับมาแก้แค้น.");
+    game.physics.arcade.overlap(sprite2,bossBullets4, bulletHitPlayer, null , this,"แบบนี้ก็ได้หรอ!?");
+    game.physics.arcade.overlap(sprite2,bossBullets5, bulletHitPlayer, null , this,"โถ่เอ๊ย! หลบได้ก็เทพและ");
+    game.physics.arcade.overlap(sprite2,bombGroup, bulletHitPlayer, null, this,"เรือข้าพังหมดแล้ว TT");
+    game.physics.arcade.overlap(sprite2,sharkGroup, bulletHitPlayer, null, this,"ฉลามมาได้ไงเนี่ยยยยยย!?");
     game.physics.arcade.overlap(sprite2,speedGroup, getSpeed, null , this);
     game.physics.arcade.overlap(sprite2,firerateGroup, getFirerate, null , this);
     game.physics.arcade.overlap(sprite2,scoreGroup, getScore, null , this);
@@ -598,11 +620,11 @@ function updateGamePlay() {
     for (var i = 0; i < enemy.length; i++){
         if(wave%7!=6){
             game.physics.arcade.overlap(enemy[i].enemy_ship,bullets, bulletHitEnemy, null , this);
-            //game.physics.arcade.overlap(enemy[i].enemy_ship,sprite2, bulletHitPlayer, null , this);
+            game.physics.arcade.overlap(enemy[i].enemy_ship,sprite2, bulletHitPlayer, null , this,"นี่เจ้าบ้ารึเปล่า!!");
         }
         else{
             game.physics.arcade.overlap(enemy[i].boss,bullets,bulletHitBoss,null,this);
-            game.physics.arcade.overlap(enemy[i].boss,sprite2, bulletHitPlayer, null , this);
+            game.physics.arcade.overlap(enemy[i].boss,sprite2, bulletHitPlayer, null , this,"นี่เจ้าเสียสติไปแล้วเรอะ!!");
 
         }
         if(enemy[i].alive){
@@ -704,10 +726,10 @@ function getSpeed(player,item) {
 	}, this);
 }
 
-function bulletHitPlayer () {
+function bulletHitPlayer (cause) {
+    causeOfDeath = cause;
     shot = game.add.audio('Death');
     shot.play();
-    ///
     game.state.start('result');
 }
 
@@ -761,7 +783,7 @@ function rockOverlapPlayer(playership,rock) {
             sprite.body.velocity.y = speedMove;
         }
         if(sprite.y>=game.world.height-30){
-            bulletHitPlayer();
+            bulletHitPlayer("หัดคุมเรือให้มันดีๆหน่อยสิ!");
         }
     }else if(rock.y-sprite.y<=40&&rock.y-sprite.y>=-5){
         if(cursors.down.isDown){
@@ -812,10 +834,10 @@ function seawaveSpawn(){
         seawaveDropAt=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];
         seawaveDropAt=shuffle(seawaveDropAt);
     }
-    var wave = seawaveGroup.getFirstExists(false);
-    wave.reset(game.world.width * (seawaveDropAt.pop() / 21), 0);
-    wave.body.velocity.y = 100;
-    wave.animations.play('default');
+    var seawave = seawaveGroup.getFirstExists(false);
+    seawave.reset(game.world.width * (seawaveDropAt.pop() / 21), 0);
+    seawave.body.velocity.y = 100;
+    seawave.animations.play('default');
 
 }
 function shuffle(array) {
@@ -940,18 +962,16 @@ EnemyShip = function (index, game, bullets,color) {
     this.alive = true;
     switch (color) {
       case "red":this.enemy_ship = game.add.sprite(x, y, 'enemyship_red');
-      this.enemy_ship.scale.setTo(0.75, 0.75);
       this.enemy_ship.name = index.toString()+"red";
       break;
       case "blue":this.enemy_ship = game.add.sprite(x, y, 'enemyship_blue');
-      this.enemy_ship.scale.setTo(0.75, 0.75);
       this.enemy_ship.name = index.toString()+"blue";
       break;
       case "green":this.enemy_ship = game.add.sprite(x, y, 'enemyship_green');
-      this.enemy_ship.scale.setTo(0.75, 0.75);
       this.enemy_ship.name = index.toString()+"green";
       break;
     }
+    this.enemy_ship.scale.setTo(0.5, 0.5);
     this.enemy_ship.anchor.set(0.5);
     this.enemy_ship.count=0;
     this.enemy_ship.countBullet=0;
@@ -1068,17 +1088,15 @@ function fireBot (enemy_ship) {
 
 
 EnemyBoss = function (game) {
-    var x = game.world.centerX;
-    var y = 10;
     this.game = game;
     this.health = 500;
     this.countPlan=0;
     this.alive = true;
     this.boss = game.add.sprite(0,-8.5,'boss');
     //this.boss.anchor.set(0,0.2);
-    this.cannon1 = [x*(1/4), y];
-    this.cannon2 = [x,y];
-    this.cannon3 = [x*(7/4), y];
+    this.cannon1 = [175/2, 30];
+    this.cannon2 = [175,30];
+    this.cannon3 = [175*3/2, 20];
     this.cannon1.name = 1;
     this.cannon2.name = 2;
     this.cannon3.name = 3;
@@ -1174,7 +1192,7 @@ function fireBoss(cannon1,cannon2,cannon3,countPlan){
     }
     else if(countPlan%3600>2060+60&&countPlan%3600<=2340){//120
         if(countPlan%30==0){
-            lockOn(cannon2,bossBullets2,200);
+            lockOn(cannon3,bossBullets2,200);
         }
     }
     else if(countPlan%3600>2520&&countPlan%3600<=2640+60){//180
@@ -1223,7 +1241,7 @@ function fireBoss(cannon1,cannon2,cannon3,countPlan){
 
 function lockOn (cannon,bullets,speed) {//30 400
     bullet = bullets.getFirstExists(false);
-    bullet.reset(cannon.x+15, cannon.y+20);
+    bullet.reset(cannon[0], cannon[1]);
     bullet.rotation = this.game.physics.arcade.moveToObject(bullet, sprite, speed);
 }
 
@@ -1234,6 +1252,7 @@ function laserOnTheMove (cannon,bullets) { //40<7
     bullet = bullets.getFirstExists(false);
     bullet.reset(cannon[0]+15, cannon[1]+20);
     bullet.body.velocity.y = 1200;
+    console.log(cannon[0]);
     //bullet.rotation = this.game.physics.arcade.moveToObject(bullet, sprite, 200);
 }
 
@@ -1338,9 +1357,8 @@ function fireWorks (cannon,bullets) {
     game.time.events.add(Phaser.Timer.SECOND * 3.3, boom,this,cannon);
 }
 function boom(cannon){
-    var x = cannon.x;
+    var x = cannon[0];
     var y = game.world.height*(3/5);
-    bullet.kill();
     var b1 = bossBullets1.getFirstExists(false);
     var b4 = bossBullets2.getFirstExists(false);
     var b3 = bossBullets3.getFirstExists(false);
@@ -1689,6 +1707,8 @@ function createResult(){
     gameBGM.stop();
     bossBGM.stop();
     resultBGM.loopFull();
+    text.anchor.set(0.5);
+    text = game.add.text(game.world.width/2+50,game.world.height*(1/4),""+causeOfDeath,{fontSize : "20px",fill : "#5B3B00"});
     text.anchor.set(0.5);
     buttonPlayagain = game.add.button(game.world.width/2, game.world.height*(3/4), 'playagain', toGame, this);
     buttonPlayagain.scale.setTo(0.12);
