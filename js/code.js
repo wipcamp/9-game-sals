@@ -168,6 +168,19 @@ function createGamePlay() {
     gameBGM.loopFull();
     countRound = 0;
     game.add.sprite(0,0,'background');
+    seawaveGroup = game.add.group();
+    seawaveGroup.enableBody = true;
+    seawaveGroup.physicsBodyType = Phaser.Physics.ARCADE;
+    for (var i = 0; i < 100; i++){
+        var wave = seawaveGroup.create(0, 0, 'seawave');
+        wave.anchor.set(0.5);
+        wave.scale.setTo(1.5,1.5);
+        wave.exists = false;
+        wave.visible = false;
+        wave.checkWorldBounds = true;
+        wave.events.onOutOfBounds.add(resetBullet, this);
+    }
+    seawaveGroup.callAll('animations.add', 'animations', 'default', [0,1,2,3,4,5,6,7,8,9], 6, true);
     sprite2 = this.add.sprite(game.world.width/2,game.world.height*(3/5), 'collider');
     sprite2.anchor.set(0.5);
     sprite2.scale.setTo(0.20, 0.20);
@@ -464,22 +477,10 @@ function createGamePlay() {
         shark.checkWorldBounds = true;
         shark.events.onOutOfBounds.add(resetBullet, this);
     }
-    sharkGroup.callAll('animations.add', 'animations', 'moveFromLeft', [13,12,11,10,9,8,7,6,5,4,3,2,1,0], 50, true);
-    sharkGroup.callAll('animations.add', 'animations', 'moveFromRight', [13,12,11,10,9,8,7,6,5,4,3,2,1,0], 50, true);
+    sharkGroup.callAll('animations.add', 'animations', 'moveFromLeft', [25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0], 9, true);
+    sharkGroup.callAll('animations.add', 'animations', 'moveFromRight', [26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51], 50, true);
 
-    seawaveGroup = game.add.group();
-    seawaveGroup.enableBody = true;
-    seawaveGroup.physicsBodyType = Phaser.Physics.ARCADE;
-    for (var i = 0; i < 100; i++){
-        var wave = seawaveGroup.create(0, 0, 'seawave');
-        wave.anchor.set(0.5);
-        wave.scale.setTo(1,1);
-        wave.exists = false;
-        wave.visible = false;
-        wave.checkWorldBounds = true;
-        wave.events.onOutOfBounds.add(resetBullet, this);
-    }
-    seawaveGroup.callAll('animations.add', 'animations', 'default', [0,1,2,3,4,5,6,7,8,9], 6, true);
+
     //test animation item
     //pause_label = this.input.keyboard.addKey(Phaser.KeyCode.ENTER);
     //pause_label.events.onInputUp.add(function () {game.paused = true;});
@@ -816,7 +817,7 @@ function sharkLaunch(spawnSide,shark) {
     }
 }
 function seawaveSpawn(){
-    seawaveCooldown=30;
+    seawaveCooldown=20;
     if(seawaveDropAt.length==0){
         seawaveDropAt=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];
         seawaveDropAt=shuffle(seawaveDropAt);
