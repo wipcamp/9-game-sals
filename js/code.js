@@ -48,6 +48,7 @@ function preload() {
     game.load.image('rock2','images/rock2.png');
     game.load.image('bgGame','images/bgGame.png');
     game.load.image('oldMap','images/oldMap.png');
+    game.load.image('gameover','images/GAME-OVER-01.png');
 
     game.load.spritesheet('ship', 'images/playership.png',350/5,96,5);
     game.load.spritesheet('speed','images/item_move.png',50,50,8);
@@ -1366,8 +1367,9 @@ function createHowtoPlay(){
     interMu.stop();
     interMu = game.add.audio('intro');
     interMu.loopFull();
-    text = game.add.text(game.world.centerX,game.world.centerY*(1/5),"How To Play",{fontSize : "20px",fill : "#ed3465"});
+    text = game.add.image(game.world.centerX,game.world.centerY*(1.2/5),"howtoplay");
     text.anchor.set(0.5);
+    text.scale.setTo(0.19);
     enemyBullets = game.add.group();
     enemyBullets.enableBody = true;
     enemyBullets.physicsBodyType = Phaser.Physics.ARCADE;
@@ -1382,10 +1384,10 @@ function createHowtoPlay(){
         b.events.onOutOfBounds.add(resetBullet, this);
     }
     buttonStart = game.add.button(game.world.width*(2.25/3), game.world.height*(4.6/5), 'start', toGame, this);
-    buttonStart.scale.setTo(0.1,0.1);
+    buttonStart.scale.setTo(0.11);
     buttonStart.anchor.set(0.5);
     buttonMenu = game.add.button(game.world.width*(0.75/3), game.world.height*(4.6/5), 'menu', toMenu, this);
-    buttonMenu.scale.setTo(0.1,0.1);
+    buttonMenu.scale.setTo(0.11);
     buttonMenu.anchor.set(0.5);
 
     sprite = game.add.sprite(game.world.width/7+25, game.world.height*(1.5/5)+25 ,'ship');
@@ -1429,7 +1431,7 @@ function createHowtoPlay(){
         enter.frame = 0;
     }, this);
     
-    text = game.add.text(game.world.width/2, game.world.height*(3.95/5)+25,'press to pause and resume game',{font : "24px",fill : "#FFFFFF"});
+    text = game.add.text(game.world.width/2, game.world.height*(3.95/5)+25,'press to pause and resume game',{font : "24px",fill : "#5B3B00"});
     text.anchor.set(0.5);
 
     game.time.events.loop(1500, function() {//enter
@@ -1522,13 +1524,14 @@ function createReport(){
     interMu.stop();
     interMu = game.add.audio('intro');
     interMu.loopFull();
-    text = game.add.text(game.world.centerX,game.world.centerY*(1/5),"Report",{fontSize : "20px",fill : "#ed3465"});
+    text = game.add.image(game.world.centerX,game.world.centerY*(1.2/5),"report");
     text.anchor.set(0.5);
+    text.scale.setTo(0.19);
     buttonSubmit = game.add.button(game.world.width*(2.25/3), game.world.height*(4.6/5), 'submit', toSubmit, this);
-    buttonSubmit.scale.setTo(0.1,0.1);
+    buttonSubmit.scale.setTo(0.11);
     buttonSubmit.anchor.set(0.5);
     buttonMenu = game.add.button(game.world.width*(0.75/3), game.world.height*(4.6/5), 'menu', toMenu, this);
-    buttonMenu.scale.setTo(0.1,0.1);
+    buttonMenu.scale.setTo(0.11);
     buttonMenu.anchor.set(0.5);
     mute = game.add.button(300,20,'mute',muteSounds,this);
     mute.scale.setTo(0.08,0.08);
@@ -1547,22 +1550,31 @@ function createCredit(){
     interMu.stop();
     interMu = game.add.audio('intro');
     interMu.loopFull();
-    text = game.add.text(game.world.centerX,game.world.centerY*(1/5),"credit",{fontSize : "20px",fill : "#ed3465"});
+    text = game.add.image(game.world.centerX,game.world.centerY*(1.2/5),"credit");
     text.anchor.set(0.5);
+    text.scale.setTo(0.19);
     buttonStart = game.add.button(game.world.width*(2.25/3), game.world.height*(4.6/5), 'start', toGame, this);
-    buttonStart.scale.setTo(0.1,0.1);
+    buttonStart.scale.setTo(0.11);
     buttonStart.anchor.set(0.5);
     buttonMenu = game.add.button(game.world.width*(0.75/3), game.world.height*(4.6/5), 'menu', toMenu, this);
-    buttonMenu.scale.setTo(0.1,0.1);
+    buttonMenu.scale.setTo(0.11);
     buttonMenu.anchor.set(0.5);
-    game.add.text(game.world.width * (0.5 / 4), 550 * (1 / 4) - 25 + 10, "Audio Library – No Copyright Music", { fontSize: "16px", fill: "#5B3B00" });
-    game.add.text(game.world.width * (0.5 / 4), 550 * (1 / 4) + 5 + 10, "URL : goo.gl/yReazM", { fontSize: "12px", fill: "#5B3B00" });
-    game.add.text(game.world.width * (0.5 / 4), 550 * (1 / 4) + 35 + 10, "Ross Bugden - Music", { fontSize: "16px", fill: "#5B3B00" });
-    game.add.text(game.world.width * (0.5 / 4), 550 * (1 / 4) + 65 + 10, "URL : goo.gl/NDMy6w", { fontSize: "12px", fill: "#5B3B00" });
-    game.add.text(game.world.width * (0.5 / 4), 550 * (1 / 4) + 95 + 10, "Ship sailing on the sea", { fontSize: "16px", fill: "#5B3B00" });
-    game.add.text(game.world.width * (0.5 / 4), 550 * (1 / 4) + 125 + 10, "URL : goo.gl/1YpYo3", { fontSize: "12px", fill: "#5B3B00" });
-    game.add.text(game.world.width * (0.5 / 4), 550 * (1 / 4) + 155 + 10, "Beach party wooden sign", { fontSize: "16px", fill: "#5B3B00" });
-    game.add.text(game.world.width * (0.5 / 4), 550 * (1 / 4) + 185 + 10, "URL : goo.gl/9kzuhy", { fontSize: "12px", fill: "#5B3B00" });
+    textCredit = game.add.text(game.world.width /2, 550 * (1 / 4) - 25 + 10, "Audio Library – No Copyright Music", { fontSize: "16px", fill: "#5B3B00" });
+    textCredit.anchor.set(0.5);
+    textCredit = game.add.text(game.world.width /2, 550 * (1 / 4) + 5 + 10, "URL : goo.gl/yReazM", { fontSize: "12px", fill: "#5B3B00" });
+    textCredit.anchor.set(0.5);
+    textCredit = game.add.text(game.world.width /2, 550 * (1 / 4) + 35 + 10, "Ross Bugden - Music", { fontSize: "16px", fill: "#5B3B00" });
+    textCredit.anchor.set(0.5);
+    textCredit = game.add.text(game.world.width /2, 550 * (1 / 4) + 65 + 10, "URL : goo.gl/NDMy6w", { fontSize: "12px", fill: "#5B3B00" });
+    textCredit.anchor.set(0.5);
+    textCredit = game.add.text(game.world.width /2, 550 * (1 / 4) + 95 + 10, "Ship sailing on the sea", { fontSize: "16px", fill: "#5B3B00" });
+    textCredit.anchor.set(0.5);
+    textCredit = game.add.text(game.world.width /2, 550 * (1 / 4) + 125 + 10, "URL : goo.gl/1YpYo3", { fontSize: "12px", fill: "#5B3B00" });
+    textCredit.anchor.set(0.5);
+    textCredit = game.add.text(game.world.width /2, 550 * (1 / 4) + 155 + 10, "Beach party wooden sign", { fontSize: "16px", fill: "#5B3B00" });
+    textCredit.anchor.set(0.5);
+    textCredit = game.add.text(game.world.width /2, 550 * (1 / 4) + 185 + 10, "URL : goo.gl/9kzuhy", { fontSize: "12px", fill: "#5B3B00" });
+    textCredit.anchor.set(0.5);
     mute = game.add.button(300,20,'mute',muteSounds,this);
     mute.scale.setTo(0.08,0.08);
     if(isSound)
@@ -1577,16 +1589,22 @@ function createResult(){
     interMu.stop();
     interMu = game.add.audio('Died');
     interMu.loopFull();
-    text = game.add.text(game.world.centerX,game.world.centerY,"Score : "+score,{fontSize : "20px",fill : "#ed3465"});
+    logo = game.add.image(game.world.width/2,game.world.height*(1/4),'gameover');
+    logo.anchor.set(0.5);
+    logo.scale.setTo(0.1);
+    text = game.add.text(game.world.width/2+50,game.world.height*(1.25/4),"Score : "+score,{fontSize : "20px",fill : "#5B3B00"});
     text.anchor.set(0.5);
-    buttonPlayagain = game.add.button(game.world.centerX, game.world.centerY, 'playagain', toGame, this);
-    buttonPlayagain.scale.setTo(0.1,0.1);
+    buttonPlayagain = game.add.button(game.world.width/2, game.world.height*(3/4), 'playagain', toGame, this);
+    buttonPlayagain.scale.setTo(0.12);
     buttonPlayagain.anchor.set(0.5);
-    buttonReport = game.add.button(game.world.centerX, game.world.centerY+100, 'report', toReport, this);
-    buttonReport.scale.setTo(0.1,0.1);
+    buttonScore = game.add.button(game.world.width/2, game.world.height*(3.22/4),'scoreboard',toScoreboard,this)
+    buttonScore.scale.setTo(0.12);
+    buttonScore.anchor.set(0.5);
+    buttonReport = game.add.button(game.world.width/2, game.world.height*(3.44/4), 'report', toReport, this);
+    buttonReport.scale.setTo(0.12);
     buttonReport.anchor.set(0.5);
-    buttonMenu = game.add.button(game.world.centerX, game.world.centerY+200, 'menu', toMenu, this);
-    buttonMenu.scale.setTo(0.1,0.1);
+    buttonMenu = game.add.button(game.world.width/2, game.world.height*(3.66/4), 'menu', toMenu, this);
+    buttonMenu.scale.setTo(0.12);
     buttonMenu.anchor.set(0.5);
     mute = game.add.button(300,20,'mute',muteSounds,this);
     mute.scale.setTo(0.08,0.08);
