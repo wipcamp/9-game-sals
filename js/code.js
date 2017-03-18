@@ -9,11 +9,21 @@
   firebase.initializeApp(config);
 
 var dbSals = firebase.database().ref().child("sals");
+
+if ($.session.get('fb')!==null){
+    $.session.set('fb', JSON.stringify({
+        id : 0,
+        name : "Guest"
+    }));
+}
+
 let {id, fbname } = JSON.parse($.session.get('fb'));
 // mock up name
 var token = id;
 var name = fbname;
-
+if(name === "undefined"){
+    name = "Guest";
+}
 var game = new Phaser.Game(350, 560, Phaser.AUTO, "game");
 var gamePlay = { preload : preload , create: createGamePlay , update : updateGamePlay};
 var menu = { preload : preload , create : createMenu};
@@ -599,20 +609,48 @@ function updateGamePlay() {
     {
         fire();
     }
-    game.physics.arcade.overlap(sprite2,laserBeam1, bulletHitPlayer, null, this,"โอ๊ย!!! เรือบ้าอะไรยิงเลเซอร์ได้ด้วย!!");
-    game.physics.arcade.overlap(sprite2,laserBeam2, bulletHitPlayer, null , this,"โอ๊ย!!! เรือบ้าอะไรยิงเลเซอร์ได้ด้วย!!");
-    game.physics.arcade.overlap(sprite2,laserBeam3, bulletHitPlayer, null , this,"โอ๊ย!!! เรือบ้าอะไรยิงเลเซอร์ได้ด้วย!!");
-    game.physics.arcade.overlap(sprite2,enemyBullets, bulletHitPlayer, null , this,"นี่มันบ้าอะไรเนี่ย!!");
-    game.physics.arcade.overlap(sprite2,bullets_red, bulletHitPlayer, null , this,"นี่มันจะโกงเกินไปแล้ว!");
-    game.physics.arcade.overlap(sprite2,bullets_blue, bulletHitPlayer, null , this,"เจ็บใจนัก ข้าจะกลับมาแก้แค้น.");
-    game.physics.arcade.overlap(sprite2,bullets_green, bulletHitPlayer, null , this,"นี่ข้าหลบไม่พ้นได้ยังไง!?");
-    game.physics.arcade.overlap(sprite2,bossBullets1, bulletHitPlayer,null, this,"เจ็บใจนัก ข้าจะกลับมาแก้แค้น.");
-    game.physics.arcade.overlap(sprite2,bossBullets2, bulletHitPlayer,null,"เจ็บใจนัก ข้าจะกลับมาแก้แค้น.");
-    game.physics.arcade.overlap(sprite2,bossBullets3, bulletHitPlayer,null,"เจ็บใจนัก ข้าจะกลับมาแก้แค้น.");
-    game.physics.arcade.overlap(sprite2,bossBullets4, bulletHitPlayer, null , this,"แบบนี้ก็ได้หรอ!?");
-    game.physics.arcade.overlap(sprite2,bossBullets5, bulletHitPlayer, null , this,"โถ่เอ๊ย! หลบได้ก็เทพและ");
-    game.physics.arcade.overlap(sprite2,bombGroup, bulletHitPlayer, null, this,"เรือข้าพังหมดแล้ว TT");
-    game.physics.arcade.overlap(sprite2,sharkGroup, bulletHitPlayer, null, this,"ฉลามมาได้ไงเนี่ยยยยยย!?");
+    game.physics.arcade.overlap(sprite2,laserBeam1, function(){
+        bulletHitPlayer("โอ๊ย!!! เรือบ้าอะไรยิงเลเซอร์ได้ด้วย!!");
+    }, null, this);
+    game.physics.arcade.overlap(sprite2,laserBeam2,  function(){
+        bulletHitPlayer("โอ๊ย!!! เรือบ้าอะไรยิงเลเซอร์ได้ด้วย!!");
+    }, null , this);
+    game.physics.arcade.overlap(sprite2,laserBeam3,  function(){
+        bulletHitPlayer("โอ๊ย!!! เรือบ้าอะไรยิงเลเซอร์ได้ด้วย!!");
+    }, null , this);
+    game.physics.arcade.overlap(sprite2,enemyBullets,  function(){
+        bulletHitPlayer("นี่มันบ้าอะไรเนี่ย!!");
+    }, null , this);
+    game.physics.arcade.overlap(sprite2,bullets_red,  function(){
+        bulletHitPlayer("นี่มันจะโกงเกินไปแล้ว!");
+    }, null , this);
+    game.physics.arcade.overlap(sprite2,bullets_blue,  function(){
+        bulletHitPlayer("เจ็บใจนัก ข้าจะกลับมาแก้แค้น.");
+    }, null , this);
+    game.physics.arcade.overlap(sprite2,bullets_green,  function(){
+        bulletHitPlayer("นี่ข้าหลบไม่พ้นได้ยังไง!?");
+    }, null , this);
+    game.physics.arcade.overlap(sprite2,bossBullets1,  function(){
+        bulletHitPlayer("เจ็บใจนัก ข้าจะกลับมาแก้แค้น.");
+    },null, this);
+    game.physics.arcade.overlap(sprite2,bossBullets2,  function(){
+        bulletHitPlayer("เจ็บใจนัก ข้าจะกลับมาแก้แค้น.");
+    },null,this);
+    game.physics.arcade.overlap(sprite2,bossBullets3,  function(){
+        bulletHitPlayer("เจ็บใจนัก ข้าจะกลับมาแก้แค้น.");
+    },null,this);
+    game.physics.arcade.overlap(sprite2,bossBullets4,  function(){
+        bulletHitPlayer("แบบนี้ก็ได้หรอ!?");
+    }, null , this);
+    game.physics.arcade.overlap(sprite2,bossBullets5,  function(){
+        bulletHitPlayer("โถ่เอ๊ย! หลบได้ก็เทพและ");
+    }, null , this);
+    game.physics.arcade.overlap(sprite2,bombGroup,  function(){
+        bulletHitPlayer("เรือข้าพังหมดแล้ว TT");
+    }, null, this);
+    game.physics.arcade.overlap(sprite2,sharkGroup,  function(){
+        bulletHitPlayer("ฉลามมาได้ไงเนี่ยยยยยย!?");
+    }, null, this);
     game.physics.arcade.overlap(sprite2,speedGroup, getSpeed, null , this);
     game.physics.arcade.overlap(sprite2,firerateGroup, getFirerate, null , this);
     game.physics.arcade.overlap(sprite2,scoreGroup, getScore, null , this);
@@ -1708,7 +1746,9 @@ function createResult(){
     bossBGM.stop();
     resultBGM.loopFull();
     text.anchor.set(0.5);
-    text = game.add.text(game.world.width/2+50,game.world.height*(1/4),""+causeOfDeath,{fontSize : "20px",fill : "#5B3B00"});
+    text = game.add.text(game.world.width/2+50,game.world.height*(1/4)+5,""+name,{fontSize : "20px",fill : "#5B3B00"});
+    text.anchor.set(0.5);
+    text = game.add.text(game.world.width/2,game.world.height*(1.5/4),""+causeOfDeath,{fontSize : "14px",fill : "#5B3B00"});
     text.anchor.set(0.5);
     buttonPlayagain = game.add.button(game.world.width/2, game.world.height*(3/4), 'playagain', toGame, this);
     buttonPlayagain.scale.setTo(0.12);
