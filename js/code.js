@@ -19,7 +19,7 @@ var gamePlay = { preload : preload , create: createGamePlay , update : updateGam
 var menu = { preload : preload , create : createMenu};
 var howtoPlay = { preload : preload , create : createHowtoPlay ,update : updateHowtoPlay};
 var result = {preload : preload , create : createResult , update : updateResult};
-var report = {preload : preload ,create : createReport};
+var report = {preload : preload ,create : createReport , update : updateReport};
 var credit = {preload : preload ,create : createCredit};
 game.state.add('gamePlay', gamePlay);
 game.state.add('menu', menu);
@@ -149,6 +149,7 @@ var seawaveGroup;
 var seawaveCooldown;
 var seawaveDropAt = [];
 var isPause;
+var isFirstSubmit;
 //createGamePlay
 function createGamePlay() {
     firerateOutput = 100;
@@ -1560,6 +1561,7 @@ function updateHowtoPlay() {
 }
 
 function createReport(){
+    ckReport = false;
     bg = game.add.image(0,0,'bgGame');
     bg.scale.setTo(0.17,0.18);
     map = game.add.image(game.world.width/2,game.world.height/2,'oldMap');
@@ -1568,12 +1570,26 @@ function createReport(){
     text = game.add.image(game.world.centerX,game.world.centerY*(1.2/5),"report");
     text.anchor.set(0.5);
     text.scale.setTo(0.19);
-    buttonSubmit = game.add.button(game.world.width*(2.25/3), game.world.height*(4.6/5), 'submit', toSubmit, this);
+    buttonSubmit = game.add.button(game.world.width*(2.25/3), game.world.height*(4.6/5), 'submit', sendReport, this);
     buttonSubmit.scale.setTo(0.11);
     buttonSubmit.anchor.set(0.5);
     buttonMenu = game.add.button(game.world.width*(0.75/3), game.world.height*(4.6/5), 'menu', toMenu, this);
     buttonMenu.scale.setTo(0.11);
     buttonMenu.anchor.set(0.5);
+    game.add.plugin(PhaserInput.Plugin);
+    input = game.add.inputField(game.world.width * 0.5 / 4, game.world.height / 4, {
+        font: '16px',
+        fill: '#212121',
+        fontWeight: 'normal',
+        width: 240,
+        height: 250,
+        borderColor: '#000',
+        textAlign: 'left',
+        padding: 10,
+        max: 300,
+        placeHolder: 'แจ้งข้อผิดพลาดได้ที่นี่เลยนะ :)'
+    });
+    input.startFocus();
     mute = game.add.button(300,20,'mute',muteSounds,this);
     mute.scale.setTo(0.08,0.08);
     if(isSound)
@@ -1582,6 +1598,46 @@ function createReport(){
     	mute.frame = 1;
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
 }
+function updateReport() {
+    if(ckReport)
+        debugReport();
+}
+function sendReport() {
+    if (input.value != "") {
+        isFirstSubmit = false;
+        ckReport = true;
+        //sendReportMessage(input.value);
+        input.value = null;
+        input.destroy();
+    }
+}
+
+function debugReport() {
+    if (input.value != "") {
+        console.log("!!!!");
+        isFirstSubmit = false;
+        ckReport = false;
+        //buttonSound();
+        //sendReportMessage(input.value);
+        input.value = null;
+        input = game.add.inputField(game.world.width * 0.5 / 4, game.world.height / 4, {
+            font: '22px Thaisans Neue for Web',
+            fill: '#212121',
+            fontWeight: 'normal',
+            width: 240,
+            height: 250,
+            borderColor: '#000',
+            textAlign: 'left',
+            padding: 10,
+            max: 300,
+            placeHolder: 'แจ้งข้อผิดพลาดได้ที่นี่เลยนะ :)'
+        });
+        input.startFocus();
+        text = game.add.text(game.world.width / 2, 550 * (3.75 / 4) - 80, "แจ้งข่าวกัปตันเรียบร้อยแล้ว", { font: "18px Thaisans Neue for Web", fill: "#5B3B00" });
+        text.anchor.set(0.5);
+    }
+}
+
 function createCredit(){
     bg = game.add.image(0,0,'bgGame');
     bg.scale.setTo(0.17,0.18);
@@ -1677,11 +1733,12 @@ function toMenu() {
 }
 function toReport() {
     clickSound.play();
-	  game.state.start('report');
+	isFirstSubmit = true;
+    game.state.start('report');
 }
 function toScoreboard() {
     clickSound.play();
-    game.state.start('gamePlay');
+    window.open("ranking-sals.html");
 }
 function toCredit() {
     clickSound.play();
