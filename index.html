@@ -7,6 +7,9 @@
 	<link rel="stylesheet" href="css/style.css">
 	<!--<link rel="stylesheet"  href=""-->
 	<link rel="icon" href="images/ff.pn">
+	<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+        crossorigin="anonymous"></script>
+    <script src='./jquery.session.js' ></script>
 	<script src="https://www.gstatic.com/firebasejs/3.6.7/firebase.js"></script>
 	<script src="js/phaser.js" type="text/javascript" ></script>
 	<script src="phaser-input/build/phaser-input.js"></script>
@@ -22,4 +25,10 @@
 		</div>
 	</center>
 </body>
+<script>
+        let {id, name } = JSON.parse($.session.get('fb'));
+        document.getElementById('fb').innerHTML = id + "  " + name;
+        console.log(id);
+        console.log(name);
+</script>
 </html>

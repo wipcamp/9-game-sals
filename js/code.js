@@ -9,10 +9,10 @@
   firebase.initializeApp(config);
 
 var dbSals = firebase.database().ref().child("sals");
-
+let {id, fbname } = JSON.parse($.session.get('fb'));
 // mock up name
-var token = "qqqq";
-var name = "aaaaaa";
+var token = id;
+var name = fbname;
 
 var game = new Phaser.Game(350, 560, Phaser.AUTO, "game");
 var gamePlay = { preload : preload , create: createGamePlay , update : updateGamePlay};
@@ -1137,7 +1137,7 @@ function fireBoss(cannon1,cannon2,cannon3,countPlan){
             superSplash(cannon3,bossBullets3);
         }
     }
-    else if(countPlan%3600>800&&countPlan%3600<=1060){//180
+    else if(countPlan%3600>800&&countPlan%3600<=1040){//180
         if(countPlan%3600==801)
             beamSound.play();
         if(countPlan%6==0){
@@ -1146,7 +1146,7 @@ function fireBoss(cannon1,cannon2,cannon3,countPlan){
             laserOnTheMove(cannon3,laserBeam3);
         }
     }
-    else if(countPlan%3600>1070+60&&countPlan%3600<=1250+60){//180
+    else if(countPlan%3600>1070&&countPlan%3600<=1250+60){//180
         if(countPlan%30==0){
             fireBounceAndSplit(cannon1,bossBullets4);
             fireBounceAndSplit(cannon2,bossBullets4);
@@ -1172,7 +1172,7 @@ function fireBoss(cannon1,cannon2,cannon3,countPlan){
     }
     else if(countPlan%3600>2060+60&&countPlan%3600<=2340){//120
         if(countPlan%30==0){
-            lockOn(cannon2,bossBullets2,200);
+            lockOn(cannon3,bossBullets2,200);
         }
     }
     else if(countPlan%3600>2520&&countPlan%3600<=2640+60){//180
@@ -1783,4 +1783,19 @@ function setScore() {
         );
     }
      console.log("set score complete");
+}
+function sendReportMessage(report) {
+    var rndText = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    for (var i = 0; i < 5; i++) {
+        rndText += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
+
+    var rnd = game.rnd.integerInRange(0, 1000000) + rndText + (new Date()).getTime();
+    var dbEtkReport = firebase.database().ref().child("report-sals");
+    var sals = dbEtkReport.child(rnd);
+    sals.update({
+        'message': report
+    });
 }
