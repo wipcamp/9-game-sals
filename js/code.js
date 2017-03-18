@@ -86,7 +86,7 @@ function preload() {
     game.load.audio('click','sound/ButtonPush.mp3');
     game.load.audio('bossBGM','sound/BossBGM.mp3');
     game.load.audio('beam','sound/Beam.mp3');
-    game.loaa.audio('pickItem','sound/Aftergethit.ogg');
+    game.load.audio('pickItem','sound/ItemPick.mp3');
 }
 var ckShoot;
 var plan,p1,p2;
@@ -301,7 +301,7 @@ function createGamePlay() {
     for (var i = 0; i < 100; i++){
         var b = enemyBullets.create(0, 0, 'bullet');
         b.anchor.set(0.5);
-        b.scale.setTo(0.2,0.2);
+        b.scale.setTo(0.7,0.7);
         b.name = 'bullet' + i;
         b.exists = false;
         b.visible = false;
@@ -804,7 +804,7 @@ function sharkSpawn() {
     }
 }
 function sharkLaunch(spawnSide,shark) {
-    ///// sound shark
+    sharkSound.play();
     console.log("spawnside="+spawnSide);
     if(spawnSide==0){
         shark.body.velocity.x = 800;
@@ -1135,10 +1135,9 @@ function fireBoss(cannon1,cannon2,cannon3,countPlan){
         }
     }
     else if(countPlan%3600>800&&countPlan%3600<=1060){//180
+        if(countPlan%3600==801)
+            beamSound.play();
         if(countPlan%6==0){
-            if(!beamSound.isPlaying()){
-                beamSound.play();
-            }
             laserOnTheMove(cannon1,laserBeam1);
             laserOnTheMove(cannon2,laserBeam2);
             laserOnTheMove(cannon3,laserBeam3);
@@ -1177,6 +1176,8 @@ function fireBoss(cannon1,cannon2,cannon3,countPlan){
         if(countPlan==2521){
             p1=game.rnd.integerInRange(1,2);
         }
+        if(countPlan%3600==2521)
+            beamSound.play();
         if(countPlan%6==0){
             laserOnTheMove(cannon1,laserBeam1);
             if(p1==1)
@@ -1189,6 +1190,8 @@ function fireBoss(cannon1,cannon2,cannon3,countPlan){
         if(countPlan==2751){
             p1=game.rnd.integerInRange(1,2);
         }
+        if(countPlan%3600==2751)
+            beamSound.play();
         if(countPlan%6==0){
             laserOnTheMove(cannon2,laserBeam2);
             if(p1==1)
@@ -1433,7 +1436,7 @@ function createHowtoPlay(){
     sprite.anchor.set(0.5);
     sprite.frame = 0;
     game.physics.arcade.enable(sprite);
-    
+
     up = game.add.sprite(game.world.width/7+45, game.world.height*(2.5/5)+25, 'up');
     up.scale.setTo(0.5);
     up.anchor.set(0.5);
@@ -1445,7 +1448,7 @@ function createHowtoPlay(){
     left = game.add.sprite(game.world.width*(0.4/7)+45, game.world.height*(2.75/5)+25, 'left');
     left.scale.setTo(0.5);
     left.anchor.set(0.5);
-    
+
     right = game.add.sprite(game.world.width*(1.6/7)+45, game.world.height*(2.75/5)+25, 'right');
     right.scale.setTo(0.5);
     right.anchor.set(0.5);
@@ -1469,7 +1472,7 @@ function createHowtoPlay(){
     enterAnimation.onComplete.add(function() {
         enter.frame = 0;
     }, this);
-    
+
     text = game.add.text(game.world.width/2, game.world.height*(3.95/5)+25,'press to pause and resume game',{font : "24px",fill : "#5B3B00"});
     text.anchor.set(0.5);
 
@@ -1551,7 +1554,7 @@ function updateHowtoPlay() {
                 bulletTime = game.time.now + 100;
             }
         }
-    }    
+    }
 }
 
 function createReport(){
