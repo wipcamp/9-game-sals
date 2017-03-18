@@ -1,0 +1,24 @@
+{
+  "name": "9-game-sals",
+  "version": "1.0.0",
+  "description": "game for promote wipcamp9",
+  "main": "index.js",
+  "dependencies": {
+    "firebase": "^3.6.8",
+    "phaser-input": "^1.2.6"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wipcamp/9-game-sals.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/wipcamp/9-game-sals/issues"
+  },
+  "homepage": "https://github.com/wipcamp/9-game-sals#readme"
+}
