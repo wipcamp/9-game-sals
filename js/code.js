@@ -654,7 +654,6 @@ function updateGamePlay() {
 //subportGamePlay
 function getScore(player,item) {
   pickItem.play();
-	console.log("score");
 	var scale = 0.7;
 	var obj = game.add.image(item.x,item.y,'text_score');
 	obj.anchor.set(0.5);
@@ -677,7 +676,6 @@ function getFirerate(player,item) {
 	var obj = game.add.image(item.x,item.y,'text_fire');
 	obj.anchor.set(0.5);
 	obj.scale.setTo(scale);
-	console.log("firerate");
 	firerateTime = 120;
 	game.time.events.loop(Phaser.Timer.SECOND * 0.0625, function(){
 		scale+=0.025;
@@ -695,7 +693,6 @@ function getSpeed(player,item) {
 	var obj = game.add.image(item.x,item.y,'text_speed');
 	obj.anchor.set(0.5);
 	obj.scale.setTo(scale);
-	console.log("speed");
 	speedTime = 120;
 	game.time.events.loop(Phaser.Timer.SECOND * 0.0625, function(){
 		scale+=0.025;
@@ -836,7 +833,6 @@ function shuffle(array) {
 function itemSpawner() {
   /////// sound item spawn
 	var output = game.rnd.integerInRange(0,2);
-	console.log(output);
 	if(output==0)
 		speedUp();
 	else if(output==1)
@@ -919,6 +915,8 @@ function bulletHitBoss (boss, bullet) {
             //destroyedCount--;
             var death = game.add.sprite(0,-9,'bossBoom');
             var bossDeath = death.animations.add('play',[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24],6.25,true);
+            mute.bringToTop();
+            textScore.bringToTop();
             bossBGM.fadeOut(3500);
             bossDeath.onComplete.add(function() {
                 death.kill();
@@ -962,6 +960,8 @@ EnemyShip = function (index, game, bullets,color) {
     this.enemy_ship.body.collideWorldBounds = true;
     this.enemy_ship.body.bounce.setTo(1, 1);
     this.enemy_ship.body.maxVelocity.set(200);
+    mute.bringToTop();
+    textScore.bringToTop();
 };
 EnemyShip.prototype.damage = function() {
 
@@ -1071,7 +1071,7 @@ EnemyBoss = function (game) {
     var x = game.world.centerX;
     var y = 10;
     this.game = game;
-    this.health = 10;
+    this.health = 500;
     this.countPlan=0;
     this.alive = true;
     this.boss = game.add.sprite(0,-8.5,'boss');
@@ -1095,6 +1095,8 @@ EnemyBoss = function (game) {
     this.boss.body.collideWorldBounds = true;
     this.boss.body.bounce.setTo(1, 1);
     this.boss.body.maxVelocity.set(200);
+    mute.bringToTop();
+    textScore.bringToTop();
 };
 
 EnemyBoss.prototype.damage = function() {
