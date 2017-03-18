@@ -499,22 +499,24 @@ function updateGamePlay() {
 	if(destroyedCount==0){
 		wave++;
     //wave == 6;
-        plan = game.rnd.integerInRange(1, 10);
+    //    plan = game.rnd.integerInRange(1, 10);
 
-        if(wave%7==0)
+    if(wave%7==0)
+      ////sound normal bgm
 			summonWave(4);
 		else if(wave%7==1)
 			summonWave(5);
 		else if(wave%7==2)
 			summonWave(6);
-        else if(wave%7==3)
-      		summonWave(7);
-        else if(wave%7==4)
-        	summonWave(8);
-        else if(wave%7==5)
-        	summonWave(9);
-    	else{	///boss
-    		summonBoss();
+    else if(wave%7==3)
+      summonWave(7);
+    else if(wave%7==4)
+      summonWave(8);
+    else if(wave%7==5)
+      summonWave(9);
+    else{	///boss
+      ////sound boss bgm
+    	summonBoss();
         }
 	}
   if (bombCooldown <= 0) {
@@ -607,6 +609,7 @@ function updateGamePlay() {
 
 //subportGamePlay
 function getScore(player,item) {
+  ////// sound get item
 	console.log("score");
 	var scale = 0.7;
 	var obj = game.add.image(item.x,item.y,'text_score');
@@ -624,6 +627,7 @@ function getScore(player,item) {
 	}, this);
 }
 function getFirerate(player,item) {
+  ////// sound get item
 	item.kill();
 	var scale = 0.7;
 	var obj = game.add.image(item.x,item.y,'text_fire');
@@ -641,6 +645,7 @@ function getFirerate(player,item) {
 	}, this);
 }
 function getSpeed(player,item) {
+  ////// sound get item
 	item.kill();
 	var scale = 0.7;
 	var obj = game.add.image(item.x,item.y,'text_speed');
@@ -891,17 +896,18 @@ EnemyShip = function (index, game, bullets,color) {
     switch (color) {
       case "red":this.enemy_ship = game.add.sprite(x, y, 'enemyship_red');
       this.enemy_ship.scale.setTo(0.75, 0.75);
+      this.enemy_ship.name = index.toString()+"red";
       break;
       case "blue":this.enemy_ship = game.add.sprite(x, y, 'enemyship_blue');
       this.enemy_ship.scale.setTo(0.75, 0.75);
+      this.enemy_ship.name = index.toString()+"blue";
       break;
       case "green":this.enemy_ship = game.add.sprite(x, y, 'enemyship_green');
       this.enemy_ship.scale.setTo(0.75, 0.75);
+      this.enemy_ship.name = index.toString()+"green";
       break;
     }
     this.enemy_ship.anchor.set(0.5);
-
-    this.enemy_ship.name = index.toString();
     this.enemy_ship.count=0;
     this.enemy_ship.countBullet=0;
     game.physics.enable(this.enemy_ship);
@@ -957,7 +963,7 @@ function reposition() {
 function bulletHitEnemy (enemy_ship, bullet) {
     if(enemy_ship.alive){
       bullet.kill();
-      var destroyed = enemy[enemy_ship.name].damage();
+      var destroyed = enemy[enemy_ship.name.substring(0,1)].damage();
       if(destroyed){
           ////play anime
           shot = game.add.audio('ENdestroy');
@@ -969,7 +975,7 @@ function bulletHitEnemy (enemy_ship, bullet) {
 
 var shot;
 function fireBot (enemy_ship) {
-    if(plan==1||plan==2){
+    if(enemy_ship.name.substring(1) == "red"){
         if(enemy_ship.count%60==0){
             bullet = bullets_red.getFirstExists(false);
             bullet.reset(enemy_ship.x, enemy_ship.y);
@@ -977,8 +983,7 @@ function fireBot (enemy_ship) {
             bullet.rotation = this.game.physics.arcade.moveToObject(bullet, sprite, 350);
         }
     }
-    else if(plan==3||plan==4){
-
+    else if(enemy_ship.name.substring(1) == "green"){
         if(enemy_ship.count%30==0){
             bullet = bullets_green.getFirstExists(false);
             bullet.reset(enemy_ship.x, enemy_ship.y);
@@ -1003,9 +1008,7 @@ function fireBot (enemy_ship) {
             }
             enemy_ship.countBullet++;
         }
-    }
-    else{
-
+    }else{
         if(enemy_ship.count%50==0){
             bullet = bullets_blue.getFirstExists(false);
             bullet.reset(enemy_ship.x, enemy_ship.y);
@@ -1094,6 +1097,7 @@ function fireBoss(cannon1,cannon2,cannon3,countPlan){
     }
     else if(countPlan%3600>800&&countPlan%3600<=1060){//180
         if(countPlan%6==0){
+            //if(!lasersound.isPlaying()){sound laserbeam}
             laserOnTheMove(cannon1,laserBeam1);
             laserOnTheMove(cannon2,laserBeam2);
             laserOnTheMove(cannon3,laserBeam3);
