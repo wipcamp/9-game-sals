@@ -102,7 +102,7 @@ function preload() {
 var ckShoot;
 var plan,p1,p2;
 var destroyedCount=0;
-var wave=-1;
+var wave;
 var enemy;
 var enemyBullets;
 var bossBullets1;
@@ -161,6 +161,7 @@ var seawaveDropAt = [];
 var isPause;
 var isFirstSubmit;
 var causeOfDeath;
+var difficulty;
 //createGamePlay
 function createGamePlay() {
     firerateOutput = 100;
@@ -170,8 +171,8 @@ function createGamePlay() {
 	  scoreTime=0;
 	  scoreMultiplier = 1;
     isFirstTimeMenu=true;
-    gameBGM = game.add.audio('play');
-    bossBGM = game.add.audio('bossBGM');
+    //gameBGM = game.add.audio('play');
+    //bossBGM = game.add.audio('bossBGM');
     sharkSound = game.add.audio('shark');
     beamSound = game.add.audio('beam');
     pickItem = game.add.audio('pickItem');
@@ -193,22 +194,23 @@ function createGamePlay() {
         seawave.events.onOutOfBounds.add(resetBullet, this);
     }
     seawaveGroup.callAll('animations.add', 'animations', 'default', [0,1,2,3,4,5,6,7,8,9], 6, true);
-    sprite = this.add.sprite(game.world.width/2,game.world.height*(3/5), 'ship');
-    sprite.anchor.set(0.5);
-    sprite.scale.setTo(0.4, 0.4);
-    game.physics.arcade.enable(sprite);
-    //sprite.body.drag.set(70);
     sprite2 = this.add.sprite(game.world.width/2,game.world.height*(3/5), 'collider');
     sprite2.anchor.set(0.5);
     sprite2.scale.setTo(0.3, 0.3);
     game.physics.arcade.enable(sprite2);
     //sprite2.body.drag.set(70);
+    sprite = this.add.sprite(game.world.width/2,game.world.height*(3/5), 'ship');
+    sprite.anchor.set(0.5);
+    sprite.scale.setTo(0.4, 0.4);
+    game.physics.arcade.enable(sprite);
+    //sprite.body.drag.set(70);
     sprite.animations.add('moveLeft',[1,2],10,false);
     sprite.animations.add('moveRight',[3,4],10,false);
     bombCooldown = 0;
     itemCooldown = game.rnd.integerInRange(0,240);
     sharkCooldown = 0;
     rockCooldown = 0;
+    difficulty = 0;
     isRockActive = true;
     seawaveCooldown = 60;
     score=0;
@@ -216,7 +218,7 @@ function createGamePlay() {
     cursors = this.input.keyboard.createCursorKeys();
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     destroyedCount=0;
-	wave=5;
+	wave=-1;
     laserBeam1 = game.add.group();
     laserBeam1.enableBody = true;
     laserBeam1.physicsBodyType = Phaser.Physics.ARCADE;
@@ -487,7 +489,7 @@ function createGamePlay() {
     sharkGroup = game.add.group();
     sharkGroup.enableBody = true;
     sharkGroup.physicsBodyType = Phaser.Physics.ARCADE;
-    for (var i = 0; i < 16; i++) {
+    for (var i = 0; i < 100; i++) {
         shark = sharkGroup.create(0, 0, 'shark');
         shark.exists = false;
         shark.visible = false;
@@ -521,16 +523,6 @@ function createGamePlay() {
 
 //updateGamePlay
 function updateGamePlay() {
-  game.debug.body(sprite2);
-  if(laserBeam3.getFirstAlive!=null){
-    game.debug.body(laserBeam3.getFirstAlive());
-  }
-  if(laserBeam2.getFirstAlive!=null){
-    game.debug.body(laserBeam2.getFirstAlive());
-  }
-  if(laserBeam1.getFirstAlive!=null){
-    game.debug.body(laserBeam1.getFirstAlive());
-  }
 	sprite2.x=sprite.x;
 	sprite2.y=sprite.y;
 	if(speedTime==0){
@@ -567,21 +559,22 @@ function updateGamePlay() {
     if(wave%7==0){
       bossBGM.stop();
       gameBGM.play();
-			summonWave(4);
+			summonWave(4+difficulty);
 		}else if(wave%7==1)
-			summonWave(5);
+			summonWave(5+difficulty);
 		else if(wave%7==2)
-			summonWave(6);
+			summonWave(6+difficulty);
     else if(wave%7==3)
-      summonWave(7);
+      summonWave(7+difficulty);
     else if(wave%7==4)
-      summonWave(8);
+      summonWave(8+difficulty);
     else if(wave%7==5)
-      summonWave(9);
+      summonWave(9+difficulty);
     else{
       gameBGM.stop();
-      bossBGM.play();
     	summonBoss();
+      bossBGM.play();
+      bossBGM.fadeIn(1500);
     }
 	}
   if (bombCooldown <= 0) {
@@ -609,7 +602,7 @@ function updateGamePlay() {
     {
         fire();
     }
-    game.physics.arcade.overlap(sprite2,laserBeam1, function(){
+    /*game.physics.arcade.overlap(sprite2,laserBeam1, function(){
         bulletHitPlayer("โอ๊ย!!! เรือบ้าอะไรยิงเลเซอร์ได้ด้วย!!");
     }, null, this);
     game.physics.arcade.overlap(sprite2,laserBeam2,  function(){
@@ -650,7 +643,7 @@ function updateGamePlay() {
     }, null, this);
     game.physics.arcade.overlap(sprite2,sharkGroup,  function(){
         bulletHitPlayer("ฉลามมาได้ไงเนี่ยยยยยย!?");
-    }, null, this);
+    }, null, this);*/
     game.physics.arcade.overlap(sprite2,speedGroup, getSpeed, null , this);
     game.physics.arcade.overlap(sprite2,firerateGroup, getFirerate, null , this);
     game.physics.arcade.overlap(sprite2,scoreGroup, getScore, null , this);
@@ -794,7 +787,7 @@ function bombSpawn() {
         var bomb = bombGroup.getFirstExists(false);
         var bombDropAt = game.rnd.integerInRange(1, 25);
         bomb.reset(game.world.width * (bombDropAt / 26), 0);
-        bomb.body.velocity.y = 200;
+        bomb.body.velocity.y = 100;
         bombGroup.callAll('animations.play', 'animations', 'move');
     }else{
         bombCooldown+=60;
@@ -841,7 +834,10 @@ function rockOverlapPlayer(playership,rock) {
 function sharkSpawn() {
     var output = game.rnd.integerInRange(0, 1);
     if (output == 0) {
-        sharkCooldown = 180;
+        if(difficulty*60*0.2<120)
+          sharkCooldown = 180-(difficulty*60*0.2);
+        else
+          sharkCooldown = 60;
         var shark = sharkGroup.getFirstExists(false);
         var sharkLaunchAt = game.rnd.integerInRange(1, 31);
         var spawnSide = game.rnd.integerInRange(0,1);
@@ -906,7 +902,7 @@ function itemSpawner() {
 }
 function speedUp() {
 	itemCooldown = game.rnd.integerInRange(240,400);
-	var position = game.rnd.integerInRange(0,game.world.width);
+	var position = game.rnd.integerInRange(20,game.world.width-20);
 	speed = speedGroup.getFirstExists(false);
 	speed.reset(position,0);
 	speed.body.velocity.y = 150;
@@ -914,7 +910,7 @@ function speedUp() {
 }
 function firerateUp() {
 	itemCooldown = game.rnd.integerInRange(240,400);
-	var position = game.rnd.integerInRange(0,game.world.width);
+	var position = game.rnd.integerInRange(20,game.world.width-20);
 	fireRate = firerateGroup.getFirstExists(false);
 	fireRate.reset(position,0);
 	fireRate.body.velocity.y = 150;
@@ -922,7 +918,7 @@ function firerateUp() {
 }
 function scoreUp() {
 	itemCooldown = game.rnd.integerInRange(240,400);
-	var position = game.rnd.integerInRange(0,game.world.width);
+	var position = game.rnd.integerInRange(20,game.world.width-20);
 	scoreObj = scoreGroup.getFirstExists(false);
 	scoreObj.reset(position,0);
 	scoreObj.body.velocity.y = 150;
@@ -930,7 +926,7 @@ function scoreUp() {
 }
 
 function fire () {
-	var vv = game.rnd.integerInRange(-75, 75);
+	var variance = game.rnd.integerInRange(-75, 75);
     if (game.time.now > bulletTime)
     {
         bullet = bullets.getFirstExists(false);
@@ -938,7 +934,7 @@ function fire () {
         if (bullet)
         {
             bullet.reset(sprite.x, sprite.y-10);
-            bullet.body.velocity.x = vv;
+            bullet.body.velocity.x = variance;
             bullet.body.velocity.y = -900;
             bulletTime = game.time.now + firerateOutput;
         }
@@ -986,6 +982,7 @@ function bulletHitBoss (boss, bullet) {
                 death.kill();
                 game.time.events.add(Phaser.Timer.SECOND * 1, function(){
                     destroyedCount--;
+                    difficulty++;
                 },this);
             }, this);
             bossDeath.play(6.25,false);
@@ -999,7 +996,7 @@ EnemyShip = function (index, game, bullets,color) {
     var x = game.world.randomX;
     var y = 0;
     this.game = game;
-    this.health = 3;
+    this.health = 3+difficulty;
     this.bullets = bullets;
     this.alive = true;
     switch (color) {
@@ -1026,12 +1023,11 @@ EnemyShip = function (index, game, bullets,color) {
     textScore.bringToTop();
 };
 EnemyShip.prototype.damage = function() {
-
     this.health -= 1;
 
     if (this.health <= 0)
     {
-        score += 100*scoreMultiplier;
+        score += 108*scoreMultiplier;
         textScore.text = "Score : "+score;
         this.alive = false;
         this.enemy_ship.kill();
@@ -1044,16 +1040,16 @@ EnemyShip.prototype.update = function(i) {
     this.enemy_ship.body.velocity.y=0;
     this.enemy_ship.body.velocity.x=0;
     if(this.enemy_ship.x - randPositionX[i] <= 10){
-        this.enemy_ship.body.velocity.x = 150;
+        this.enemy_ship.body.velocity.x = 150+difficulty*10;
     }else
     if(this.enemy_ship.x - randPositionX[i] >= 20){
-        this.enemy_ship.body.velocity.x = -150;
+        this.enemy_ship.body.velocity.x = -150+difficulty*10;
     }
     if(this.enemy_ship.y - randPositionY[i] <= 10){
-        this.enemy_ship.body.velocity.y = 150;
+        this.enemy_ship.body.velocity.y = 150+difficulty*10;
     }else
     if(this.enemy_ship.y - randPositionY[i] >= 20){
-        this.enemy_ship.body.velocity.y = -150;
+        this.enemy_ship.body.velocity.y = -150+difficulty*10;
     }
     if(this.alive){
         fireBot(this.enemy_ship);
@@ -1088,8 +1084,7 @@ function fireBot (enemy_ship) {
         if(enemy_ship.count%60==0){
             bullet = bullets_red.getFirstExists(false);
             bullet.reset(enemy_ship.x, enemy_ship.y);
-            bullet.body.velocity.y = 200;
-            bullet.rotation = this.game.physics.arcade.moveToObject(bullet, sprite, 350);
+            bullet.rotation = this.game.physics.arcade.moveToObject(bullet, sprite, 350+difficulty*10);
         }
     }
     else if(enemy_ship.name.substring(1) == "green"){
@@ -1097,22 +1092,22 @@ function fireBot (enemy_ship) {
             bullet = bullets_green.getFirstExists(false);
             bullet.reset(enemy_ship.x, enemy_ship.y);
             if(enemy_ship.countBullet%5==0){
-                bullet.body.velocity.y = 100;
+                bullet.body.velocity.y = 120+difficulty*10;
                 bullet.body.velocity.x = 200;
             }
             else if(enemy_ship.countBullet%5==1){
-                bullet.body.velocity.y = 100;
+                bullet.body.velocity.y = 120+difficulty*10;
                 bullet.body.velocity.x = 100;
             }
             else if(enemy_ship.countBullet%5==2){
-                bullet.body.velocity.y = 100;
+                bullet.body.velocity.y = 120+difficulty*10;
             }
             else if(enemy_ship.countBullet%5==3){
-                bullet.body.velocity.y = 100;
+                bullet.body.velocity.y = 120+difficulty*10;
                 bullet.body.velocity.x = -100;
             }
             else if(enemy_ship.countBullet%5==4){
-                bullet.body.velocity.y = 100;
+                bullet.body.velocity.y = 120+difficulty*10;
                 bullet.body.velocity.x = -200;
             }
             enemy_ship.countBullet++;
@@ -1121,7 +1116,7 @@ function fireBot (enemy_ship) {
         if(enemy_ship.count%50==0){
             bullet = bullets_blue.getFirstExists(false);
             bullet.reset(enemy_ship.x, enemy_ship.y);
-            bullet.body.velocity.y = 100;
+            bullet.body.velocity.y = 120+difficulty*10;
         }
     }
     enemy_ship.count++;
@@ -1131,7 +1126,7 @@ function fireBot (enemy_ship) {
 
 EnemyBoss = function (game) {
     this.game = game;
-    this.health = 500;
+    this.health = (500*(difficulty*2.5))+500
     this.countPlan=0;
     this.alive = true;
     this.boss = game.add.sprite(0,-8.5,'boss');
@@ -1162,7 +1157,7 @@ EnemyBoss = function (game) {
 EnemyBoss.prototype.damage = function() {
 
     this.health -= 1;
-    score += 100*scoreMultiplier;
+    score += 9*scoreMultiplier;
     textScore.text = "Score : "+score;
     if (this.health <= 0)
     {
@@ -1171,25 +1166,22 @@ EnemyBoss.prototype.damage = function() {
         return true;
     }
     return false;
-
 }
 
 EnemyBoss.prototype.update = function(){
-
     if(this.alive){
         fireBoss(this.cannon1,this.cannon2,this.cannon3,this.countPlan);
     }
     this.countPlan++;
 }
 
-
 //+60
 function fireBoss(cannon1,cannon2,cannon3,countPlan){
     if(countPlan%3600<=300){//300
         if(countPlan%45==0){
-            lockOn(cannon1,bossBullets1,400);
-            lockOn(cannon2,bossBullets2,400);
-            lockOn(cannon3,bossBullets3,400);
+            lockOn(cannon1,bossBullets1,400+difficulty*10);
+            lockOn(cannon2,bossBullets2,400+difficulty*10);
+            lockOn(cannon3,bossBullets3,400+difficulty*10);
         }
     }
     else if(countPlan%3600>360&&countPlan%3600<=720){//360
@@ -1224,17 +1216,17 @@ function fireBoss(cannon1,cannon2,cannon3,countPlan){
     }
     else if(countPlan%3600>1660+60&&countPlan%3600<=1780+60){//120
         if(countPlan%30==0){
-            lockOn(cannon1,bossBullets1,200);
+            lockOn(cannon1,bossBullets1,200+difficulty*10);
         }
     }
     else if(countPlan%3600>1840+60&&countPlan%3600<=1960+60){//120
         if(countPlan%30==0){
-            lockOn(cannon2,bossBullets2,200);
+            lockOn(cannon2,bossBullets2,200+difficulty*10);
         }
     }
     else if(countPlan%3600>2060+60&&countPlan%3600<=2340){//120
         if(countPlan%30==0){
-            lockOn(cannon3,bossBullets2,200);
+            lockOn(cannon3,bossBullets2,200+difficulty*10);
         }
     }
     else if(countPlan%3600>2520&&countPlan%3600<=2640+60){//180
@@ -1341,7 +1333,7 @@ function superSplash (cannon,bullets) { //10
 function fireBounceAndSplit(cannon,bullets){
     bullet = bullets.getFirstExists(false);
     bullet.reset(cannon[0]+15, cannon[1]+20);
-    bullet.body.velocity.y = 200;
+    bullet.body.velocity.y = 200+difficulty*5;
 }
 function BounceAndSplit (bullet) {
     var x = bullet.x;
@@ -1356,16 +1348,16 @@ function BounceAndSplit (bullet) {
     b3.reset(x,y-10);
     b4.reset(x,y-10);
     b1.body.velocity.x = -200;
-    b1.body.velocity.y = -100;
+    b1.body.velocity.y = -100-difficulty*2;
 
     b2.body.velocity.x = -100;
-    b2.body.velocity.y = -100;
+    b2.body.velocity.y = -100-difficulty*2;
 
     b3.body.velocity.x = 100;
-    b3.body.velocity.y = -100;
+    b3.body.velocity.y = -100-difficulty*2;
 
     b4.body.velocity.x = 200;
-    b4.body.velocity.y = -100;
+    b4.body.velocity.y = -100-difficulty*2;
 }
 function BounceAndSplit2 (bullet) {
     var x = bullet.x;
@@ -1380,16 +1372,16 @@ function BounceAndSplit2 (bullet) {
     b3.reset(x,y+10);
     b4.reset(x,y+10);
     b1.body.velocity.x = -200;
-    b1.body.velocity.y = 100;
+    b1.body.velocity.y = 100-difficulty*2;
 
     b2.body.velocity.x = -100;
-    b2.body.velocity.y = 100;
+    b2.body.velocity.y = 100-difficulty*2;
 
     b3.body.velocity.x = 100;
-    b3.body.velocity.y = 100;
+    b3.body.velocity.y = 100-difficulty*2;
 
     b4.body.velocity.x = 200;
-    b4.body.velocity.y = 100;
+    b4.body.velocity.y = 100-difficulty*2;
 }
 
 function fireWorks (cannon,bullets) {
@@ -1437,6 +1429,8 @@ function createMenu(){
         clickSound = game.add.audio('click');
         resultBGM = game.add.audio('Died');
         menuBGM = game.add.audio('intro');
+        gameBGM = game.add.audio('play');
+        bossBGM = game.add.audio('bossBGM');
         menuBGM.loopFull();
         isFirstTimeMenu=false;
     }
