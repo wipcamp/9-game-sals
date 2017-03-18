@@ -74,7 +74,7 @@ function preload() {
     game.load.spritesheet('down','images/down.png',50,46);
     game.load.spritesheet('spacebar','images/spacebar.png',2584/2,196);
     game.load.spritesheet('enter','images/enter.png',2553/3,196);
-    game.load.spritesheet('bossBoom','images/bossBoom.png',1750/5,520/5);
+    game.load.spritesheet('bossBoom','images/bossBoom.png',1750/5,(520/5)-2);
 
     game.load.audio('play','sound/WhilePlay.ogg');
     game.load.audio('Died','sound/You Died.ogg');
@@ -757,7 +757,7 @@ function rockSpawn() {
     }
 }
 function rockOverlapPlayer(playership,rock) {
-    if(sprite.y-rock.y<=50&&sprite.y-rock.y>=-5&&sprite.x-rock.x<=28&&sprite.x-rock.x>=-28){
+    if(sprite.y-rock.y<=50&&sprite.y-rock.y>=-5&&sprite.x-rock.x<=30&&sprite.x-rock.x>=-30){
         sprite.body.velocity.y = 100;
         if(cursors.down.isDown){
             sprite.body.velocity.y = speedMove;
@@ -770,9 +770,9 @@ function rockOverlapPlayer(playership,rock) {
             sprite.body.velocity.y = 0;
         }
     }
-    if(sprite.x-rock.x<=40&&sprite.x-rock.x>=-5&&cursors.left.isDown&&sprite.y-rock.y<=20){
+    if(sprite.x-rock.x<=50&&sprite.x-rock.x>=-5&&cursors.left.isDown&&sprite.y-rock.y<=20){
         sprite.body.velocity.x = 0;
-    }else if(rock.x-sprite.x<=40&&rock.x-sprite.x>=-5&&cursors.right.isDown&&sprite.y-rock.y<=20){
+    }else if(rock.x-sprite.x<=50&&rock.x-sprite.x>=-5&&cursors.right.isDown&&sprite.y-rock.y<=20){
         sprite.body.velocity.x = 0;
     }
 }
@@ -916,11 +916,14 @@ function bulletHitBoss (boss, bullet) {
             shot = game.add.audio('BossDeath');
             shot.play();
             //destroyedCount--;
-            var death = game.add.sprite(0,0,'bossBoom');
+            var death = game.add.sprite(0,-9,'bossBoom');
             var bossDeath = death.animations.add('play',[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24],6.25,true);
+            bossBGM.fadeOut(3500);
             bossDeath.onComplete.add(function() {
-                destroyedCount--;
                 death.kill();
+                game.time.events.add(Phaser.Timer.SECOND * 1, function(){
+                    destroyedCount--;
+                },this);
             }, this);
             bossDeath.play(6.25,false);
         }
@@ -1067,10 +1070,11 @@ EnemyBoss = function (game) {
     var x = game.world.centerX;
     var y = 10;
     this.game = game;
-    this.health = 500;
+    this.health = 10;
     this.countPlan=0;
     this.alive = true;
-    this.boss = game.add.sprite(0,0,'boss');
+    this.boss = game.add.sprite(0,-8.5,'boss');
+    //this.boss.anchor.set(0,0.2);
     this.cannon1 = [x*(1/4), y];
     this.cannon2 = [x,y];
     this.cannon3 = [x*(7/4), y];
