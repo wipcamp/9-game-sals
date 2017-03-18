@@ -658,11 +658,15 @@ function updateGamePlay() {
     for (var i = 0; i < enemy.length; i++){
         if(wave%7!=6){
             game.physics.arcade.overlap(enemy[i].enemy_ship,bullets, bulletHitEnemy, null , this);
-            game.physics.arcade.overlap(enemy[i].enemy_ship,sprite2, bulletHitPlayer, null , this,"นี่เจ้าบ้ารึเปล่า!!");
+            game.physics.arcade.overlap(enemy[i].enemy_ship,sprite2,function() {
+                bulletHitPlayer("นี่เจ้าบ้ารึเปล่า!!");
+            } , null , this);
         }
         else{
             game.physics.arcade.overlap(enemy[i].boss,bullets,bulletHitBoss,null,this);
-            game.physics.arcade.overlap(enemy[i].boss,sprite2, bulletHitPlayer, null , this,"นี่เจ้าเสียสติไปแล้วเรอะ!!");
+            game.physics.arcade.overlap(enemy[i].boss,sprite2, function() {
+                bulletHitPlayer("นี่เจ้าเสียสติไปแล้วเรอะ!!");
+            }, null , this);
 
         }
         if(enemy[i].alive){
