@@ -50,6 +50,7 @@ function preload() {
     game.load.image('oldMap','images/oldMap.png');
     game.load.image('gameover','images/GAME-OVER-01.png');
     game.load.image('pause','images/pause.png');
+    game.load.spritesheet('wip','images/wip.png');
 
     game.load.spritesheet('ship', 'images/playership.png',350/5,96,5);
     game.load.spritesheet('speed','images/item_move.png',50,50,8);
@@ -73,7 +74,7 @@ function preload() {
     game.load.spritesheet('down','images/down.png',50,46);
     game.load.spritesheet('spacebar','images/spacebar.png',2584/2,196);
     game.load.spritesheet('enter','images/enter.png',2553/3,196);
-    game.load.spritesheet('wip','images/wip.png');
+    game.load.spritesheet('bossBoom','images/bossBoom.png',1750/5,520/5);
 
     game.load.audio('Play','sound/WhilePlay.ogg');
     game.load.audio('Died','sound/You Died.ogg');
@@ -894,14 +895,21 @@ function summonWave(numberWave){
 function bulletHitBoss (boss, bullet) {
 
     if(boss.alive){
-      bullet.kill();
-      var destroyed = enemy[0].damage();
-      if(destroyed){
-          ////play anime
-          shot = game.add.audio('BossDeath');
-          shot.play();
-          destroyedCount--;
-      }
+        bullet.kill();
+        var destroyed = enemy[0].damage();
+        if(destroyed){
+            ////play anime
+            shot = game.add.audio('BossDeath');
+            shot.play();
+            //destroyedCount--;
+            var death = game.add.sprite(0,0,'bossBoom');
+            var bossDeath = death.animations.add('play',[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24],6.25,true);
+            bossDeath.onComplete.add(function() {
+                destroyedCount--;
+                death.kill();
+            }, this);
+            bossDeath.play(6.25,false);
+        }
     }
 }
 //subportGamePlay
@@ -1073,15 +1081,12 @@ EnemyBoss = function (game) {
 EnemyBoss.prototype.damage = function() {
 
     this.health -= 1;
-    score += 100;
+    score += 100*scoreMultiplier;
     textScore.text = "Score : "+score;
     if (this.health <= 0)
     {
         this.alive = false;
         this.boss.kill();
-        this.cannon1.kill();
-        this.cannon2.kill();
-        this.cannon3.kill();
         return true;
     }
     return false;
