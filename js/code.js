@@ -599,15 +599,15 @@ function updateGamePlay() {
     {
         fire();
     }
-    game.physics.arcade.overlap(sprite2,laserBeam1, bulletHitPlayer,"โอ๊ย!!! เรือบ้าอะไรยิงเลเซอร์ได้ด้วย!!");
+    game.physics.arcade.overlap(sprite2,laserBeam1, bulletHitPlayer, null, this,"โอ๊ย!!! เรือบ้าอะไรยิงเลเซอร์ได้ด้วย!!");
     game.physics.arcade.overlap(sprite2,laserBeam2, bulletHitPlayer, null , this,"โอ๊ย!!! เรือบ้าอะไรยิงเลเซอร์ได้ด้วย!!");
     game.physics.arcade.overlap(sprite2,laserBeam3, bulletHitPlayer, null , this,"โอ๊ย!!! เรือบ้าอะไรยิงเลเซอร์ได้ด้วย!!");
     game.physics.arcade.overlap(sprite2,enemyBullets, bulletHitPlayer, null , this,"นี่มันบ้าอะไรเนี่ย!!");
     game.physics.arcade.overlap(sprite2,bullets_red, bulletHitPlayer, null , this,"นี่มันจะโกงเกินไปแล้ว!");
     game.physics.arcade.overlap(sprite2,bullets_blue, bulletHitPlayer, null , this,"เจ็บใจนัก ข้าจะกลับมาแก้แค้น.");
     game.physics.arcade.overlap(sprite2,bullets_green, bulletHitPlayer, null , this,"นี่ข้าหลบไม่พ้นได้ยังไง!?");
-    game.physics.arcade.overlap(sprite2,bossBullets1, bulletHitPlayer,null,"เจ็บใจนัก ข้าจะกลับมาแก้แค้น.");
-    game.physics.arcade.overlap(sprite2,bossBullets2, bulletHitPlayer("เจ็บใจนัก ข้าจะกลับมาแก้แค้น."),null);
+    game.physics.arcade.overlap(sprite2,bossBullets1, bulletHitPlayer,null, this,"เจ็บใจนัก ข้าจะกลับมาแก้แค้น.");
+    game.physics.arcade.overlap(sprite2,bossBullets2, bulletHitPlayer,null,"เจ็บใจนัก ข้าจะกลับมาแก้แค้น.");
     game.physics.arcade.overlap(sprite2,bossBullets3, bulletHitPlayer,null,"เจ็บใจนัก ข้าจะกลับมาแก้แค้น.");
     game.physics.arcade.overlap(sprite2,bossBullets4, bulletHitPlayer, null , this,"แบบนี้ก็ได้หรอ!?");
     game.physics.arcade.overlap(sprite2,bossBullets5, bulletHitPlayer, null , this,"โถ่เอ๊ย! หลบได้ก็เทพและ");
