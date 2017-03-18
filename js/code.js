@@ -47,7 +47,7 @@ function preload() {
     game.load.image('rock1','images/rock1.png');
     game.load.image('rock2','images/rock2.png');
 
-    game.load.spritesheet('ship', 'images/playership.png',56/3,96);
+    game.load.spritesheet('ship', 'images/playership.png',350/5,96,5);
     game.load.spritesheet('speed','images/item_move.png',50,50,8);
     game.load.spritesheet('firerate','images/item_fire.png',50,50,8);
     game.load.spritesheet('scoreUp','images/item_score.png',50,50,8);
@@ -89,6 +89,7 @@ var shark;
 var rock1,rock2;
 var rockGroup;
 var rockCooldown;
+var isRockActive;
 var sharkGroup;
 var sharkCooldown;
 var sprite,sprite2;
@@ -144,10 +145,13 @@ function createGamePlay() {
     sprite.scale.setTo(0.50, 0.50);
     game.physics.arcade.enable(sprite);
     sprite.body.drag.set(70);
+    sprite.animations.add('moveLeft',[1,2],10,false);
+    sprite.animations.add('moveRight',[3,4],10,false);
     bombCooldown = 0;
     itemCooldown = game.rnd.integerInRange(0,240);
     sharkCooldown = 0;
     rockCooldown = 0;
+    isRockActive = true;
     seawaveCooldown = 60;
     score=0;
     textScore = game.add.text(20,20,"Score : "+score,{fontSize : "20px",fill : "#ed3465"});
@@ -198,9 +202,61 @@ function createGamePlay() {
     bullets.enableBody = true;
     bullets.physicsBodyType = Phaser.Physics.ARCADE;
     for (var i = 0; i < 100; i++){
-        var b = bullets.create(0, 0, 'bullet');
+        var b = bullets.create(0, 0, 'bullet_yellow');
         b.anchor.set(0.5);
-        b.scale.setTo(0.70,0.70);
+        b.scale.setTo(0.2,0.2);
+        b.name = 'bullet' + i;
+        b.exists = false;
+        b.visible = false;
+        b.checkWorldBounds = true;
+        b.events.onOutOfBounds.add(resetBullet, this);
+    }
+    bullets_green = game.add.group();
+    bullets_green.enableBody = true;
+    bullets_green.physicsBodyType = Phaser.Physics.ARCADE;
+    for (var i = 0; i < 100; i++){
+        var b = bullets_green.create(0, 0, 'bullet_green');
+        b.anchor.set(0.5);
+        b.scale.setTo(0.2,0.2);
+        b.name = 'bullet' + i;
+        b.exists = false;
+        b.visible = false;
+        b.checkWorldBounds = true;
+        b.events.onOutOfBounds.add(resetBullet, this);
+    }
+    bullets_blue = game.add.group();
+    bullets_blue.enableBody = true;
+    bullets_blue.physicsBodyType = Phaser.Physics.ARCADE;
+    for (var i = 0; i < 100; i++){
+        var b = bullets_blue.create(0, 0, 'bullet_blue');
+        b.anchor.set(0.5);
+        b.scale.setTo(0.2,0.2);
+        b.name = 'bullet' + i;
+        b.exists = false;
+        b.visible = false;
+        b.checkWorldBounds = true;
+        b.events.onOutOfBounds.add(resetBullet, this);
+    }
+    bullets_red = game.add.group();
+    bullets_red.enableBody = true;
+    bullets_red.physicsBodyType = Phaser.Physics.ARCADE;
+    for (var i = 0; i < 100; i++){
+        var b = bullets_red.create(0, 0, 'bullet_red');
+        b.anchor.set(0.5);
+        b.scale.setTo(0.2,0.2);
+        b.name = 'bullet' + i;
+        b.exists = false;
+        b.visible = false;
+        b.checkWorldBounds = true;
+        b.events.onOutOfBounds.add(resetBullet, this);
+    }
+    bullets_green = game.add.group();
+    bullets_green.enableBody = true;
+    bullets_green.physicsBodyType = Phaser.Physics.ARCADE;
+    for (var i = 0; i < 100; i++){
+        var b = bullets_green.create(0, 0, 'bullet_green');
+        b.anchor.set(0.5);
+        b.scale.setTo(0.2,0.2);
         b.name = 'bullet' + i;
         b.exists = false;
         b.visible = false;
@@ -213,7 +269,7 @@ function createGamePlay() {
     for (var i = 0; i < 100; i++){
         var b = enemyBullets.create(0, 0, 'bullet');
         b.anchor.set(0.5);
-        b.scale.setTo(0.70,0.70);
+        b.scale.setTo(0.2,0.2);
         b.name = 'bullet' + i;
         b.exists = false;
         b.visible = false;
@@ -262,7 +318,7 @@ function createGamePlay() {
     bossBullets4 = game.add.group();
     bossBullets4.enableBody = true;
     bossBullets4.physicsBodyType = Phaser.Physics.ARCADE;
-    for (var i = 0; i < 100; i++){
+    for (var i = 0; i < 120; i++){
         var b = bossBullets4.create(0, 0, 'bullet');
         b.name = 'bullet' + i;
         b.anchor.set(0.5);
@@ -275,7 +331,7 @@ function createGamePlay() {
     bossBullets5 = game.add.group();
     bossBullets5.enableBody = true;
     bossBullets5.physicsBodyType = Phaser.Physics.ARCADE;
-    for (var i = 0; i < 100; i++){
+    for (var i = 0; i < 120; i++){
         var b = bossBullets5.create(0, 0, 'bullet');
         b.anchor.set(0.5);
         b.scale.setTo(0.70,0.70);
@@ -309,7 +365,7 @@ function createGamePlay() {
         speed.visible = false;
         speed.checkWorldBounds = true;
         speed.events.onOutOfBounds.add(resetBullet, this);
-        speed.body.setCircle(45);
+        speed.body.setSize(50,70,0,-15);
     }
     speedGroup.callAll('animations.add', 'animations', 'shake', [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,3,4,5,6,7,0], 60, true);
     //firerate
@@ -322,7 +378,7 @@ function createGamePlay() {
         fireObj.visible = false;
         fireObj.checkWorldBounds = true;
         fireObj.events.onOutOfBounds.add(resetBullet, this);
-        fireObj.body.setCircle(45);
+        fireObj.body.setSize(50,70,0,-15);
     }
     firerateGroup.callAll('animations.add', 'animations', 'shake', [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,3,4,5,6,7,0], 60, true);
     //score
@@ -335,7 +391,7 @@ function createGamePlay() {
         scoreObj.visible = false;
         scoreObj.checkWorldBounds = true;
         scoreObj.events.onOutOfBounds.add(resetBullet, this);
-        scoreObj.body.setCircle(45);
+        scoreObj.body.setSize(50,70,0,-15);
     }
     scoreGroup.callAll('animations.add', 'animations', 'shake', [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,3,4,5,6,7,0], 60, true);
     rock1 = this.add.sprite(0,0, 'rock1');
@@ -467,8 +523,11 @@ function updateGamePlay() {
   if (sharkCooldown <= 0) {
       sharkSpawn();
   }
-  if (rockCooldown <= 0){
-      rockSpawn();
+  if(isRockActive){
+      if (rockCooldown <= 0){
+          rockSpawn();
+      }
+      rockCooldown--;
   }
   if (seawaveCooldown <= 0) {
       seawaveSpawn();
@@ -479,7 +538,6 @@ function updateGamePlay() {
   	if(itemCooldown <= 0)
   		itemSpawner();
   	itemCooldown--;
-  rockCooldown--;
     if (fireButton.isDown)
     {
         fire();
@@ -515,18 +573,20 @@ function updateGamePlay() {
     }
     sprite.body.velocity.y=0;
 	  sprite.body.velocity.x=0;
-    sprite.frame = 0;
   	if(cursors.up.isDown){
   		sprite.body.velocity.y = -speedMove;
   	}
   	if(cursors.left.isDown){
   		sprite.body.velocity.x = -speedMove;
-      sprite.frame = 1;
-  	}
-  	if(cursors.right.isDown){
+      if(sprite.frame!=2)
+        sprite.animations.play('moveLeft');
+  	}else if(cursors.right.isDown){
   		sprite.body.velocity.x = speedMove;
-      sprite.frame = 2;
-  	}
+      if(sprite.frame!=4)
+        sprite.animations.play('moveRight');
+  	}else{
+      sprite.frame = 0;
+    }
     if(cursors.down.isDown){
   		sprite.body.velocity.y = speedMove;
   	}
@@ -539,7 +599,7 @@ function updateGamePlay() {
     	if (game.input.keyboard.event.keyCode == 13){
         	game.paused = false;
     	}
-	}
+	  }
 
 }
 
@@ -803,6 +863,7 @@ function summonWave(numberWave){
     for (var i = 0; i < numberWave; i++){
         enemy.push(new EnemyShip(i, game, enemyBullets,color));
     }
+    isRockActive=true;
 }
 function bulletHitBoss (boss, bullet) {
 
@@ -910,18 +971,16 @@ var shot;
 function fireBot (enemy_ship) {
     if(plan==1||plan==2){
         if(enemy_ship.count%60==0){
-
-            bullet = enemyBullets.getFirstExists(false);
+            bullet = bullets_red.getFirstExists(false);
             bullet.reset(enemy_ship.x, enemy_ship.y);
             bullet.body.velocity.y = 200;
             bullet.rotation = this.game.physics.arcade.moveToObject(bullet, sprite, 350);
-
         }
     }
     else if(plan==3||plan==4){
 
         if(enemy_ship.count%30==0){
-            bullet = enemyBullets.getFirstExists(false);
+            bullet = bullets_green.getFirstExists(false);
             bullet.reset(enemy_ship.x, enemy_ship.y);
             if(enemy_ship.countBullet%5==0){
                 bullet.body.velocity.y = 100;
@@ -948,7 +1007,7 @@ function fireBot (enemy_ship) {
     else{
 
         if(enemy_ship.count%50==0){
-            bullet = enemyBullets.getFirstExists(false);
+            bullet = bullets_blue.getFirstExists(false);
             bullet.reset(enemy_ship.x, enemy_ship.y);
             bullet.body.velocity.y = 100;
         }
@@ -1256,6 +1315,7 @@ function summonBoss(){
         enemy.pop();
     destroyedCount=1;
     enemy.push(new EnemyBoss(game));
+    isRockActive=false;
 }
 
 
