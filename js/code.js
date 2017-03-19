@@ -1631,7 +1631,6 @@ function sendReport() {
 
 function debugReport() {
     if (input.value != "") {
-        console.log("!!!!");
         isFirstSubmit = false;
         ckReport = false;
         sendReportMessage(input.value);
@@ -1768,11 +1767,9 @@ function toCredit() {
 function muteSounds() {
     isSound = !isSound;
     if (!isSound) {
-        console.log("mute");
         game.sound.mute = true;
         mute.frame = 1;
     } else {
-    	console.log("not mute");
         mute.frame = 0;
         game.sound.mute = false;
     }
@@ -1792,7 +1789,6 @@ function setScore() {
                  "highscore" : score
             }
         );
-        console.log("set highscore complete");
     }else{
 
         dbSals.child(id).update(
@@ -1802,7 +1798,6 @@ function setScore() {
              }
         );
     }
-     console.log("set score complete");
 }
 function sendReportMessage(report) {
     var rndText = "";
