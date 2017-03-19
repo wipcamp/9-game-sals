@@ -1662,7 +1662,7 @@ function sendReport() {
     if (input.value != "") {
         isFirstSubmit = false;
         ckReport = true;
-        //sendReportMessage(input.value);
+        sendReportMessage(input.value);
         input.value = null;
         input.destroy();
     }
@@ -1674,7 +1674,7 @@ function debugReport() {
         isFirstSubmit = false;
         ckReport = false;
         //buttonSound();
-        //sendReportMessage(input.value);
+        sendReportMessage(input.value);
         input.value = null;
         input = game.add.inputField(game.world.width * 0.5 / 4, game.world.height / 4, {
             font: '22px Thaisans Neue for Web',
