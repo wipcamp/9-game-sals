@@ -1780,6 +1780,9 @@ function setScore() {
     var sals = dbSals.child(id);
     sals.on('value', function(snapshot) {
         highscore = snapshot.val().highscore;
+        if(highscore=== undefined){             
+            highscore=0;         
+        }
     });
 
     if(highscore < score){
