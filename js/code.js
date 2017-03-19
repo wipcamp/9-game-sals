@@ -1767,7 +1767,7 @@ function muteSounds() {
 }
 
 function setScore() {
-    var highscore;
+    var highscore = 0;
     var sals = dbSals.child(id);
     sals.on('value', function(snapshot) {
         highscore = snapshot.val().highscore;
